@@ -3,234 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TaeBank - Exclusive Wealth</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Prompt:wght@200;300;400;500&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <title>TaeBank - Private Wealth Management</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Sarabun:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* --- EXCLUSIVE LUXURY VARIABLES --- */
+        /* --- ULTRA LUXURY VARIABLES --- */
         :root {
-            --bg-obsidian: #050505;
-            --surface-dark: #0f0f11;
-            --theme-color: #D4AF37; /* Default Gold */
-            --theme-metal: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
-            --card-surface: linear-gradient(145deg, #181818 0%, #000000 100%);
-            --theme-glow: rgba(212, 175, 55, 0.15);
+            --bg-vanta: #030303; 
+            --bg-panel: #111111;
+            --text-main: #F5F5F5;
+            --text-muted: #888888;
+            
+            /* Dynamic Tier Variables (Default: Gold) */
+            --tier-color: #D4AF37; 
+            --tier-grad: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            --tier-glow: rgba(212, 175, 55, 0.4);
+            --card-bg: linear-gradient(145deg, #1a1a1a 0%, #050505 100%);
         }
 
         body {
-            font-family: 'Prompt', sans-serif;
-            background-color: var(--bg-obsidian);
-            color: #e0e0e0;
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--bg-vanta);
+            color: var(--text-main);
             height: 100dvh; 
             overflow: hidden;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            touch-action: none;
-            /* Noise texture for premium matte look */
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            touch-action: none; 
         }
 
-        .font-serif-lux { font-family: 'Cinzel', serif; }
-        .font-num { font-family: 'Outfit', sans-serif; }
+        .font-eng-lux { font-family: 'Cinzel', serif; }
+        .font-numbers { font-family: 'Space Grotesk', sans-serif; }
 
-        /* --- THEME APPLY CLASSES --- */
-        .text-metal {
-            background: var(--theme-metal);
+        /* --- APP CONTAINER --- */
+        .app-container {
+            width: 100%; max-width: 420px; height: 100%;
+            margin: 0 auto; position: relative;
+            display: flex; flex-direction: column;
+            background-color: var(--bg-vanta);
+            /* Subtle Background Noise for premium matte feel */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+        }
+
+        /* --- THE REALISTIC CENTURION CARD --- */
+        .real-card {
+            aspect-ratio: 1.586/1;
+            background: var(--card-bg);
+            border-radius: 16px;
+            position: relative; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,1), inset 0 1px 1px rgba(255,255,255,0.1);
+            transition: all 0.5s ease;
+        }
+        
+        /* Metallic Brushed Texture */
+        .real-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 100%;
+            animation: metalBrush 8s infinite linear;
+            pointer-events: none;
+        }
+        @keyframes metalBrush { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+        /* Giant Watermark Rank */
+        .card-watermark {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-family: 'Cinzel', serif; font-size: 4.5rem; font-weight: 700;
+            color: rgba(255,255,255,0.03); white-space: nowrap; pointer-events: none;
+            letter-spacing: 5px; text-transform: uppercase;
+        }
+
+        /* Hyper-Realistic EMV Chip */
+        .emv-chip {
+            width: 42px; height: 32px;
+            background: linear-gradient(135deg, #e6c27a 0%, #d4af37 50%, #997a00 100%);
+            border-radius: 6px; position: relative;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.5);
+            border: 1px solid rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+        .emv-chip::after {
+            content: ''; position: absolute; inset: 2px;
+            border: 1px solid rgba(0,0,0,0.3); border-radius: 3px;
+            background-image: 
+                linear-gradient(90deg, transparent 45%, rgba(0,0,0,0.3) 45%, rgba(0,0,0,0.3) 55%, transparent 55%),
+                linear-gradient(0deg, transparent 30%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0.3) 40%, transparent 40%, transparent 60%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.3) 70%, transparent 70%);
+        }
+
+        /* Dynamic Card Glow Border */
+        .tier-border-glow {
+            border-color: var(--tier-color) !important;
+            box-shadow: 0 0 30px var(--tier-glow), inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .tier-text-gradient {
+            background: var(--tier-grad);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .bg-metal { background: var(--theme-metal); }
-        .border-metal { border-color: var(--theme-color); }
 
-        /* --- KEYPAD (Minimalist Invisible Buttons) --- */
-        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 280px; margin: 0 auto; }
+        /* --- TACTILE KEYPAD --- */
         .key-btn {
-            width: 100%; height: 75px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 32px; font-weight: 300; font-family: 'Outfit', sans-serif;
-            color: #ffffff;
-            border-radius: 12px;
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        /* Subtle Light Sweep on press */
-        .key-btn::after {
-            content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0;
-            background: radial-gradient(circle, var(--theme-color) 0%, transparent 70%);
-            opacity: 0; transform: translate(-50%, -50%); transition: 0.2s;
-        }
-        .key-btn:active::after { width: 150px; height: 150px; opacity: 0.3; transition: 0s; }
-        .key-btn:active { transform: scale(0.95); color: var(--theme-color); }
-
-        /* --- PIN INDICATORS --- */
-        .pin-line { width: 18px; height: 2px; background: #333; transition: 0.4s; border-radius: 2px; }
-        .pin-line.active { background: var(--theme-color); box-shadow: 0 0 10px var(--theme-glow); transform: scaleX(1.2); }
-
-        /* --- THE BLACK CARD (Physical Realism) --- */
-        .lux-card {
-            aspect-ratio: 1.586/1;
-            background: var(--card-surface);
-            border-radius: 16px;
-            position: relative; overflow: hidden;
-            box-shadow: 0 30px 60px -10px rgba(0,0,0,1), inset 0 1px 1px rgba(255,255,255,0.1);
+            width: 75px; height: 75px;
+            border-radius: 50%; background: var(--bg-panel);
             border: 1px solid rgba(255,255,255,0.05);
-            transition: all 1s ease;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; color: var(--text-main); font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-        /* Metallic Foil Edge */
-        .lux-card::before {
-            content: ''; position: absolute; inset: 0; border-radius: 16px; padding: 1px;
-            background: var(--theme-metal);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: 0.7;
-        }
-        /* Holographic Light Sweep */
-        .lux-card::after {
-            content: ''; position: absolute; top: -150%; left: -150%; width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 55%, transparent 60%);
-            transform: rotate(30deg);
-            animation: luxuryShine 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-            pointer-events: none;
-        }
-        @keyframes luxuryShine { 0% { top: -150%; left: -150%; } 20% { top: 100%; left: 100%; } 100% { top: 100%; left: 100%; } }
-
-        /* Card Chip Realism */
-        .emv-chip {
-            width: 38px; height: 28px;
-            background: linear-gradient(135deg, #e6c27a 0%, #c49a45 100%);
-            border-radius: 4px; position: relative;
-            box-shadow: inset 0 0 4px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        .emv-chip::before {
-            content: ''; position: absolute; inset: 2px;
-            border: 1px solid rgba(0,0,0,0.2); border-radius: 2px;
-            background-image: 
-                linear-gradient(90deg, transparent 45%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.2) 55%, transparent 55%),
-                linear-gradient(0deg, transparent 45%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.2) 55%, transparent 55%);
+        .key-btn:active {
+            background: var(--tier-color); color: #000; border-color: var(--tier-color);
+            transform: scale(0.9); box-shadow: 0 0 20px var(--tier-glow);
         }
 
-        /* --- LIST & UI --- */
-        .tx-list-container {
-            background: var(--surface-dark);
-            border-top: 1px solid rgba(255,255,255,0.03);
-        }
+        /* PIN Dots */
+        .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #444; transition: 0.3s; }
+        .pin-dot.active { background: var(--tier-color); border-color: var(--tier-color); transform: scale(1.2); box-shadow: 0 0 12px var(--tier-glow); }
 
-        /* Smooth fade-ins */
-        .fade-lux { animation: luxFade 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; transform: translateY(20px); }
-        @keyframes luxFade { to { opacity: 1; transform: translateY(0); } }
+        /* --- TRANSACTION LIST --- */
+        .glass-panel {
+            background: var(--bg-panel);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            border-radius: 36px 36px 0 0;
+            box-shadow: 0 -20px 50px rgba(0,0,0,0.9);
+        }
+        .tx-item {
+            padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: background 0.2s;
+        }
+        .tx-item:active { background: rgba(255,255,255,0.02); }
+        .tx-icon-in { background: rgba(16, 185, 129, 0.1); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .tx-icon-out { background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.2); }
 
         /* Loader */
-        .lux-loader {
-            width: 100px; height: 1px; background: #222; position: relative; overflow: hidden; margin: 0 auto;
-        }
-        .lux-loader::after {
-            content: ''; position: absolute; top: 0; left: -50px; width: 50px; height: 100%;
-            background: var(--theme-metal);
-            animation: scanLoad 1.5s ease-in-out infinite;
-        }
-        @keyframes scanLoad { 0% { left: -50px; } 100% { left: 100px; } }
-
+        .lux-loader { width: 60px; height: 60px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--tier-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(30px); }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center">
+<body>
 
-    <div class="w-full h-full max-w-[400px] mx-auto relative flex flex-col">
+    <div class="app-container">
 
-        <div id="loginScreen" class="absolute inset-0 z-30 flex flex-col justify-between transition-all duration-1000 bg-[var(--bg-obsidian)]">
+        <div id="loginScreen" class="absolute inset-0 z-30 flex flex-col justify-between bg-[var(--bg-vanta)] transition-all duration-700">
             
-            <div class="flex-1 flex flex-col items-center justify-center pb-10">
-                <div class="mb-8 relative flex flex-col items-center">
-                    <div class="w-12 h-12 border border-[#444] rounded-full flex items-center justify-center mb-4 relative">
-                        <div class="w-8 h-8 border border-theme rounded-full opacity-50 absolute animate-pulse"></div>
-                        <i class="fas fa-gem text-lg text-metal"></i>
-                    </div>
-                    <h1 class="text-3xl font-serif-lux tracking-[8px] text-white uppercase ml-2">TaeBank</h1>
-                    <p class="text-[8px] text-[#666] font-num tracking-[5px] mt-2 uppercase">Exclusive Wealth</p>
+            <div class="flex-1 flex flex-col items-center justify-center pb-6 mt-10">
+                <div class="w-24 h-24 mb-6 bg-[var(--bg-panel)] border border-[#333] rounded-full flex items-center justify-center shadow-2xl relative">
+                    <i class="fas fa-shield-alt text-4xl tier-text-gradient"></i>
                 </div>
+                
+                <h1 class="text-3xl font-eng-lux text-white tracking-[6px] uppercase">TaeBank</h1>
+                <p class="text-xs text-[#888] mt-3 tracking-widest font-medium">ระบบจัดการสินทรัพย์ส่วนบุคคล</p>
 
-                <div class="flex gap-4 mt-8">
-                    <div class="pin-line"></div><div class="pin-line"></div><div class="pin-line"></div>
-                    <div class="pin-line"></div><div class="pin-line"></div><div class="pin-line"></div>
+                <div class="flex gap-5 mt-10">
+                    <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+                    <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                 </div>
             </div>
 
             <div class="w-full pb-12 px-6">
-                <div class="keypad-grid mb-6">
-                    <div class="key-btn" onclick="pressKey('1')">1</div><div class="key-btn" onclick="pressKey('2')">2</div><div class="key-btn" onclick="pressKey('3')">3</div>
-                    <div class="key-btn" onclick="pressKey('4')">4</div><div class="key-btn" onclick="pressKey('5')">5</div><div class="key-btn" onclick="pressKey('6')">6</div>
-                    <div class="key-btn" onclick="pressKey('7')">7</div><div class="key-btn" onclick="pressKey('8')">8</div><div class="key-btn" onclick="pressKey('9')">9</div>
-                    <div></div><div class="key-btn" onclick="pressKey('0')">0</div>
-                    <div class="key-btn text-[#555] active:text-white" onclick="deleteKey()"><i class="fas fa-times text-lg"></i></div>
+                <div class="grid grid-cols-3 gap-y-6 gap-x-6 justify-items-center max-w-[320px] mx-auto mb-6">
+                    <div class="key-btn" onclick="pressKey('1')">1</div>
+                    <div class="key-btn" onclick="pressKey('2')">2</div>
+                    <div class="key-btn" onclick="pressKey('3')">3</div>
+                    <div class="key-btn" onclick="pressKey('4')">4</div>
+                    <div class="key-btn" onclick="pressKey('5')">5</div>
+                    <div class="key-btn" onclick="pressKey('6')">6</div>
+                    <div class="key-btn" onclick="pressKey('7')">7</div>
+                    <div class="key-btn" onclick="pressKey('8')">8</div>
+                    <div class="key-btn" onclick="pressKey('9')">9</div>
+                    <div class="w-[75px]"></div>
+                    <div class="key-btn" onclick="pressKey('0')">0</div>
+                    <div class="key-btn bg-transparent border-transparent text-[#555] hover:text-red-500 shadow-none active:bg-transparent active:scale-90" onclick="deleteKey()">
+                        <i class="fas fa-backspace text-2xl"></i>
+                    </div>
                 </div>
                 
-                <p class="text-center text-[8px] text-[#444] font-serif-lux tracking-widest uppercase opacity-70">
-                    Developed by พระมหาจักรภัทร คมฺภีรญาณเมธี
+                <p class="text-center text-[11px] text-[#444] tracking-wider">
+                    พัฒนาโดย พระมหาจักรภัทร คมฺภีรญาณเมธี
                 </p>
             </div>
         </div>
 
-        <div id="bioScan" class="absolute inset-0 z-40 bg-[var(--bg-obsidian)] flex flex-col items-center justify-center hidden">
-            <h2 class="font-serif-lux text-theme text-xl tracking-[6px] mb-6 uppercase">Authenticating</h2>
-            <div class="lux-loader"></div>
-            <p id="authText" class="mt-8 font-num text-[#555] tracking-[3px] text-[9px] uppercase">Retrieving Portfolio...</p>
+        <div id="bioScan" class="absolute inset-0 z-40 bg-[var(--bg-vanta)] flex flex-col items-center justify-center hidden">
+            <div class="lux-loader mb-6"></div>
+            <h2 class="font-eng-lux tier-text-gradient text-xl tracking-[4px] uppercase">Authenticating</h2>
+            <p class="mt-2 text-[#666] tracking-widest text-[10px] uppercase">Verifying Prestige Tier...</p>
         </div>
 
         <div id="dashboardScreen" class="hidden w-full h-full flex flex-col relative z-20">
             
-            <div class="pt-14 px-8 pb-6 flex justify-between items-center">
-                <div class="fade-lux" style="animation-delay: 0.1s;">
-                    <p class="font-serif-lux text-[#666] text-[9px] tracking-[3px] uppercase mb-1">Portfolio Owner</p>
-                    <h2 id="userNick" class="text-2xl font-light text-white tracking-wide">...</h2>
+            <div class="pt-14 px-7 pb-4 flex justify-between items-center z-10">
+                <div>
+                    <p class="text-[#888] text-[10px] tracking-widest uppercase mb-1 font-eng-lux">Portfolio Owner</p>
+                    <h2 id="userNick" class="text-2xl font-semibold text-white tracking-wide">...</h2>
                 </div>
-                <div onclick="location.reload()" class="fade-lux w-8 h-8 rounded-full flex items-center justify-center text-[#555] hover:text-white transition-colors cursor-pointer" style="animation-delay: 0.2s;">
+                <div onclick="location.reload()" class="w-10 h-10 rounded-full border border-[#333] bg-[var(--bg-panel)] flex items-center justify-center text-gray-400 hover:text-white cursor-pointer transition">
                     <i class="fas fa-lock text-xs"></i>
                 </div>
             </div>
 
-            <div class="px-6 py-2 fade-lux" style="animation-delay: 0.3s;">
-                <div id="memberCard" class="lux-card p-6 flex flex-col justify-between">
-                    
-                    <div class="flex justify-between items-start z-10">
-                        <div class="emv-chip"></div>
-                        <i class="fas fa-wifi rotate-90 text-[#555] text-sm opacity-50"></i>
-                    </div>
-                    
-                    <div class="z-10 mt-6 mb-2">
-                        <h1 class="text-[38px] font-num font-light text-white tracking-tight leading-none" id="userBalance">0.00</h1>
-                        <p class="text-[9px] font-serif-lux text-theme tracking-[4px] mt-2 uppercase">THB Available Asset</p>
-                    </div>
-
-                    <div class="flex justify-between items-end z-10">
-                        <div>
-                            <p id="userFullName" class="text-[9px] font-num text-[#888] uppercase tracking-[2px] font-medium truncate w-40 mb-1">...</p>
-                            <p id="userAccNo" class="font-num text-[#555] text-[10px] tracking-[4px]">0000 0000</p>
-                        </div>
-                        <div class="text-right">
-                            <span id="memberTierText" class="font-serif-lux text-metal font-bold text-[10px] tracking-[3px] uppercase">Standard</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tx-list-container flex-1 mt-8 flex flex-col overflow-hidden fade-lux rounded-t-3xl" style="animation-delay: 0.5s;">
-                <div class="px-8 py-6 flex justify-between items-center">
-                    <h3 class="font-serif-lux text-[#aaa] text-xs tracking-[3px] uppercase">Recent Ledger</h3>
-                    <i class="fas fa-sliders-h text-[#444] text-xs"></i>
-                </div>
+            <div class="flex-1 overflow-y-auto no-scrollbar pb-6 px-6 pt-2">
                 
-                <div id="txList" class="flex-1 overflow-y-auto px-6 space-y-0 no-scrollbar pb-6">
-                    </div>
+                <div class="fade-up" style="animation-delay: 0.1s;">
+                    <div id="memberCard" class="real-card p-6 flex flex-col justify-between">
+                        
+                        <div id="cardWatermark" class="card-watermark">MEMBER</div>
 
-                <div class="p-5 text-center bg-[var(--surface-dark)]">
-                    <p class="text-[8px] text-[#444] font-serif-lux tracking-[4px] uppercase">
-                        Developed by พระมหาจักรภัทร คมฺภีรญาณเมธี
-                    </p>
+                        <div class="flex justify-between items-start z-10">
+                            <div class="emv-chip"></div>
+                            
+                            <div class="text-right">
+                                <span id="memberTierText" class="font-eng-lux tier-text-gradient font-bold text-xs tracking-[3px] uppercase">Standard</span>
+                                <div class="flex items-center justify-end gap-1 mt-1 opacity-50 text-white">
+                                    <i class="fas fa-wifi text-[10px] rotate-90"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="z-10 mt-6 mb-2">
+                            <p class="text-[10px] text-[#aaa] font-medium mb-1 uppercase tracking-widest font-eng-lux">Available Balance</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-xl font-numbers text-[var(--tier-color)]">฿</span>
+                                <h1 class="text-[40px] font-bold tracking-tight text-white font-numbers drop-shadow-md leading-none" id="userBalance">0.00</h1>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-end z-10">
+                            <div>
+                                <p id="userAccNo" class="font-numbers text-[#ccc] text-xs tracking-[4px] mb-1 font-medium">0000 0000</p>
+                                <p id="userFullName" class="text-[11px] text-[#999] font-medium uppercase tracking-wider truncate w-48">...</p>
+                            </div>
+                            <div class="opacity-80">
+                                 <div class="flex">
+                                     <div class="w-8 h-8 rounded-full bg-red-500/80 mix-blend-screen"></div>
+                                     <div class="w-8 h-8 rounded-full bg-orange-400/80 mix-blend-screen -ml-4"></div>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel flex-1 mt-8 flex flex-col fade-up" style="animation-delay: 0.2s;">
+                    <div class="px-8 py-6 flex justify-between items-center border-b border-white/5">
+                        <h3 class="text-white text-sm font-semibold tracking-wide uppercase font-eng-lux">Recent Ledger</h3>
+                        <i class="fas fa-sliders-h text-[#555]"></i>
+                    </div>
+                    
+                    <div id="txList" class="px-4 py-2 space-y-0">
+                        </div>
+
+                    <div class="p-6 text-center opacity-40">
+                        <p class="text-[10px] text-white tracking-widest uppercase">
+                            Developed by พระมหาจักรภัทร คมฺภีรญาณเมธี
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -264,82 +303,80 @@
             if(currentPin.length < 6) {
                 currentPin += n;
                 updateDots();
-                if(currentPin.length === 6) setTimeout(processLogin, 200);
+                if(currentPin.length === 6) setTimeout(processLogin, 250);
             }
         };
 
         window.deleteKey = () => { currentPin = currentPin.slice(0, -1); updateDots(); };
 
         function updateDots() {
-            const dots = document.querySelectorAll('.pin-line');
-            dots.forEach((d, i) => i < currentPin.length ? d.classList.add('active') : d.classList.remove('active'));
+            const dots = document.querySelectorAll('.pin-dot');
+            dots.forEach((d, i) => {
+                if(i < currentPin.length) d.classList.add('active');
+                else d.classList.remove('active');
+            });
         }
 
-        // --- ULTRA LUXURY TIER SYSTEM ---
-        function applyLuxuryTier(bal) {
-            let color, metalGrad, tierName, surface;
+        // --- EXCLUSIVE RANK SYSTEM (Clearly Defined Tiers) ---
+        function applyLuxuryRank(bal) {
+            let color, grad, rankName, glow, bgCard, isElite = false;
 
-            if (bal < 200) {
+            // การแบ่ง Rank ชัดเจนมาก
+            if (bal < 500) {
+                // SILVER MEMBER
                 color = '#A0AAB2'; 
-                metalGrad = 'linear-gradient(135deg, #78858F, #C4CED4, #A0AAB2, #E8ECEF, #5D6870)';
-                tierName = 'Silver Slate';
-                surface = 'linear-gradient(145deg, #2a2a2d 0%, #111112 100%)';
-            } else if (bal < 300) {
-                color = '#B87333'; 
-                metalGrad = 'linear-gradient(135deg, #8A4B1A, #D6975A, #B87333, #FAD6A5, #63320B)';
-                tierName = 'Bronze Reserve';
-                surface = 'linear-gradient(145deg, #261c14 0%, #0d0905 100%)';
-            } else if (bal < 400) {
-                color = '#B76E79'; // Rose Gold
-                metalGrad = 'linear-gradient(135deg, #8C4753, #D99AAB, #B76E79, #FDE1E8, #6B303C)';
-                tierName = 'Rose Gold Elite';
-                surface = 'linear-gradient(145deg, #2b1f22 0%, #120b0d 100%)';
-            } else if (bal < 500) {
-                color = '#2E8B57'; // Deep Emerald
-                metalGrad = 'linear-gradient(135deg, #164D2E, #62D18F, #2E8B57, #B4F5CE, #0B2B18)';
-                tierName = 'Imperial Emerald';
-                surface = 'linear-gradient(145deg, #13241a 0%, #050d08 100%)';
+                grad = 'linear-gradient(135deg, #78858F, #C4CED4, #A0AAB2)';
+                rankName = 'SILVER';
+                glow = 'rgba(160, 170, 178, 0.3)';
+                bgCard = 'linear-gradient(145deg, #1f2124 0%, #0a0b0c 100%)';
             } else if (bal < 1000) {
-                color = '#0F52BA'; // Deep Sapphire
-                metalGrad = 'linear-gradient(135deg, #05265C, #4F8CEB, #0F52BA, #ABCFFF, #021230)';
-                tierName = 'Royal Sapphire';
-                surface = 'linear-gradient(145deg, #0d1726 0%, #040811 100%)';
-            } else if (bal < 2000) {
-                color = '#5A4FCF'; // Deep Amethyst
-                metalGrad = 'linear-gradient(135deg, #2D256B, #8A7DF5, #5A4FCF, #D2CDFF, #17123D)';
-                tierName = 'Amethyst Sovereign';
-                surface = 'linear-gradient(145deg, #191629 0%, #090812 100%)';
+                // GOLD PRESTIGE
+                color = '#D4AF37'; 
+                grad = 'linear-gradient(135deg, #BF953F, #FCF6BA, #D4AF37)';
+                rankName = 'GOLD PRESTIGE';
+                glow = 'rgba(212, 175, 55, 0.4)';
+                bgCard = 'linear-gradient(145deg, #241d0f 0%, #080602 100%)';
             } else if (bal < 5000) {
-                color = '#E5E4E2'; // Platinum
-                metalGrad = 'linear-gradient(135deg, #8A8987, #FFFFFF, #E5E4E2, #FFFFFF, #525250)';
-                tierName = 'Platinum Crest';
-                surface = 'linear-gradient(145deg, #2e2e2e 0%, #151515 100%)';
+                // PLATINUM ELITE
+                color = '#E5E4E2'; 
+                grad = 'linear-gradient(135deg, #8A8987, #FFFFFF, #E5E4E2)';
+                rankName = 'PLATINUM';
+                glow = 'rgba(229, 228, 226, 0.4)';
+                bgCard = 'linear-gradient(145deg, #262626 0%, #080808 100%)';
             } else if (bal < 10000) {
-                color = '#D4AF37'; // Pure Gold
-                metalGrad = 'linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C)';
-                tierName = 'Aurum Prestige';
-                surface = 'linear-gradient(145deg, #29210b 0%, #0f0b02 100%)';
+                // EMERALD WEALTH
+                color = '#50C878'; 
+                grad = 'linear-gradient(135deg, #1E5631, #98FB98, #50C878)';
+                rankName = 'EMERALD';
+                glow = 'rgba(80, 200, 120, 0.4)';
+                bgCard = 'linear-gradient(145deg, #0e1f14 0%, #020503 100%)';
             } else {
-                // 10000+ Obsidian Diamond (The Ultimate Black Card)
-                color = '#E0FFFF'; // Diamond white/cyan
-                metalGrad = 'linear-gradient(135deg, #555555, #E0FFFF, #888888, #FFFFFF, #222222)';
-                tierName = 'Obsidian Centurion';
-                surface = 'linear-gradient(145deg, #0f0f0f 0%, #000000 100%)';
+                // 10000+ CENTURION DIAMOND (THE HIGHEST)
+                color = '#00FFFF'; // Diamond Cyan
+                grad = 'linear-gradient(135deg, #008B8B, #E0FFFF, #00FFFF)';
+                rankName = 'CENTURION';
+                glow = 'rgba(0, 255, 255, 0.6)';
+                bgCard = 'linear-gradient(145deg, #050f14 0%, #000000 100%)';
+                isElite = true;
             }
 
-            // Apply to CSS Variables
-            document.documentElement.style.setProperty('--theme-color', color);
-            document.documentElement.style.setProperty('--theme-metal', metalGrad);
-            document.documentElement.style.setProperty('--card-surface', surface);
-            document.documentElement.style.setProperty('--theme-glow', `rgba(${hexToRgb(color)}, 0.3)`);
+            // Inject CSS Variables
+            document.documentElement.style.setProperty('--tier-color', color);
+            document.documentElement.style.setProperty('--tier-grad', grad);
+            document.documentElement.style.setProperty('--tier-glow', glow);
+            document.documentElement.style.setProperty('--card-bg', bgCard);
             
-            document.getElementById('memberTierText').innerText = tierName;
-        }
+            // Update Texts
+            document.getElementById('memberTierText').innerText = rankName;
+            document.getElementById('cardWatermark').innerText = rankName;
 
-        // Helper to convert hex to rgb for shadow opacity
-        function hexToRgb(hex) {
-            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '212, 175, 55';
+            // Glow Effect for Top Tier
+            const card = document.getElementById('memberCard');
+            if(isElite) {
+                card.classList.add('tier-border-glow');
+            } else {
+                card.classList.remove('tier-border-glow');
+            }
         }
 
         function processLogin() {
@@ -349,30 +386,25 @@
                 let bal = 0;
                 userTx.forEach(t => bal += (t.type === 'deposit' ? parseFloat(t.amount) : -parseFloat(t.amount)));
                 
-                // SET TIER
-                applyLuxuryTier(bal);
+                applyLuxuryRank(bal);
 
-                // Transition Logic
                 document.getElementById('loginScreen').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('loginScreen').classList.add('hidden');
-                    const bio = document.getElementById('bioScan');
-                    bio.classList.remove('hidden'); 
+                    document.getElementById('bioScan').classList.remove('hidden'); 
                     
                     setTimeout(() => {
-                        bio.classList.add('hidden');
+                        document.getElementById('bioScan').classList.add('hidden');
                         document.getElementById('dashboardScreen').classList.remove('hidden');
                         loadData(user, bal, userTx);
-                    }, 2500); // Slower, more elegant loading
-                }, 800);
+                    }, 2000); 
+                }, 400); 
             } else {
                 currentPin = ""; updateDots();
                 Swal.fire({
-                    background: '#0a0a0a', color: '#fff',
-                    title: '<span class="font-serif-lux text-xl uppercase tracking-widest text-[#D4AF37]">Access Denied</span>',
-                    text: 'Invalid Credentials',
-                    confirmButtonColor: '#333',
-                    customClass: { popup: 'border border-[#333] rounded-xl' }
+                    icon: 'error', title: 'ACCESS DENIED', text: 'รหัสผ่านไม่ถูกต้อง',
+                    background: '#111', color: '#fff', confirmButtonColor: '#444',
+                    customClass: { popup: 'rounded-xl border border-[#333]' }
                 });
             }
         }
@@ -382,30 +414,32 @@
 
             document.getElementById('userNick').innerText = user.nick;
             document.getElementById('userFullName').innerText = user.name || user.nick;
-            // Format acc number: 000 000
             document.getElementById('userAccNo').innerText = user.code.replace(/(\d{3})(\d{3})/, '$1 $2');
             
-            // Clean Counter
             animateValue('userBalance', 0, bal, 1500);
 
             const list = document.getElementById('txList');
-            list.innerHTML = userTx.length ? '' : '<p class="text-center text-[#444] mt-12 font-serif-lux text-[10px] tracking-[3px] uppercase">No Ledger Entries</p>';
+            list.innerHTML = userTx.length ? '' : `
+                <div class="text-center py-10">
+                    <i class="fas fa-folder-open text-3xl text-[#333] mb-3"></i>
+                    <p class="text-[#666] text-xs font-eng-lux tracking-widest uppercase">No Records</p>
+                </div>`;
             
             userTx.forEach(t => {
                 const isDep = t.type === 'deposit';
                 const date = new Date(t.date);
                 list.innerHTML += `
-                    <div class="flex justify-between items-center py-4 border-b border-[#222]">
-                        <div class="flex items-center gap-5">
-                            <div class="text-[10px] ${isDep?'text-green-600':'text-red-900'}">
-                                <i class="fas ${isDep?'fa-arrow-right':'fa-arrow-left'}"></i>
+                    <div class="tx-item flex justify-between items-center">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center ${isDep ? 'tx-icon-in' : 'tx-icon-out'}">
+                                <i class="fas ${isDep ? 'fa-arrow-down' : 'fa-arrow-up'} text-sm"></i>
                             </div>
                             <div>
-                                <p class="text-xs text-[#ccc] font-light tracking-wide font-num uppercase">${isDep?'Inward Remittance':'Outward Transfer'}</p>
-                                <p class="text-[9px] text-[#555] mt-1 font-num uppercase tracking-wider">${date.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})}</p>
+                                <p class="text-[15px] font-semibold text-[#eee] tracking-wide">${isDep ? 'รับเงินฝาก' : 'ถอนเงินสด'}</p>
+                                <p class="text-[11px] text-[#777] mt-0.5 font-numbers tracking-wider">${date.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})} • ${date.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}</p>
                             </div>
                         </div>
-                        <p class="font-light ${isDep?'text-[#e0e0e0]':'text-[#888]'} text-lg font-num tracking-wide">${isDep?'+':'-'} ${parseFloat(t.amount).toLocaleString()}</p>
+                        <p class="text-lg font-bold font-numbers tracking-wide ${isDep ? 'text-[#10B981]' : 'text-white'}">${isDep ? '+' : '-'}${parseFloat(t.amount).toLocaleString()}</p>
                     </div>
                 `;
             });
@@ -417,10 +451,8 @@
             const step = (timestamp) => {
                 if (!startTimestamp) startTimestamp = timestamp;
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                // Ease out expo for elegant stopping
                 const easeOut = 1 - Math.pow(1 - progress, 4);
-                const currentVal = (easeOut * (end - start) + start);
-                obj.innerHTML = currentVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                obj.innerHTML = (easeOut * (end - start) + start).toLocaleString(undefined, {minimumFractionDigits: 2});
                 if (progress < 1) window.requestAnimationFrame(step);
             };
             window.requestAnimationFrame(step);
