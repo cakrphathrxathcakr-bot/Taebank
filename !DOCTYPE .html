@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>TaeBank - Private Banking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@200;300;400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* --- DYNAMIC THEME VARIABLES --- */
+        :root {
+            --bg-deep: #050505;
+            /* ค่าเริ่มต้นคือสีทอง (จะถูกเปลี่ยนด้วย JS ตามยอดเงิน) */
+            --theme-primary: #D4AF37; 
+            --theme-gradient: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-deep);
+            color: white;
+            height: 100dvh; 
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none; 
+        }
+
+        /* --- THEME CLASSES --- */
+        .text-theme-grad {
+            background: var(--theme-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0px 0px 15px rgba(255, 255, 255, 0.1);
+        }
+        .text-theme { color: var(--theme-primary); }
+        .bg-theme { background-color: var(--theme-primary); }
+        .border-theme { border-color: var(--theme-primary); }
+        .shadow-theme { box-shadow: 0 0 15px var(--theme-primary); }
+        
+        /* Glow Elements */
+        .ambient-glow {
+            background-color: var(--theme-primary);
+            box-shadow: 0 0 100px 50px var(--theme-primary);
+        }
+
+        /* --- Animations & Effects --- */
+        .scan-line {
+            width: 100%; height: 2px;
+            background: var(--theme-primary);
+            box-shadow: 0 0 15px var(--theme-primary);
+            position: absolute; top: 0;
+            animation: scanMove 2s ease-in-out infinite;
+        }
+        @keyframes scanMove { 0% { top: 0; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+
+        .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(30px); }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Keypad Buttons --- */
+        .key-btn {
+            width: 72px; height: 72px; 
+            border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; font-family: 'Outfit', sans-serif; font-weight: 400;
+            transition: all 0.15s; cursor: pointer; color: #fff;
+        }
+        .key-btn:active {
+            background: var(--theme-primary); color: #000;
+            border-color: var(--theme-primary); transform: scale(0.92);
+        }
+
+        /* --- Premium Card --- */
+        .premium-card {
+            aspect-ratio: 1.586/1;
+            background: linear-gradient(145deg, #151515 0%, #000000 100%);
+            border-radius: 20px;
+            position: relative; overflow: hidden;
+            box-shadow: 0 20px 60px -15px rgba(0,0,0,0.9);
+            border: 1px solid var(--theme-primary);
+            transition: border-color 0.5s ease;
+        }
+        .premium-card::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(60deg, transparent, var(--theme-primary), transparent);
+            opacity: 0.15;
+            transform: rotate(45deg); pointer-events: none;
+            animation: shineCard 8s infinite;
+        }
+        @keyframes shineCard { 0% { transform: translateX(-100%) rotate(45deg); } 20% { transform: translateX(100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+
+        .glass-sheet {
+            background: rgba(18, 18, 18, 0.98);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            border-radius: 32px 32px 0 0;
+            box-shadow: 0 -10px 50px rgba(0,0,0,0.7);
+        }
+
+        .pin-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid #444; transition: 0.3s; }
+        .pin-dot.active { background: var(--theme-primary); border-color: var(--theme-primary); transform: scale(1.1); box-shadow: 0 0 10px var(--theme-primary); }
+
+    </style>
+</head>
+<body>
+
+    <div class="w-full h-full flex flex-col items-center justify-center bg-[#050505] relative overflow-hidden">
+        
+        <div class="ambient-glow absolute top-[-10%] right-[-10%] w-[10px] h-[10px] opacity-[0.1] rounded-full blur-[120px] transition-all duration-1000"></div>
+
+        <div id="loginScreen" class="absolute inset-0 z-30 flex flex-col justify-between bg-[#050505] transition-all duration-700">
+            
+            <div class="flex-1 flex flex-col items-center justify-center pb-8 min-h-[40%]">
+                <div class="w-20 h-20 mb-6 relative flex items-center justify-center">
+                    <div class="absolute inset-0 rounded-full border border-theme opacity-30 animate-ping"></div>
+                    <div class="absolute inset-2 rounded-full border border-theme opacity-50"></div>
+                    <i class="fas fa-shield-halved text-3xl text-theme-grad shadow-theme rounded-full"></i>
+                </div>
+                
+                <h1 class="text-3xl font-light text-white tracking-[4px]">TAE<span class="text-theme-grad font-bold">BANK</span></h1>
+                <p class="text-[9px] text-[#555] uppercase tracking-[4px] mt-3">Identity Verification</p>
+
+                <div class="flex gap-5 mt-10">
+                    <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+                    <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+                </div>
+            </div>
+
+            <div class="w-full max-w-[340px] mx-auto pb-10 px-6">
+                <div class="grid grid-cols-3 gap-x-6 gap-y-5 mb-8 justify-items-center">
+                    <div class="key-btn" onclick="pressKey('1')">1</div>
+                    <div class="key-btn" onclick="pressKey('2')">2</div>
+                    <div class="key-btn" onclick="pressKey('3')">3</div>
+                    <div class="key-btn" onclick="pressKey('4')">4</div>
+                    <div class="key-btn" onclick="pressKey('5')">5</div>
+                    <div class="key-btn" onclick="pressKey('6')">6</div>
+                    <div class="key-btn" onclick="pressKey('7')">7</div>
+                    <div class="key-btn" onclick="pressKey('8')">8</div>
+                    <div class="key-btn" onclick="pressKey('9')">9</div>
+                    
+                    <div class="w-[72px]"></div> <div class="key-btn" onclick="pressKey('0')">0</div>
+                    <div class="key-btn border-none bg-transparent text-red-500/80 shadow-none active:bg-transparent active:scale-90" onclick="deleteKey()">
+                        <i class="fas fa-backspace text-xl"></i>
+                    </div>
+                </div>
+                
+                <p class="text-center text-[9px] text-[#444] uppercase tracking-wider font-semibold">
+                    พัฒนาโดย พระมหาจักรภัทร คมฺภีรญาณเมธี
+                </p>
+            </div>
+        </div>
+
+        <div id="bioScan" class="absolute inset-0 z-40 bg-black/95 flex flex-col items-center justify-center hidden">
+            <div class="relative w-32 h-32 border border-theme rounded-2xl overflow-hidden flex items-center justify-center bg-theme" style="--tw-bg-opacity: 0.05;">
+                <i class="fas fa-fingerprint text-5xl text-theme opacity-80"></i>
+                <div class="scan-line"></div>
+            </div>
+            <p class="mt-6 font-light text-theme tracking-[3px] text-[10px] animate-pulse">VERIFYING TIER...</p>
+        </div>
+
+        <div id="dashboardScreen" class="hidden w-full h-full flex flex-col relative z-20 max-w-md mx-auto">
+            
+            <div class="pt-12 px-8 pb-4 flex justify-between items-end">
+                <div>
+                    <p class="text-theme text-[10px] font-medium tracking-wider mb-1 opacity-90 transition-colors duration-500">Welcome Back</p>
+                    <h2 id="userNick" class="text-3xl font-light text-white leading-none">...</h2>
+                </div>
+                <div onclick="location.reload()" class="w-9 h-9 rounded-full border border-[#222] bg-[#111] flex items-center justify-center text-gray-500 hover:text-white hover:border-theme transition cursor-pointer">
+                    <i class="fas fa-power-off text-xs"></i>
+                </div>
+            </div>
+
+            <div class="px-6 py-2 fade-in-up" style="animation-delay: 0.1s;">
+                <div class="premium-card p-6 flex flex-col justify-between">
+                    <div class="flex justify-between items-start z-10">
+                        <i class="fas fa-wifi rotate-90 text-[#444] text-base"></i>
+                        <span id="memberTierText" class="text-theme font-bold text-[10px] tracking-widest uppercase border border-theme px-2 py-0.5 rounded transition-colors duration-500">Member</span>
+                    </div>
+                    
+                    <div class="z-10 mt-1">
+                        <div class="flex items-center gap-2 mb-1 opacity-60">
+                            <span class="text-[9px] text-gray-300 uppercase tracking-[2px]">Total Balance</span>
+                        </div>
+                        <h1 class="text-[38px] font-medium text-white tracking-tight leading-none" id="userBalance">0.00</h1>
+                        <p class="text-[10px] text-theme font-medium mt-1 tracking-wide transition-colors duration-500">THB</p>
+                    </div>
+
+                    <div class="flex justify-between items-end z-10">
+                        <div>
+                            <p id="userAccNo" class="font-mono text-gray-400 text-[10px] tracking-[2px] mb-1">0000 0000</p>
+                            <p id="userFullName" class="text-[9px] text-[#666] uppercase tracking-wider font-semibold truncate w-36">...</p>
+                        </div>
+                        <div class="opacity-40">
+                             <i class="fab fa-cc-mastercard text-2xl text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 mt-4 glass-sheet flex flex-col overflow-hidden fade-in-up" style="animation-delay: 0.3s;">
+                <div class="px-8 py-5 border-b border-white/5 flex justify-between items-center">
+                    <h3 class="text-white text-base font-light">รายการล่าสุด</h3>
+                    <div class="w-1.5 h-1.5 rounded-full bg-theme shadow-theme transition-all duration-500"></div>
+                </div>
+                
+                <div id="txList" class="flex-1 overflow-y-auto px-6 pt-2 space-y-0">
+                    </div>
+
+                <div class="p-4 text-center border-t border-white/5 bg-[#080808]">
+                    <p class="text-[8px] text-[#555] uppercase tracking-widest font-semibold">
+                        พัฒนาโดย พระมหาจักรภัทร คมฺภีรญาณเมธี
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAiCtKW-U5QWp3yUsvToJlh2pT7sjiQ4Iw",
+            authDomain: "taebankwat.firebaseapp.com",
+            databaseURL: "https://taebankwat-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "taebankwat",
+            storageBucket: "taebankwat.firebasestorage.app",
+            messagingSenderId: "134684838871",
+            appId: "1:134684838871:web:4b47416599ed4ce95c5992"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        let currentPin = "";
+        let members = [];
+        let txs = [];
+
+        onValue(ref(db, 'members'), s => members = s.val() ? Object.values(s.val()) : []);
+        onValue(ref(db, 'transactions'), s => txs = s.val() ? Object.values(s.val()) : []);
+
+        window.pressKey = (n) => {
+            if(currentPin.length < 6) {
+                currentPin += n;
+                updateDots();
+                if(currentPin.length === 6) setTimeout(processLogin, 200);
+            }
+        };
+
+        window.deleteKey = () => { currentPin = currentPin.slice(0, -1); updateDots(); };
+
+        function updateDots() {
+            const dots = document.querySelectorAll('.pin-dot');
+            dots.forEach((d, i) => i < currentPin.length ? d.classList.add('active') : d.classList.remove('active'));
+        }
+
+        // --- DYNAMIC THEME SYSTEM ---
+        function applyThemeByBalance(bal) {
+            let primaryColor, gradientStr, tierName;
+
+            if (bal < 200) {
+                // Silver / Standard
+                primaryColor = '#B0BEC5'; 
+                gradientStr = 'linear-gradient(135deg, #78909C, #CFD8DC, #B0BEC5)'; 
+                tierName = 'Standard';
+            } else if (bal < 300) {
+                // Bronze
+                primaryColor = '#CD7F32'; 
+                gradientStr = 'linear-gradient(135deg, #8C5220, #E4A05F, #CD7F32)'; 
+                tierName = 'Bronze Member';
+            } else if (bal < 400) {
+                // Copper
+                primaryColor = '#E87A5D'; 
+                gradientStr = 'linear-gradient(135deg, #B85333, #F2A68D, #E87A5D)'; 
+                tierName = 'Copper Member';
+            } else if (bal < 500) {
+                // Emerald
+                primaryColor = '#50C878'; 
+                gradientStr = 'linear-gradient(135deg, #2E8B57, #98FB98, #50C878)'; 
+                tierName = 'Emerald Member';
+            } else if (bal < 1000) {
+                // Sapphire
+                primaryColor = '#4169E1'; 
+                gradientStr = 'linear-gradient(135deg, #0000CD, #87CEEB, #4169E1)'; 
+                tierName = 'Sapphire Member';
+            } else if (bal < 2000) {
+                // Amethyst
+                primaryColor = '#9966CC'; 
+                gradientStr = 'linear-gradient(135deg, #4B0082, #DDA0DD, #9966CC)'; 
+                tierName = 'Amethyst Member';
+            } else if (bal < 5000) {
+                // Platinum
+                primaryColor = '#E5E4E2'; 
+                gradientStr = 'linear-gradient(135deg, #A9A9A9, #FFFFFF, #E5E4E2)'; 
+                tierName = 'Platinum Member';
+            } else if (bal < 10000) {
+                // Gold
+                primaryColor = '#D4AF37'; 
+                gradientStr = 'linear-gradient(135deg, #BF953F, #FCF6BA, #B38728)'; 
+                tierName = 'Gold Member';
+            } else {
+                // Diamond Elite (10000+)
+                primaryColor = '#00FFFF'; 
+                gradientStr = 'linear-gradient(135deg, #008B8B, #E0FFFF, #00FFFF)'; 
+                tierName = 'Diamond Elite';
+            }
+
+            // Apply to CSS Variables
+            document.documentElement.style.setProperty('--theme-primary', primaryColor);
+            document.documentElement.style.setProperty('--theme-gradient', gradientStr);
+            
+            // Update Text in Card
+            document.getElementById('memberTierText').innerText = tierName;
+        }
+
+        function processLogin() {
+            const user = members.find(m => m.code === currentPin);
+            if(user) {
+                // 1. คำนวณยอดเงินก่อน เพื่อเซ็ต Theme
+                const userTx = txs.filter(t => t.studentCode === user.code);
+                let bal = 0;
+                userTx.forEach(t => bal += (t.type === 'deposit' ? parseFloat(t.amount) : -parseFloat(t.amount)));
+                
+                // 2. เปลี่ยนสีตามยอดเงินทันที!
+                applyThemeByBalance(bal);
+
+                // 3. เริ่ม Animation เข้าระบบ
+                document.getElementById('loginScreen').classList.add('hidden');
+                const bio = document.getElementById('bioScan');
+                bio.classList.remove('hidden'); bio.classList.add('flex');
+                
+                setTimeout(() => {
+                    bio.classList.add('hidden');
+                    document.getElementById('dashboardScreen').classList.remove('hidden');
+                    loadData(user, bal, userTx);
+                }, 1800); 
+            } else {
+                currentPin = ""; updateDots();
+                Swal.fire({
+                    background: '#111', color: '#fff',
+                    icon: 'error', title: 'รหัสไม่ถูกต้อง',
+                    confirmButtonColor: 'var(--theme-primary)',
+                    customClass: { popup: 'border border-theme' }
+                });
+            }
+        }
+
+        function loadData(user, bal, userTx) {
+            // Sort history desc
+            userTx.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            document.getElementById('userNick').innerText = user.nick;
+            document.getElementById('userFullName').innerText = user.name || user.nick;
+            document.getElementById('userAccNo').innerText = user.code.replace(/(\d{3})(\d{3})/, '$1 $2');
+            
+            animateValue('userBalance', 0, bal, 1200);
+
+            const list = document.getElementById('txList');
+            list.innerHTML = userTx.length ? '' : '<p class="text-center text-[#444] mt-12 font-light text-xs tracking-wide">NO TRANSACTION HISTORY</p>';
+            
+            userTx.forEach(t => {
+                const isDep = t.type === 'deposit';
+                const date = new Date(t.date);
+                list.innerHTML += `
+                    <div class="flex justify-between items-center py-4 border-b border-white/5 hover:bg-white/5 transition px-2">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full flex items-center justify-center ${isDep?'bg-green-500/10 text-green-500':'bg-red-500/10 text-red-500'} border border-white/5">
+                                <i class="fas ${isDep?'fa-arrow-down':'fa-arrow-up'} text-[10px]"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-200 font-normal tracking-wide">${isDep?'เงินฝากเข้า':'ถอนเงินออก'}</p>
+                                <p class="text-[10px] text-[#555] mt-0.5 font-mono">${date.toLocaleDateString('th-TH')} ${date.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})}</p>
+                            </div>
+                        </div>
+                        <p class="font-medium ${isDep?'text-green-400':'text-red-400'} text-base tracking-wide font-mono">${isDep?'+':'-'} ${parseFloat(t.amount).toLocaleString()}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString(undefined, {minimumFractionDigits: 2});
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        }
+    </script>
+</body>
+</html>
