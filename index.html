@@ -14,30 +14,18 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        :root {
-            --bg-body: #F7F5F0; --text-main: #2C303A; --text-muted: #8E929B; --gold: #D4AF37;
-        }
+        :root { --bg-body: #F7F5F0; --text-main: #2C303A; --text-muted: #8E929B; --gold: #D4AF37; }
         body { font-family: 'Sarabun', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
         .font-eng { font-family: 'Cinzel', serif; } .font-num { font-family: 'Outfit', sans-serif; }
-        
-        /* สลับหน้าจอแบบ Single Page */
-        .page-view { display: none; width: 100%; min-height: 100dvh; flex-direction: column; align-items: center; position: absolute; top: 0; left: 0; background: var(--bg-body); } 
-        .page-view.active { display: flex; }
-        
-        /* ปุ่มกดรหัส */
+        .page-view { display: none; width: 100%; min-height: 100dvh; flex-direction: column; align-items: center; position: absolute; top: 0; left: 0; background: var(--bg-body); z-index: 10; } 
+        .page-view.active { display: flex; z-index: 50; }
         .key-btn { width: 72px; height: 72px; border-radius: 50%; background: #FFF; display: flex; align-items: center; justify-content: center; font-size: 28px; font-family: 'Outfit'; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: 0.15s; border: 1px solid rgba(0,0,0,0.02); }
         .key-btn:active { background: #E5E0D8; transform: scale(0.92); }
         .pin-dot { width: 14px; height: 14px; border-radius: 50%; background: #E5E0D8; transition: 0.2s; }
         .pin-dot.active { background: var(--gold); transform: scale(1.2); box-shadow: 0 0 10px rgba(212,175,55,0.4); }
-        
-        /* บัตรเครดิต */
-        .lux-card { width: 100%; aspect-ratio: 1.586/1; border-radius: 20px; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1); padding: 24px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255,255,255,0.4); transition: 0.5s; }
-        
-        /* ส่วนแอดมิน */
-        .admin-card { background: #FFF; border: 1px solid #E5E7EB; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; }
+        .lux-card { width: 100%; aspect-ratio: 1.586/1; border-radius: 20px; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1); padding: 24px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255,255,255,0.4); }
+        .admin-card { background: #FFF; border: 1px solid #E5E7EB; border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .input-luxe { background: #FFF; border: 1px solid #E5E7EB; border-radius: 12px; padding: 12px; width: 100%; outline: none; transition: 0.3s; }
-        .input-luxe:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1); }
-        
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -46,14 +34,15 @@
     <div id="page-login" class="page-view active justify-center">
         <div class="w-full max-w-[420px] flex-1 flex flex-col justify-between">
             <div class="flex-1 flex flex-col items-center justify-center pt-10">
-                <div class="w-20 h-20 mb-5 bg-white rounded-full flex items-center justify-center shadow-md"><i class="fas fa-leaf text-4xl text-[var(--gold)]"></i></div>
+                <div class="w-20 h-20 mb-5 bg-white rounded-full flex items-center justify-center shadow-md border border-gray-100"><i class="fas fa-leaf text-4xl text-[var(--gold)]"></i></div>
                 <h1 class="text-2xl font-eng tracking-[4px] font-semibold">TAEBANK</h1>
-                <p class="text-[10px] text-[var(--text-muted)] mt-1 tracking-widest uppercase">Private Wealth Service</p>
+                <div id="db-status" class="text-[9px] text-green-500 font-bold uppercase tracking-widest mt-2 animate-pulse">Connecting System...</div>
+                
                 <div class="flex gap-4 mt-8">
                     <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                 </div>
             </div>
-            <div class="w-full pb-10 px-6 mt-10">
+            <div class="w-full pb-10 px-6">
                 <div class="grid grid-cols-3 gap-y-4 gap-x-6 justify-items-center max-w-[280px] mx-auto mb-6">
                     <div class="key-btn" onclick="pressKey('1')">1</div><div class="key-btn" onclick="pressKey('2')">2</div><div class="key-btn" onclick="pressKey('3')">3</div>
                     <div class="key-btn" onclick="pressKey('4')">4</div><div class="key-btn" onclick="pressKey('5')">5</div><div class="key-btn" onclick="pressKey('6')">6</div>
@@ -61,7 +50,7 @@
                     <div></div><div class="key-btn" onclick="pressKey('0')">0</div>
                     <div class="key-btn bg-transparent shadow-none border-none text-red-400" onclick="deleteKey()"><i class="fas fa-backspace text-2xl"></i></div>
                 </div>
-                <p class="text-center text-[10px] text-[var(--text-muted)]">พัฒนาโดย พระมหาจักรภัทร</p>
+                <p class="text-center text-[10px] text-[var(--text-muted)]">Official Wealth Management 2026</p>
             </div>
         </div>
     </div>
@@ -70,69 +59,46 @@
         <div class="w-full max-w-[420px] flex flex-col h-screen">
             <div class="pt-12 px-6 pb-2 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-full bg-white shadow-sm flex items-center justify-center border border-gray-100"><i class="fas fa-user text-[var(--text-muted)]"></i></div>
+                    <div class="w-11 h-11 rounded-full bg-white shadow-sm flex items-center justify-center border border-gray-100 text-[var(--text-muted)]"><i class="fas fa-user"></i></div>
                     <div><p class="text-[var(--text-muted)] text-[10px]">สวัสดี,</p><h2 id="userNick" class="text-xl font-semibold leading-none">...</h2></div>
                 </div>
                 <button onclick="location.reload()" class="w-9 h-9 rounded-full bg-white shadow-sm border border-gray-100 text-[#8E929B]"><i class="fas fa-sign-out-alt"></i></button>
             </div>
-            
             <div class="flex-1 overflow-y-auto no-scrollbar pb-10 px-6 pt-4">
-                <div id="memberCard" class="lux-card">
+                <div id="memberCard" class="lux-card" style="background: linear-gradient(135deg, #F0F2F5, #D1D5DB); color: #1F2937;">
                     <div class="flex justify-between items-start">
                         <div class="w-10 h-7 rounded bg-gradient-to-br from-[#E2C275] to-[#B38728] shadow-inner"></div>
                         <span id="memberTierText" class="font-eng text-[10px] font-bold tracking-widest bg-black/5 px-3 py-1 rounded-full uppercase">STANDARD</span>
                     </div>
                     <div class="mt-5 mb-3">
-                        <p class="text-[10px] font-medium mb-1 opacity-80 uppercase tracking-widest">Available Balance</p>
+                        <p class="text-[10px] font-medium mb-1 opacity-80 uppercase tracking-widest">Balance</p>
                         <div class="flex items-baseline gap-2"><span class="text-xl font-num opacity-80">฿</span><h1 class="text-[38px] font-semibold font-num leading-none" id="userBalance">0.00</h1></div>
                     </div>
                     <div class="flex justify-between items-end">
                         <div><p id="userAccNo" class="font-num text-xs tracking-[3px]">000 000</p><p id="userFullName" class="text-[11px] truncate w-40 opacity-80 mt-1">...</p></div>
-                        <div class="flex opacity-80"><div class="w-7 h-7 rounded-full bg-black/20 mix-blend-overlay"></div><div class="w-7 h-7 rounded-full bg-white/40 mix-blend-overlay -ml-3"></div></div>
                     </div>
                 </div>
-
-                <div class="mt-8">
-                    <h3 class="text-[15px] font-semibold mb-4 text-[#2C303A]">รายการล่าสุด</h3>
-                    <div id="userTxList" class="space-y-0"></div>
-                    <div id="userTxMore" class="mt-3 text-center"></div>
-                </div>
+                <div class="mt-8"><h3 class="text-[15px] font-semibold mb-4 text-[#2C303A]">รายการล่าสุด</h3><div id="userTxList" class="space-y-0"></div><div id="userTxMore" class="mt-3 text-center"></div></div>
             </div>
         </div>
     </div>
 
-    <div id="page-admin" class="page-view overflow-y-auto no-scrollbar">
+    <div id="page-admin" class="page-view overflow-y-auto no-scrollbar pb-10">
         <div class="w-full max-w-[500px] p-6 flex flex-col gap-6">
-            
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-[rgba(212,175,55,0.1)] flex items-center justify-center text-[var(--gold)]"><i class="fas fa-crown"></i></div>
-                    <h2 class="font-bold font-eng tracking-widest">MANAGEMENT</h2>
-                </div>
-                <button onclick="location.reload()" class="text-red-400 font-bold text-sm">ปิดระบบ</button>
+                <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-[rgba(212,175,55,0.1)] flex items-center justify-center text-[var(--gold)]"><i class="fas fa-crown"></i></div><h2 class="font-bold font-eng tracking-widest">ADMIN PANEL</h2></div>
+                <button onclick="location.reload()" class="text-red-400 font-bold text-sm bg-red-50 px-4 py-2 rounded-xl">LOGOUT</button>
             </div>
-
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                    <p class="text-[10px] text-[var(--gold)] font-bold uppercase tracking-widest">Total Assets</p>
-                    <h3 id="stat-total" class="text-2xl font-bold font-num mt-1">0.00</h3>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                    <p class="text-[10px] text-[var(--gold)] font-bold uppercase tracking-widest">Members</p>
-                    <h3 id="stat-members" class="text-2xl font-bold font-num mt-1">0</h3>
-                </div>
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm"><p class="text-[10px] text-[var(--gold)] font-bold uppercase tracking-widest">System Assets</p><h3 id="stat-total" class="text-2xl font-bold font-num mt-1 text-[var(--text-main)]">0.00</h3></div>
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm"><p class="text-[10px] text-[var(--gold)] font-bold uppercase tracking-widest">Total Clients</p><h3 id="stat-members" class="text-2xl font-bold font-num mt-1 text-[var(--text-main)]">0</h3></div>
             </div>
-
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="adminAddMember()" class="bg-blue-50 text-blue-600 p-4 rounded-2xl font-bold text-sm border border-blue-100 flex items-center justify-center gap-2"><i class="fas fa-user-plus"></i> เพิ่มบัญชี</button>
-                <label class="bg-green-50 text-green-600 p-4 rounded-2xl font-bold text-sm border border-green-100 flex items-center justify-center gap-2 cursor-pointer"><i class="fas fa-file-excel"></i> นำเข้า CSV <input type="file" id="csvIn" accept=".csv" class="hidden" onchange="adminImportCSV(this)"></label>
+                <button onclick="adminAddMember()" class="bg-blue-600 text-white p-4 rounded-2xl font-bold text-sm shadow-md flex items-center justify-center gap-2"><i class="fas fa-plus"></i> เพิ่มบัญชี</button>
+                <label class="bg-green-600 text-white p-4 rounded-2xl font-bold text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer"><i class="fas fa-file-excel"></i> นำเข้า CSV <input type="file" id="csvIn" accept=".csv" class="hidden" onchange="adminImportCSV(this)"></label>
             </div>
-
             <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                <div class="relative mb-4">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="adminSearch" onkeyup="adminRender()" placeholder="ค้นหาบัญชี..." class="input-luxe pl-11 text-sm">
-                </div>
+                <input type="text" id="adminSearch" onkeyup="adminRender()" placeholder="ค้นหาชื่อ หรือ เลขบัญชี..." class="input-luxe text-sm mb-4">
                 <div id="adminList"></div>
             </div>
         </div>
@@ -142,7 +108,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getDatabase, ref, onValue, set, push, update, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-        // *** กรุณาใส่ข้อมูล Firebase ของท่านตรงนี้ ***
+        // *** 🛑 ใส่รหัสตึกใหม่ของท่านตรงนี้ 🛑 ***
         const firebaseConfig = {
             apiKey: "AIzaSyAiCtKW-U5QWp3yUsvToJlh2pT7sjiQ4Iw",
             authDomain: "taebankwat.firebaseapp.com",
@@ -156,58 +122,75 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let STATE = { members: {}, transactions: {} };
+        let STATE = { members: null, transactions: null };
         let currentPin = "";
         const ADMIN_CODE = "009098";
 
-        // ดึงข้อมูลครั้งเดียวแบบเรียลไทม์
-        onValue(ref(db, 'members'), s => { STATE.members = s.val() || {}; adminRender(); });
-        onValue(ref(db, 'transactions'), s => { STATE.transactions = s.val() || {}; adminRender(); });
+        // ตรวจสอบการเชื่อมต่อ
+        onValue(ref(db, 'members'), s => { 
+            STATE.members = s.val() || {}; 
+            document.getElementById('db-status').innerText = "System Ready";
+            document.getElementById('db-status').className = "text-[9px] text-green-500 font-bold uppercase tracking-widest mt-2";
+            if(document.getElementById('page-admin').classList.contains('active')) adminRender();
+        });
+        onValue(ref(db, 'transactions'), s => { 
+            STATE.transactions = s.val() || {}; 
+            if(document.getElementById('page-admin').classList.contains('active')) adminRender();
+        });
 
-        // --- ระบบรหัสผ่าน ---
         window.pressKey = (n) => {
             if(currentPin.length < 6) {
                 currentPin += n;
                 document.querySelectorAll('.pin-dot').forEach((d, i) => i < currentPin.length ? d.classList.add('active') : d.classList.remove('active'));
-                if(currentPin.length === 6) setTimeout(checkLogin, 300);
+                if(currentPin.length === 6) setTimeout(handleLoginAction, 250);
             }
         };
+
         window.deleteKey = () => { currentPin = currentPin.slice(0, -1); document.querySelectorAll('.pin-dot').forEach((d, i) => i < currentPin.length ? d.classList.add('active') : d.classList.remove('active')); };
 
-        function checkLogin() {
+        function handleLoginAction() {
+            // 🛡️ ป้องกันกรณีฐานข้อมูลยังไม่มา
+            if (STATE.members === null) {
+                Swal.fire('กรุณารอสักครู่', 'ระบบกำลังเชื่อมต่อฐานข้อมูล...', 'info');
+                resetPin(); return;
+            }
+
+            // 1. ตรวจสอบรหัสแอดมิน (ทางด่วน)
             if (currentPin === ADMIN_CODE) {
-                // เข้าหน้าแอดมิน
                 document.getElementById('page-login').classList.remove('active');
                 document.getElementById('page-admin').classList.add('active');
                 adminRender();
+                return;
+            }
+
+            // 2. ตรวจสอบรหัสสมาชิก
+            let userKey = Object.keys(STATE.members).find(k => k === currentPin || STATE.members[k].code === currentPin);
+            if (userKey) {
+                document.getElementById('page-login').classList.remove('active');
+                document.getElementById('page-user').classList.add('active');
+                loadUser(userKey);
             } else {
-                // ค้นหาสมาชิก
-                let mKey = Object.keys(STATE.members).find(k => k === currentPin || STATE.members[k].code === currentPin);
-                if (mKey) {
-                    document.getElementById('page-login').classList.remove('active');
-                    document.getElementById('page-user').classList.add('active');
-                    loadUser(mKey);
-                } else {
-                    currentPin = ""; 
-                    document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('active'));
-                    Swal.fire({ icon: 'error', title: 'รหัสไม่ถูกต้อง', confirmButtonColor: '#D4AF37' });
-                }
+                Swal.fire({ icon: 'error', title: 'รหัสไม่ถูกต้อง', text: 'กรุณาตรวจสอบรหัสสมาชิก หรือ รหัสแอดมินอีกครั้ง', confirmButtonColor: '#D4AF37' });
+                resetPin();
             }
         }
 
-        // --- ส่วนสมาชิก ---
+        function resetPin() { currentPin = ""; document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('active')); }
+
+        // --- ระบบสมาชิก ---
         function loadUser(key) {
             const user = STATE.members[key];
-            let txs = []; let bal = 0;
-            Object.keys(STATE.transactions).forEach(id => {
-                let t = STATE.transactions[id];
-                if (t.studentCode === key || t.studentCode === user.code) {
-                    txs.push(t);
-                    bal += (t.type === 'deposit' ? parseFloat(t.amount) : -parseFloat(t.amount));
-                }
-            });
+            let txArray = []; let bal = 0;
+            if(STATE.transactions) {
+                Object.keys(STATE.transactions).forEach(id => {
+                    let t = STATE.transactions[id];
+                    if (t.studentCode === key || t.studentCode === user.code) {
+                        txArray.push(t);
+                        bal += (t.type === 'deposit' ? parseFloat(t.amount) : -parseFloat(t.amount));
+                    }
+                });
+            }
 
-            // ปรับสีบัตรตาม Rank
             let bg, text, rank;
             if (bal < 500) { bg = 'linear-gradient(135deg, #F0F2F5, #D1D5DB)'; text = '#1F2937'; rank = 'SILVER'; }
             else if (bal < 1000) { bg = 'linear-gradient(135deg, #FDE68A, #D4AF37)'; text = '#422006'; rank = 'GOLD PRESTIGE'; } 
@@ -215,8 +198,8 @@
             else if (bal < 10000) { bg = 'linear-gradient(135deg, #34D399, #065F46)'; text = '#ECFDF5'; rank = 'EMERALD'; } 
             else { bg = 'linear-gradient(135deg, #FFFFFF, #E0F2FE)'; text = '#1E3A8A'; rank = 'DIAMOND ELITE'; }
             
-            document.getElementById('memberCard').style.background = bg;
-            document.getElementById('memberCard').style.color = text;
+            const card = document.getElementById('memberCard');
+            card.style.background = bg; card.style.color = text;
             document.getElementById('memberTierText').innerText = rank;
             document.getElementById('userNick').innerText = user.nick || '-';
             document.getElementById('userFullName').innerText = user.name || '-';
@@ -226,60 +209,61 @@
             const list = document.getElementById('userTxList');
             const info = document.getElementById('userTxMore');
             list.innerHTML = '';
-            txs.sort((a,b) => new Date(b.date) - new Date(a.date));
+            txArray.sort((a,b) => new Date(b.date) - new Date(a.date));
             
-            if(txs.length === 0) list.innerHTML = `<div class="text-center py-10 text-gray-400">ยังไม่มียอดเงินฝาก</div>`;
+            if(txArray.length === 0) list.innerHTML = `<div class="text-center py-10 text-gray-400 bg-white rounded-2xl">ยังไม่มียอดเงินฝาก</div>`;
             else {
-                txs.slice(0, 5).forEach(t => {
+                txArray.slice(0, 5).forEach(t => {
                     const isD = t.type === 'deposit'; const d = new Date(t.date);
                     list.innerHTML += `
                         <div class="tx-item flex justify-between items-center">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full flex items-center justify-center ${isD ? 'bg-[#E6F4EA] text-[#059669]' : 'bg-[#FEF2F2] text-[#DC2626]'}"><i class="fas ${isD ? 'fa-arrow-down' : 'fa-arrow-up'} text-xs"></i></div>
-                                <div><p class="text-[14px] font-semibold">${isD ? 'ฝากเงินเข้า' : 'ถอนเงินออก'}</p><p class="text-[11px] text-[#8E929B] font-num">${d.toLocaleDateString('th-TH',{day:'2-digit',month:'short'})}</p></div>
+                                <div><p class="text-[14px] font-semibold">${isD ? 'ฝากเงินเข้า' : 'ถอนเงินออก'}</p><p class="text-[10px] text-[#8E929B] font-num">${d.toLocaleDateString('th-TH',{day:'2-digit',month:'short'})}</p></div>
                             </div>
                             <p class="font-bold font-num ${isD ? 'text-[#059669]' : 'text-[#DC2626]'}">${isD?'+':'-'}${parseFloat(t.amount).toLocaleString()}</p>
                         </div>`;
                 });
-                if(txs.length > 5) info.innerHTML = `<span class="text-[10px] bg-white px-3 py-1 rounded-full text-[#8E929B] border border-gray-100">แสดง 5 รายการล่าสุด จากทั้งหมด ${txs.length}</span>`;
+                if(txArray.length > 5) info.innerHTML = `<span class="text-[10px] bg-white px-3 py-1 rounded-full text-[#8E929B] border border-gray-100">แสดง 5 รายการล่าสุด จากทั้งหมด ${txArray.length}</span>`;
             }
         }
 
-        // --- ส่วนแอดมิน ---
+        // --- ระบบจัดการ (แอดมิน) ---
         window.adminRender = () => {
             const list = document.getElementById('adminList');
             const search = document.getElementById('adminSearch').value.toLowerCase().trim();
             let tBal = 0; let tMem = 0; list.innerHTML = '';
 
-            Object.keys(STATE.members).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(k => {
+            Object.keys(STATE.members || {}).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(k => {
                 const m = STATE.members[k];
                 if (search && !k.includes(search) && !(m.nick||'').toLowerCase().includes(search) && !(m.name||'').toLowerCase().includes(search)) return;
 
                 tMem++; let mBal = 0;
-                Object.keys(STATE.transactions).forEach(txId => {
-                    const tx = STATE.transactions[txId];
-                    if (tx.studentCode === k) mBal += (tx.type === 'deposit' ? parseFloat(tx.amount) : -parseFloat(tx.amount));
-                });
+                if(STATE.transactions) {
+                    Object.keys(STATE.transactions).forEach(txId => {
+                        const tx = STATE.transactions[txId];
+                        if (tx.studentCode === k) mBal += (tx.type === 'deposit' ? parseFloat(tx.amount) : -parseFloat(tx.amount));
+                    });
+                }
                 tBal += mBal;
 
                 const card = document.createElement('div'); card.className = 'admin-card';
                 card.innerHTML = `
                     <div class="flex-1 pr-2 overflow-hidden">
                         <span class="font-num text-[11px] text-[var(--gold)] font-bold px-2 py-0.5 rounded bg-[rgba(212,175,55,0.1)]">${k}</span>
-                        <h4 class="font-bold text-base mt-1 truncate">${m.nick || '-'}</h4>
+                        <h4 class="font-bold text-base mt-1 truncate text-[#2C303A]">${m.nick || '-'}</h4>
                         <div class="mt-1 text-lg font-num font-bold ${mBal >= 0 ? 'text-green-600' : 'text-red-500'}">฿${mBal.toLocaleString()}</div>
                     </div>
                     <div class="flex flex-col gap-2 w-32">
-                        <button class="bg-[rgba(212,175,55,0.1)] text-[var(--gold)] py-2 rounded-lg font-bold text-xs btn-atx"><i class="fas fa-bolt"></i> ทำรายการ</button>
+                        <button class="bg-[var(--gold)] text-white py-2 rounded-lg font-bold text-xs btn-atx shadow-sm"><i class="fas fa-bolt"></i> ทำรายการ</button>
                         <div class="flex gap-1">
-                            <button class="flex-1 bg-gray-50 h-9 rounded-lg border border-gray-100 text-gray-500 btn-ahist"><i class="fas fa-history"></i></button>
-                            <button class="flex-1 bg-gray-50 h-9 rounded-lg border border-gray-100 text-blue-500 btn-aedit"><i class="fas fa-pen"></i></button>
-                            <button class="flex-1 bg-gray-50 h-9 rounded-lg border border-gray-100 text-red-500 btn-adel"><i class="fas fa-trash"></i></button>
+                            <button class="flex-1 bg-gray-100 h-9 rounded-lg text-gray-500 btn-ahist"><i class="fas fa-history"></i></button>
+                            <button class="flex-1 bg-gray-100 h-9 rounded-lg text-blue-500 btn-aedit"><i class="fas fa-pen"></i></button>
+                            <button class="flex-1 bg-gray-100 h-9 rounded-lg text-red-500 btn-adel"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
 
-                // ผูกปุ่มแอดมิน
                 card.querySelector('.btn-atx').addEventListener('click', () => adminTransact(k, m.nick));
                 card.querySelector('.btn-ahist').addEventListener('click', () => adminHistory(k, m.nick));
                 card.querySelector('.btn-aedit').addEventListener('click', () => adminEdit(k, m.nick, m.name));
@@ -291,7 +275,6 @@
             document.getElementById('stat-members').innerText = tMem;
         };
 
-        // --- แอดมินจัดการบัญชี ---
         async function adminTransact(k, nick) {
             const res = await Swal.fire({ title: `ทำรายการ: ${nick}`, showDenyButton: true, showCancelButton: true, confirmButtonText: 'ฝากเข้า', confirmButtonColor: '#10B981', denyButtonText: 'ถอนออก', denyButtonColor: '#EF4444', cancelButtonText: 'ยกเลิก' });
             if (res.isConfirmed || res.isDenied) {
@@ -302,13 +285,13 @@
 
         function adminHistory(k, nick) {
             let hHTML = `<div class="max-h-60 overflow-y-auto pr-1 text-left">`;
-            let userTxs = Object.keys(STATE.transactions).filter(id => STATE.transactions[id].studentCode === k).sort((a,b)=>new Date(STATE.transactions[b].date)-new Date(STATE.transactions[a].date));
+            let userTxs = Object.keys(STATE.transactions || {}).filter(id => STATE.transactions[id].studentCode === k).sort((a,b)=>new Date(STATE.transactions[b].date)-new Date(STATE.transactions[a].date));
             if(userTxs.length === 0) hHTML += '<p class="text-center py-4 text-gray-400">ไม่มีประวัติ</p>';
             userTxs.forEach(id => {
                 const t = STATE.transactions[id]; const isD = t.type==='deposit';
                 hHTML += `<div class="flex justify-between items-center bg-gray-50 border border-gray-100 p-3 rounded-xl mb-2">
                     <div><p class="text-xs font-bold ${isD?'text-green-600':'text-red-500'}">${isD?'ฝากเข้า':'ถอนออก'}</p><p class="text-[10px] text-gray-400">${new Date(t.date).toLocaleDateString('th-TH')}</p></div>
-                    <div class="flex items-center gap-3"><span class="font-num font-bold">${isD?'+':'-'}${parseFloat(t.amount).toLocaleString()}</span><button onclick="adminDelTx('${id}')" class="text-red-400 w-6 h-6 rounded-full bg-red-50"><i class="fas fa-times text-[10px]"></i></button></div>
+                    <div class="flex items-center gap-3"><span class="font-num font-bold">${isD?'+':'-'}${parseFloat(t.amount).toLocaleString()}</span><button onclick="window.adminDelTx('${id}')" class="text-red-400 w-6 h-6 rounded-full bg-red-50"><i class="fas fa-times text-[10px]"></i></button></div>
                 </div>`;
             });
             Swal.fire({ title: `ประวัติ: ${nick}`, html: hHTML + '</div>', showConfirmButton: false, showCloseButton: true });
@@ -317,19 +300,19 @@
         window.adminDelTx = async (id) => { if((await Swal.fire({title:'ลบรายการนี้?', icon:'warning', showCancelButton:true})).isConfirmed) { await remove(ref(db, 'transactions/'+id)); Swal.close(); } };
 
         async function adminEdit(k, nick, name) {
-            const {value:form} = await Swal.fire({ title: 'แก้ไขข้อมูล', html: `<input id="enick" class="input-luxe mb-3" value="${nick}" placeholder="ชื่อเล่น"><input id="ename" class="input-luxe" value="${name}" placeholder="ชื่อจริง">`, preConfirm: () => [document.getElementById('enick').value, document.getElementById('ename').value] });
+            const {value:form} = await Swal.fire({ title: 'แก้ไขข้อมูล', html: `<div class="text-left text-xs mb-1 text-gray-400">ชื่อเล่น</div><input id="enick" class="input-luxe mb-3" value="${nick}"><div class="text-left text-xs mb-1 text-gray-400">ชื่อจริง</div><input id="ename" class="input-luxe" value="${name}">`, preConfirm: () => [document.getElementById('enick').value, document.getElementById('ename').value] });
             if(form) await update(ref(db, 'members/'+k), { nick: form[0], name: form[1] });
         }
 
         async function adminDelete(k) {
-            if((await Swal.fire({title:'ลบถาวร?', text: 'เงินฝากจะหายไปด้วย', icon:'warning', showCancelButton:true, confirmButtonColor:'#EF4444'})).isConfirmed) {
+            if((await Swal.fire({title:'ลบถาวร?', text: 'เงินฝากและประวัติจะหายไปด้วย', icon:'warning', showCancelButton:true, confirmButtonColor:'#EF4444'})).isConfirmed) {
                 await remove(ref(db, 'members/'+k));
-                Object.keys(STATE.transactions).forEach(async id => { if(STATE.transactions[id].studentCode === k) await remove(ref(db, 'transactions/'+id)); });
+                Object.keys(STATE.transactions || {}).forEach(async id => { if(STATE.transactions[id].studentCode === k) await remove(ref(db, 'transactions/'+id)); });
             }
         }
 
         window.adminAddMember = async () => {
-            const {value:v} = await Swal.fire({ title: 'เพิ่มสมาชิก', html: `<input id="acode" class="input-luxe mb-3 font-num text-center" placeholder="เลขบัญชี 6 หลัก"><input id="anick" class="input-luxe mb-3" placeholder="ชื่อเล่น"><input id="aname" class="input-luxe" placeholder="ชื่อจริง-นามสกุล">`, preConfirm: () => [document.getElementById('acode').value.replace(/[^a-zA-Z0-9]/g,''), document.getElementById('anick').value, document.getElementById('aname').value] });
+            const {value:v} = await Swal.fire({ title: 'เพิ่มสมาชิกใหม่', html: `<input id="acode" class="input-luxe mb-3 font-num text-center" placeholder="เลขบัญชี 6 หลัก"><input id="anick" class="input-luxe mb-3 text-center" placeholder="ชื่อเล่น/ฉายา"><input id="aname" class="input-luxe text-center text-sm" placeholder="ชื่อจริง-นามสกุล">`, preConfirm: () => [document.getElementById('acode').value.replace(/[^a-zA-Z0-9]/g,''), document.getElementById('anick').value, document.getElementById('aname').value] });
             if(v && v[0]) await set(ref(db, 'members/'+v[0]), { code: v[0], nick: v[1], name: v[2] });
         };
 
