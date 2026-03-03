@@ -3,139 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TaeBank - Private Wealth Management</title>
+    <title>TaeBank - Quiet Luxury Portfolio</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Sarabun:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Outfit:wght@300;400;500;600&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* --- ULTRA LUXURY VARIABLES --- */
+        /* --- QUIET LUXURY VARIABLES --- */
         :root {
-            --bg-vanta: #030303; 
-            --bg-panel: #111111;
-            --text-main: #F5F5F5;
+            --bg-body: #F7F5F0; /* Soft Alabaster / Cream (สบายตามาก) */
+            --text-main: #2C303A; /* Dark Slate instead of harsh black */
+            --text-muted: #8E929B;
             
-            /* Dynamic Tier Variables */
-            --tier-color: #D4AF37; 
-            --tier-grad: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
-            --tier-glow: rgba(212, 175, 55, 0.4);
-            --card-bg: linear-gradient(145deg, #1a1a1a 0%, #050505 100%);
+            /* Dynamic Card Variables */
+            --card-bg: linear-gradient(135deg, #E2E2E2 0%, #C9D6FF 100%);
+            --card-text: #2C303A;
+            --card-shadow: rgba(200, 200, 200, 0.5);
+            --card-accent: rgba(0,0,0,0.1);
         }
 
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: var(--bg-vanta);
+            background-color: var(--bg-body);
             color: var(--text-main);
             height: 100dvh; 
             overflow: hidden;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             touch-action: none; 
+            display: flex; justify-content: center; align-items: center;
         }
 
-        .font-eng-lux { font-family: 'Cinzel', serif; }
-        .font-numbers { font-family: 'Space Grotesk', sans-serif; }
+        .font-eng { font-family: 'Cinzel', serif; }
+        .font-num { font-family: 'Outfit', sans-serif; }
 
         /* --- APP CONTAINER --- */
         .app-container {
             width: 100%; max-width: 420px; height: 100%;
-            margin: 0 auto; position: relative;
-            display: flex; flex-direction: column;
-            background-color: var(--bg-vanta);
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            position: relative; display: flex; flex-direction: column;
+            background-color: var(--bg-body);
+        }
+        @media (min-width: 768px) {
+            .app-container {
+                max-height: 896px; border-radius: 40px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+                border: 8px solid #FFFFFF;
+            }
         }
 
-        /* --- THE REALISTIC CENTURION CARD --- */
-        .real-card {
+        /* --- THE LUXURY CARD --- */
+        .lux-card {
             aspect-ratio: 1.586/1;
             background: var(--card-bg);
-            border-radius: 16px;
+            border-radius: 20px;
             position: relative; overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 30px 60px -15px rgba(0,0,0,1), inset 0 1px 1px rgba(255,255,255,0.1);
-            transition: all 0.5s ease;
+            box-shadow: 0 20px 40px -10px var(--card-shadow), inset 0 1px 1px rgba(255,255,255,0.5);
+            color: var(--card-text);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.3);
         }
         
-        .real-card::before {
+        /* Subtle Frost Overlay */
+        .lux-card::before {
             content: ''; position: absolute; inset: 0;
-            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0) 100%);
-            background-size: 200% 100%;
-            animation: metalBrush 8s infinite linear;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%);
             pointer-events: none;
         }
-        @keyframes metalBrush { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
-        .card-watermark {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-family: 'Cinzel', serif; font-size: 4rem; font-weight: 700;
-            color: rgba(255,255,255,0.03); white-space: nowrap; pointer-events: none;
-            letter-spacing: 5px; text-transform: uppercase;
+        /* Moving Soft Shine */
+        .lux-card::after {
+            content: ''; position: absolute; top: -100%; left: -100%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
+            animation: softShine 8s infinite ease-in-out; pointer-events: none;
+        }
+        @keyframes softShine { 0% { transform: translateX(-50%) translateY(-50%) rotate(45deg); } 20%, 100% { transform: translateX(100%) translateY(100%) rotate(45deg); } }
+
+        /* Diamond Elite Pearl Effect */
+        .pearl-effect {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            position: relative;
+        }
+        .pearl-effect::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(255,209,255,0.3), rgba(209,255,255,0.3), rgba(255,255,209,0.3));
+            filter: blur(10px); opacity: 0.8; mix-blend-mode: multiply; pointer-events: none;
         }
 
         .emv-chip {
-            width: 42px; height: 32px;
-            background: linear-gradient(135deg, #e6c27a 0%, #d4af37 50%, #997a00 100%);
-            border-radius: 6px; position: relative;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.5);
-            border: 1px solid rgba(0,0,0,0.8);
-            overflow: hidden;
+            width: 40px; height: 30px;
+            background: linear-gradient(135deg, #E2C275 0%, #D4AF37 50%, #B38728 100%);
+            border-radius: 5px; position: relative;
+            box-shadow: inset 0 0 2px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.1);
         }
         .emv-chip::after {
-            content: ''; position: absolute; inset: 2px;
-            border: 1px solid rgba(0,0,0,0.3); border-radius: 3px;
+            content: ''; position: absolute; inset: 1px;
+            border: 1px solid rgba(0,0,0,0.1); border-radius: 3px;
             background-image: 
-                linear-gradient(90deg, transparent 45%, rgba(0,0,0,0.3) 45%, rgba(0,0,0,0.3) 55%, transparent 55%),
-                linear-gradient(0deg, transparent 30%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0.3) 40%, transparent 40%, transparent 60%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.3) 70%, transparent 70%);
+                linear-gradient(90deg, transparent 45%, rgba(0,0,0,0.1) 45%, rgba(0,0,0,0.1) 55%, transparent 55%),
+                linear-gradient(0deg, transparent 30%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0.1) 40%, transparent 40%, transparent 60%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0.1) 70%, transparent 70%);
         }
 
-        .tier-border-glow {
-            border-color: var(--tier-color) !important;
-            box-shadow: 0 0 30px var(--tier-glow), inset 0 0 10px rgba(0,0,0,0.5);
-        }
-        
-        .tier-text-gradient {
-            background: var(--tier-grad);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .tier-badge {
+            background: var(--card-accent);
+            backdrop-filter: blur(4px);
+            padding: 4px 12px; border-radius: 20px;
+            font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
         }
 
-        /* --- TACTILE KEYPAD (ปรับขนาดเล็กลงให้พอดีมือถือ) --- */
+        /* --- SOFT KEYPAD --- */
         .key-btn {
-            width: 70px; height: 70px; /* ลดขนาดจาก 75px เป็น 70px */
-            border-radius: 50%; background: var(--bg-panel);
-            border: 1px solid rgba(255,255,255,0.05);
+            width: 72px; height: 72px; 
+            border-radius: 50%; background: #FFFFFF;
             display: flex; align-items: center; justify-content: center;
-            font-size: 26px; color: var(--text-main); font-family: 'Space Grotesk', sans-serif;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            font-size: 28px; color: var(--text-main); font-family: 'Outfit', sans-serif; font-weight: 400;
+            transition: all 0.2s ease; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
         }
-        .key-btn:active {
-            background: var(--tier-color); color: #000; border-color: var(--tier-color);
-            transform: scale(0.9); box-shadow: 0 0 20px var(--tier-glow);
+        .key-btn:active { background: #F0EDE5; transform: scale(0.92); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+
+        .pin-dot { width: 14px; height: 14px; border-radius: 50%; background: #E5E0D8; transition: 0.3s; }
+        .pin-dot.active { background: #D4AF37; transform: scale(1.2); box-shadow: 0 0 10px rgba(212,175,55,0.3); }
+
+        /* --- TRANSACTION LIST (Clean & Soft) --- */
+        .tx-item {
+            background: #FFFFFF;
+            border-radius: 16px; padding: 16px; margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.02);
+            transition: transform 0.2s;
         }
-
-        .pin-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #444; transition: 0.3s; }
-        .pin-dot.active { background: var(--tier-color); border-color: var(--tier-color); transform: scale(1.2); box-shadow: 0 0 12px var(--tier-glow); }
-
-        /* --- TRANSACTION LIST --- */
-        .glass-panel {
-            background: var(--bg-panel);
-            border-top: 1px solid rgba(255,255,255,0.08);
-            border-radius: 36px 36px 0 0;
-            box-shadow: 0 -20px 50px rgba(0,0,0,0.9);
-        }
-        .tx-item { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
-        .tx-item:active { background: rgba(255,255,255,0.02); }
-        .tx-icon-in { background: rgba(16, 185, 129, 0.1); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.2); }
-        .tx-icon-out { background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.2); }
-
-        .lux-loader { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--tier-color); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .tx-item:active { transform: scale(0.98); background: #FAFAFA; }
         
-        .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(30px); }
+        .tx-icon-in { background: #E6F4EA; color: #059669; }
+        .tx-icon-out { background: #FEF2F2; color: #DC2626; }
+
+        .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -146,24 +151,24 @@
 
     <div class="app-container">
 
-        <div id="loginScreen" class="absolute inset-0 z-30 flex flex-col justify-between bg-[var(--bg-vanta)] transition-all duration-700">
+        <div id="loginScreen" class="absolute inset-0 z-30 flex flex-col justify-between bg-[var(--bg-body)] transition-all duration-700">
             
-            <div class="flex-1 flex flex-col items-center justify-center pt-8 pb-2">
-                <div class="w-20 h-20 mb-4 bg-[var(--bg-panel)] border border-[#333] rounded-full flex items-center justify-center shadow-2xl relative">
-                    <i class="fas fa-shield-alt text-3xl tier-text-gradient"></i>
+            <div class="flex-1 flex flex-col items-center justify-center pt-8">
+                <div class="w-20 h-20 mb-5 bg-white rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.05)] border border-white">
+                    <i class="fas fa-leaf text-4xl text-[#D4AF37]"></i>
                 </div>
                 
-                <h1 class="text-2xl font-eng-lux text-white tracking-[6px] uppercase">TaeBank</h1>
-                <p class="text-[10px] text-[#888] mt-2 tracking-widest font-medium">ระบบจัดการสินทรัพย์ส่วนบุคคล</p>
+                <h1 class="text-2xl font-eng text-[var(--text-main)] tracking-[4px] uppercase font-semibold">TaeBank</h1>
+                <p class="text-xs text-[var(--text-muted)] mt-1 tracking-wide">ยินดีต้อนรับสู่บริการส่วนบุคคล</p>
 
-                <div class="flex gap-4 mt-6">
+                <div class="flex gap-4 mt-8">
                     <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                     <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                 </div>
             </div>
 
-            <div class="w-full pb-8 px-6">
-                <div class="grid grid-cols-3 gap-y-4 gap-x-6 justify-items-center max-w-[280px] mx-auto mb-4">
+            <div class="w-full pb-10 px-8">
+                <div class="grid grid-cols-3 gap-y-4 gap-x-6 justify-items-center max-w-[280px] mx-auto mb-6">
                     <div class="key-btn" onclick="pressKey('1')">1</div>
                     <div class="key-btn" onclick="pressKey('2')">2</div>
                     <div class="key-btn" onclick="pressKey('3')">3</div>
@@ -173,88 +178,83 @@
                     <div class="key-btn" onclick="pressKey('7')">7</div>
                     <div class="key-btn" onclick="pressKey('8')">8</div>
                     <div class="key-btn" onclick="pressKey('9')">9</div>
-                    <div class="w-[70px]"></div>
+                    <div></div>
                     <div class="key-btn" onclick="pressKey('0')">0</div>
-                    <div class="key-btn bg-transparent border-transparent text-[#555] hover:text-red-500 shadow-none active:bg-transparent active:scale-90" onclick="deleteKey()">
-                        <i class="fas fa-backspace text-2xl"></i>
+                    <div class="key-btn bg-transparent border-transparent shadow-none text-[var(--text-muted)] hover:text-red-400 active:bg-transparent active:scale-90" onclick="deleteKey()">
+                        <i class="fas fa-backspace text-xl"></i>
                     </div>
                 </div>
                 
-                <p class="text-center text-[9px] text-[#444] tracking-wider mb-2">
+                <p class="text-center text-[10px] text-[var(--text-muted)] tracking-wide">
                     พัฒนาโดย พระมหาจักรภัทร คมฺภีรญาณเมธี
                 </p>
             </div>
         </div>
 
-        <div id="bioScan" class="absolute inset-0 z-40 bg-[var(--bg-vanta)] flex flex-col items-center justify-center hidden">
-            <div class="lux-loader mb-6"></div>
-            <h2 class="font-eng-lux tier-text-gradient text-lg tracking-[4px] uppercase">Authenticating</h2>
-            <p class="mt-2 text-[#666] tracking-widest text-[10px] uppercase">Verifying Prestige Tier...</p>
-        </div>
-
         <div id="dashboardScreen" class="hidden w-full h-full flex flex-col relative z-20">
             
-            <div class="pt-12 px-6 pb-4 flex justify-between items-center z-10">
-                <div>
-                    <p class="text-[#888] text-[9px] tracking-widest uppercase mb-1 font-eng-lux">Portfolio Owner</p>
-                    <h2 id="userNick" class="text-xl font-semibold text-white tracking-wide">...</h2>
+            <div class="pt-12 px-6 pb-2 flex justify-between items-center z-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-full bg-white shadow-sm flex items-center justify-center border border-gray-100">
+                        <i class="fas fa-user text-[var(--text-muted)] text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-[var(--text-muted)] text-[10px] tracking-wide mb-0.5">สวัสดี,</p>
+                        <h2 id="userNick" class="text-xl font-semibold text-[var(--text-main)] leading-none">...</h2>
+                    </div>
                 </div>
-                <div onclick="location.reload()" class="w-9 h-9 rounded-full border border-[#333] bg-[var(--bg-panel)] flex items-center justify-center text-gray-400 hover:text-white cursor-pointer transition">
-                    <i class="fas fa-lock text-xs"></i>
+                <div onclick="location.reload()" class="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 cursor-pointer transition">
+                    <i class="fas fa-sign-out-alt text-sm"></i>
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto no-scrollbar pb-6 px-6 pt-2">
+            <div class="flex-1 overflow-y-auto no-scrollbar pb-6 px-6 pt-4">
                 
                 <div class="fade-up" style="animation-delay: 0.1s;">
-                    <div id="memberCard" class="real-card p-5 flex flex-col justify-between">
+                    <div id="memberCard" class="lux-card p-6 flex flex-col justify-between">
                         
-                        <div id="cardWatermark" class="card-watermark opacity-20 text-5xl">MEMBER</div>
-
                         <div class="flex justify-between items-start z-10">
                             <div class="emv-chip"></div>
-                            <div class="text-right">
-                                <span id="memberTierText" class="font-eng-lux tier-text-gradient font-bold text-[11px] tracking-[2px] uppercase">Standard</span>
-                                <div class="flex items-center justify-end gap-1 mt-1 opacity-50 text-white">
-                                    <i class="fas fa-wifi text-[9px] rotate-90"></i>
-                                </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-wifi rotate-90 text-sm opacity-60"></i>
+                                <span id="memberTierText" class="tier-badge font-eng">Standard</span>
                             </div>
                         </div>
                         
-                        <div class="z-10 mt-5 mb-2">
-                            <p class="text-[9px] text-[#aaa] font-medium mb-1 uppercase tracking-widest font-eng-lux">Available Balance</p>
+                        <div class="z-10 mt-5 mb-3">
+                            <p class="text-[10px] font-medium mb-1 tracking-wide opacity-80">ยอดเงินที่สามารถใช้ได้</p>
                             <div class="flex items-baseline gap-2">
-                                <span class="text-lg font-numbers text-[var(--tier-color)]">฿</span>
-                                <h1 class="text-[36px] font-bold tracking-tight text-white font-numbers drop-shadow-md leading-none" id="userBalance">0.00</h1>
+                                <span class="text-xl font-num font-medium opacity-80">฿</span>
+                                <h1 class="text-[38px] font-semibold tracking-tight font-num leading-none drop-shadow-sm" id="userBalance">0.00</h1>
                             </div>
                         </div>
 
                         <div class="flex justify-between items-end z-10">
                             <div>
-                                <p id="userAccNo" class="font-numbers text-[#ccc] text-[11px] tracking-[4px] mb-1 font-medium">0000 0000</p>
-                                <p id="userFullName" class="text-[10px] text-[#999] font-medium uppercase tracking-wider truncate w-40">...</p>
+                                <p id="userAccNo" class="font-num text-xs tracking-[3px] mb-1 font-medium opacity-90">0000 0000</p>
+                                <p id="userFullName" class="text-[11px] font-medium tracking-wide truncate w-40 opacity-80">...</p>
                             </div>
-                            <div class="opacity-80">
+                            <div class="opacity-90">
                                  <div class="flex">
-                                     <div class="w-6 h-6 rounded-full bg-red-500/80 mix-blend-screen"></div>
-                                     <div class="w-6 h-6 rounded-full bg-orange-400/80 mix-blend-screen -ml-3"></div>
+                                     <div class="w-7 h-7 rounded-full bg-black/20 mix-blend-overlay"></div>
+                                     <div class="w-7 h-7 rounded-full bg-white/40 mix-blend-overlay -ml-3"></div>
                                  </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-panel flex-1 mt-6 flex flex-col fade-up" style="animation-delay: 0.2s;">
-                    <div class="px-6 py-5 flex justify-between items-center border-b border-white/5">
-                        <h3 class="text-white text-xs font-semibold tracking-wide uppercase font-eng-lux">Recent Ledger</h3>
-                        <i class="fas fa-sliders-h text-[#555] text-xs"></i>
+                <div class="mt-8 flex flex-col fade-up" style="animation-delay: 0.2s;">
+                    <div class="flex justify-between items-center mb-4 px-1">
+                        <h3 class="text-[var(--text-main)] text-[15px] font-semibold tracking-wide">รายการล่าสุด</h3>
+                        <span class="text-[11px] text-[var(--text-muted)] font-medium">ดูทั้งหมด</span>
                     </div>
                     
-                    <div id="txList" class="px-4 py-2 space-y-0">
+                    <div id="txList" class="space-y-0">
                         </div>
 
-                    <div class="p-4 text-center opacity-40">
-                        <p class="text-[9px] text-white tracking-widest uppercase">
+                    <div class="mt-6 text-center opacity-60">
+                        <p class="text-[10px] text-[var(--text-muted)] tracking-wider">
                             Developed by พระมหาจักรภัทร คมฺภีรญาณเมธี
                         </p>
                     </div>
@@ -305,49 +305,59 @@
             });
         }
 
-        // --- EXCLUSIVE RANK SYSTEM ---
+        // --- QUIET LUXURY TIER SYSTEM (สบายตา แต่ดูแพง) ---
         function applyLuxuryRank(bal) {
-            let color, grad, rankName, glow, bgCard, isElite = false;
+            let bg, text, rankName, shadow, accent, isPearl = false;
 
             if (bal < 500) {
-                color = '#A0AAB2'; 
-                grad = 'linear-gradient(135deg, #78858F, #C4CED4, #A0AAB2)';
-                rankName = 'SILVER'; glow = 'rgba(160, 170, 178, 0.3)';
-                bgCard = 'linear-gradient(145deg, #1f2124 0%, #0a0b0c 100%)';
+                // SILVER (Matte Silver) - บัตรสีสว่าง ตัวหนังสือสีเข้ม
+                bg = 'linear-gradient(135deg, #F0F2F5 0%, #D1D5DB 100%)';
+                text = '#1F2937'; 
+                rankName = 'SILVER';
+                shadow = 'rgba(209, 213, 219, 0.6)';
+                accent = 'rgba(0,0,0,0.05)';
             } else if (bal < 1000) {
-                color = '#D4AF37'; 
-                grad = 'linear-gradient(135deg, #BF953F, #FCF6BA, #D4AF37)';
-                rankName = 'GOLD PRESTIGE'; glow = 'rgba(212, 175, 55, 0.4)';
-                bgCard = 'linear-gradient(145deg, #241d0f 0%, #080602 100%)';
+                // GOLD (Champagne Gold) - บัตรสีทองอ่อน ตัวหนังสือสีน้ำตาลเข้ม
+                bg = 'linear-gradient(135deg, #FDE68A 0%, #D4AF37 100%)';
+                text = '#422006'; 
+                rankName = 'GOLD PRESTIGE';
+                shadow = 'rgba(212, 175, 55, 0.4)';
+                accent = 'rgba(0,0,0,0.08)';
             } else if (bal < 5000) {
-                color = '#E5E4E2'; 
-                grad = 'linear-gradient(135deg, #8A8987, #FFFFFF, #E5E4E2)';
-                rankName = 'PLATINUM'; glow = 'rgba(229, 228, 226, 0.4)';
-                bgCard = 'linear-gradient(145deg, #262626 0%, #080808 100%)';
+                // PLATINUM (Deep Slate) - บัตรสีเทาเข้ม ตัวหนังสือสีขาว
+                bg = 'linear-gradient(135deg, #4B5563 0%, #1F2937 100%)';
+                text = '#F9FAFB'; 
+                rankName = 'PLATINUM';
+                shadow = 'rgba(31, 41, 55, 0.4)';
+                accent = 'rgba(255,255,255,0.15)';
             } else if (bal < 10000) {
-                color = '#50C878'; 
-                grad = 'linear-gradient(135deg, #1E5631, #98FB98, #50C878)';
-                rankName = 'EMERALD'; glow = 'rgba(80, 200, 120, 0.4)';
-                bgCard = 'linear-gradient(145deg, #0e1f14 0%, #020503 100%)';
+                // EMERALD (Soft Pine Green) - บัตรสีเขียวเข้มสบายตา ตัวหนังสือสีขาว
+                bg = 'linear-gradient(135deg, #34D399 0%, #065F46 100%)';
+                text = '#ECFDF5'; 
+                rankName = 'EMERALD';
+                shadow = 'rgba(6, 95, 70, 0.3)';
+                accent = 'rgba(255,255,255,0.15)';
             } else {
-                color = '#00FFFF'; 
-                grad = 'linear-gradient(135deg, #008B8B, #E0FFFF, #00FFFF)';
-                rankName = 'CENTURION'; glow = 'rgba(0, 255, 255, 0.6)';
-                bgCard = 'linear-gradient(145deg, #050f14 0%, #000000 100%)';
-                isElite = true;
+                // 10000+ DIAMOND PEARL (สีขาวมุกเหลือบรุ้ง) - ดูแพงที่สุดแบบผู้ดี ตัวหนังสือสีน้ำเงินกรมท่า
+                bg = 'linear-gradient(135deg, #FFFFFF 0%, #F3F4F6 100%)';
+                text = '#1E3A8A'; 
+                rankName = 'DIAMOND ELITE';
+                shadow = 'rgba(255, 255, 255, 0.8)';
+                accent = 'rgba(30, 58, 138, 0.08)';
+                isPearl = true;
             }
 
-            document.documentElement.style.setProperty('--tier-color', color);
-            document.documentElement.style.setProperty('--tier-grad', grad);
-            document.documentElement.style.setProperty('--tier-glow', glow);
-            document.documentElement.style.setProperty('--card-bg', bgCard);
+            document.documentElement.style.setProperty('--card-bg', bg);
+            document.documentElement.style.setProperty('--card-text', text);
+            document.documentElement.style.setProperty('--card-shadow', shadow);
+            document.documentElement.style.setProperty('--card-accent', accent);
             
             document.getElementById('memberTierText').innerText = rankName;
-            document.getElementById('cardWatermark').innerText = rankName;
 
+            // เอฟเฟกต์ไข่มุกสำหรับบัตรระดับสูงสุด
             const card = document.getElementById('memberCard');
-            if(isElite) card.classList.add('tier-border-glow');
-            else card.classList.remove('tier-border-glow');
+            if(isPearl) card.classList.add('pearl-effect');
+            else card.classList.remove('pearl-effect');
         }
 
         function processLogin() {
@@ -362,20 +372,15 @@
                 document.getElementById('loginScreen').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('loginScreen').classList.add('hidden');
-                    document.getElementById('bioScan').classList.remove('hidden'); 
-                    
-                    setTimeout(() => {
-                        document.getElementById('bioScan').classList.add('hidden');
-                        document.getElementById('dashboardScreen').classList.remove('hidden');
-                        loadData(user, bal, userTx);
-                    }, 1500); 
+                    document.getElementById('dashboardScreen').classList.remove('hidden');
+                    loadData(user, bal, userTx);
                 }, 400); 
             } else {
                 currentPin = ""; updateDots();
                 Swal.fire({
-                    icon: 'error', title: 'ACCESS DENIED', text: 'รหัสผ่านไม่ถูกต้อง',
-                    background: '#111', color: '#fff', confirmButtonColor: '#444',
-                    customClass: { popup: 'rounded-xl border border-[#333]' }
+                    icon: 'error', title: 'รหัสไม่ถูกต้อง', text: 'กรุณาลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#D4AF37',
+                    customClass: { popup: 'rounded-2xl' }
                 });
             }
         }
@@ -391,9 +396,9 @@
 
             const list = document.getElementById('txList');
             list.innerHTML = userTx.length ? '' : `
-                <div class="text-center py-8">
-                    <i class="fas fa-folder-open text-2xl text-[#333] mb-2"></i>
-                    <p class="text-[#666] text-[10px] font-eng-lux tracking-widest uppercase">No Records</p>
+                <div class="text-center py-8 bg-white rounded-2xl border border-gray-100">
+                    <i class="fas fa-box-open text-3xl text-gray-300 mb-2"></i>
+                    <p class="text-gray-400 text-xs tracking-wide">ยังไม่มีรายการทำธุรกรรม</p>
                 </div>`;
             
             userTx.forEach(t => {
@@ -401,16 +406,16 @@
                 const date = new Date(t.date);
                 list.innerHTML += `
                     <div class="tx-item flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-full flex items-center justify-center ${isDep ? 'tx-icon-in' : 'tx-icon-out'}">
-                                <i class="fas ${isDep ? 'fa-arrow-down' : 'fa-arrow-up'} text-xs"></i>
+                        <div class="flex items-center gap-4">
+                            <div class="w-11 h-11 rounded-full flex items-center justify-center ${isDep ? 'tx-icon-in' : 'tx-icon-out'}">
+                                <i class="fas ${isDep ? 'fa-arrow-down' : 'fa-arrow-up'} text-[13px]"></i>
                             </div>
                             <div>
-                                <p class="text-[14px] font-medium text-[#eee] tracking-wide">${isDep ? 'รับเงินฝาก' : 'ถอนเงินสด'}</p>
-                                <p class="text-[10px] text-[#777] mt-0.5 font-numbers tracking-wider">${date.toLocaleDateString('en-GB', {day:'2-digit', month:'short'})} • ${date.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}</p>
+                                <p class="text-[14px] font-semibold text-[var(--text-main)]">${isDep ? 'ฝากเงินเข้าบัญชี' : 'ถอนเงิน'}</p>
+                                <p class="text-[11px] text-[var(--text-muted)] mt-0.5 font-num">${date.toLocaleDateString('th-TH', {day:'2-digit', month:'short'})} • ${date.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})}</p>
                             </div>
                         </div>
-                        <p class="text-base font-bold font-numbers tracking-wide ${isDep ? 'text-[#10B981]' : 'text-white'}">${isDep ? '+' : '-'}${parseFloat(t.amount).toLocaleString()}</p>
+                        <p class="text-[17px] font-semibold font-num ${isDep ? 'text-[#059669]' : 'text-[#DC2626]'}">${isDep ? '+' : '-'}${parseFloat(t.amount).toLocaleString()}</p>
                     </div>
                 `;
             });
