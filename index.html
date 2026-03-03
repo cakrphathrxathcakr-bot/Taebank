@@ -247,11 +247,12 @@
                 <div class="mt-8 flex flex-col fade-up" style="animation-delay: 0.2s;">
                     <div class="flex justify-between items-center mb-4 px-1">
                         <h3 class="text-[var(--text-main)] text-[15px] font-semibold tracking-wide">รายการล่าสุด</h3>
-                        <span class="text-[11px] text-[var(--text-muted)] font-medium">ดูทั้งหมด</span>
                     </div>
                     
                     <div id="txList" class="space-y-0">
                         </div>
+                    
+                    <div id="txMoreInfo" class="mt-3 text-center"></div>
 
                     <div class="mt-6 text-center opacity-60">
                         <p class="text-[10px] text-[var(--text-muted)] tracking-wider">
@@ -310,35 +311,35 @@
             let bg, text, rankName, shadow, accent, isPearl = false;
 
             if (bal < 500) {
-                // SILVER (Matte Silver) - บัตรสีสว่าง ตัวหนังสือสีเข้ม
+                // SILVER (Matte Silver)
                 bg = 'linear-gradient(135deg, #F0F2F5 0%, #D1D5DB 100%)';
                 text = '#1F2937'; 
                 rankName = 'SILVER';
                 shadow = 'rgba(209, 213, 219, 0.6)';
                 accent = 'rgba(0,0,0,0.05)';
             } else if (bal < 1000) {
-                // GOLD (Champagne Gold) - บัตรสีทองอ่อน ตัวหนังสือสีน้ำตาลเข้ม
+                // GOLD (Champagne Gold)
                 bg = 'linear-gradient(135deg, #FDE68A 0%, #D4AF37 100%)';
                 text = '#422006'; 
                 rankName = 'GOLD PRESTIGE';
                 shadow = 'rgba(212, 175, 55, 0.4)';
                 accent = 'rgba(0,0,0,0.08)';
             } else if (bal < 5000) {
-                // PLATINUM (Deep Slate) - บัตรสีเทาเข้ม ตัวหนังสือสีขาว
+                // PLATINUM (Deep Slate)
                 bg = 'linear-gradient(135deg, #4B5563 0%, #1F2937 100%)';
                 text = '#F9FAFB'; 
                 rankName = 'PLATINUM';
                 shadow = 'rgba(31, 41, 55, 0.4)';
                 accent = 'rgba(255,255,255,0.15)';
             } else if (bal < 10000) {
-                // EMERALD (Soft Pine Green) - บัตรสีเขียวเข้มสบายตา ตัวหนังสือสีขาว
+                // EMERALD (Soft Pine Green)
                 bg = 'linear-gradient(135deg, #34D399 0%, #065F46 100%)';
                 text = '#ECFDF5'; 
                 rankName = 'EMERALD';
                 shadow = 'rgba(6, 95, 70, 0.3)';
                 accent = 'rgba(255,255,255,0.15)';
             } else {
-                // 10000+ DIAMOND PEARL (สีขาวมุกเหลือบรุ้ง) - ดูแพงที่สุดแบบผู้ดี ตัวหนังสือสีน้ำเงินกรมท่า
+                // 10000+ DIAMOND PEARL (สีขาวมุกเหลือบรุ้ง)
                 bg = 'linear-gradient(135deg, #FFFFFF 0%, #F3F4F6 100%)';
                 text = '#1E3A8A'; 
                 rankName = 'DIAMOND ELITE';
@@ -354,7 +355,6 @@
             
             document.getElementById('memberTierText').innerText = rankName;
 
-            // เอฟเฟกต์ไข่มุกสำหรับบัตรระดับสูงสุด
             const card = document.getElementById('memberCard');
             if(isPearl) card.classList.add('pearl-effect');
             else card.classList.remove('pearl-effect');
@@ -386,6 +386,7 @@
         }
 
         function loadData(user, bal, userTx) {
+            // 1. เรียงลำดับจากใหม่สุดไปเก่าสุด
             userTx.sort((a,b) => new Date(b.date) - new Date(a.date));
 
             document.getElementById('userNick').innerText = user.nick;
@@ -395,30 +396,47 @@
             animateValue('userBalance', 0, bal, 1200);
 
             const list = document.getElementById('txList');
-            list.innerHTML = userTx.length ? '' : `
-                <div class="text-center py-8 bg-white rounded-2xl border border-gray-100">
-                    <i class="fas fa-box-open text-3xl text-gray-300 mb-2"></i>
-                    <p class="text-gray-400 text-xs tracking-wide">ยังไม่มีรายการทำธุรกรรม</p>
-                </div>`;
+            const moreInfo = document.getElementById('txMoreInfo');
             
-            userTx.forEach(t => {
-                const isDep = t.type === 'deposit';
-                const date = new Date(t.date);
-                list.innerHTML += `
-                    <div class="tx-item flex justify-between items-center">
-                        <div class="flex items-center gap-4">
-                            <div class="w-11 h-11 rounded-full flex items-center justify-center ${isDep ? 'tx-icon-in' : 'tx-icon-out'}">
-                                <i class="fas ${isDep ? 'fa-arrow-down' : 'fa-arrow-up'} text-[13px]"></i>
+            if (userTx.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-8 bg-white rounded-2xl border border-gray-100">
+                        <i class="fas fa-box-open text-3xl text-gray-300 mb-2"></i>
+                        <p class="text-gray-400 text-xs tracking-wide">ยังไม่มีรายการทำธุรกรรม</p>
+                    </div>`;
+                moreInfo.innerHTML = '';
+            } else {
+                list.innerHTML = ''; // เคลียร์ของเก่า
+                
+                // 2. ตัดข้อมูลมาแค่ 5 รายการล่าสุด (Slice array)
+                const latestTxs = userTx.slice(0, 5);
+                
+                latestTxs.forEach(t => {
+                    const isDep = t.type === 'deposit';
+                    const date = new Date(t.date);
+                    list.innerHTML += `
+                        <div class="tx-item flex justify-between items-center">
+                            <div class="flex items-center gap-4">
+                                <div class="w-11 h-11 rounded-full flex items-center justify-center ${isDep ? 'tx-icon-in' : 'tx-icon-out'}">
+                                    <i class="fas ${isDep ? 'fa-arrow-down' : 'fa-arrow-up'} text-[13px]"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[14px] font-semibold text-[var(--text-main)]">${isDep ? 'ฝากเงินเข้าบัญชี' : 'ถอนเงิน'}</p>
+                                    <p class="text-[11px] text-[var(--text-muted)] mt-0.5 font-num">${date.toLocaleDateString('th-TH', {day:'2-digit', month:'short'})} • ${date.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})}</p>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-[14px] font-semibold text-[var(--text-main)]">${isDep ? 'ฝากเงินเข้าบัญชี' : 'ถอนเงิน'}</p>
-                                <p class="text-[11px] text-[var(--text-muted)] mt-0.5 font-num">${date.toLocaleDateString('th-TH', {day:'2-digit', month:'short'})} • ${date.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})}</p>
-                            </div>
+                            <p class="text-[17px] font-semibold font-num ${isDep ? 'text-[#059669]' : 'text-[#DC2626]'}">${isDep ? '+' : '-'}${parseFloat(t.amount).toLocaleString()}</p>
                         </div>
-                        <p class="text-[17px] font-semibold font-num ${isDep ? 'text-[#059669]' : 'text-[#DC2626]'}">${isDep ? '+' : '-'}${parseFloat(t.amount).toLocaleString()}</p>
-                    </div>
-                `;
-            });
+                    `;
+                });
+
+                // 3. ตรวจสอบว่าถ้ามีเกิน 5 รายการ ให้ขึ้นข้อความบอก
+                if (userTx.length > 5) {
+                    moreInfo.innerHTML = `<p class="text-[10px] text-[var(--text-muted)] font-medium bg-gray-100/50 py-1.5 px-3 rounded-full inline-block">แสดง 5 รายการล่าสุด จากทั้งหมด ${userTx.length} รายการ</p>`;
+                } else {
+                    moreInfo.innerHTML = '';
+                }
+            }
         }
 
         function animateValue(id, start, end, duration) {
