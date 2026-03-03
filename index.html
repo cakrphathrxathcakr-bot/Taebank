@@ -16,9 +16,8 @@
             --bg-vanta: #030303; 
             --bg-panel: #111111;
             --text-main: #F5F5F5;
-            --text-muted: #888888;
             
-            /* Dynamic Tier Variables (Default: Gold) */
+            /* Dynamic Tier Variables */
             --tier-color: #D4AF37; 
             --tier-grad: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
             --tier-glow: rgba(212, 175, 55, 0.4);
@@ -45,7 +44,6 @@
             margin: 0 auto; position: relative;
             display: flex; flex-direction: column;
             background-color: var(--bg-vanta);
-            /* Subtle Background Noise for premium matte feel */
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
         }
 
@@ -60,7 +58,6 @@
             transition: all 0.5s ease;
         }
         
-        /* Metallic Brushed Texture */
         .real-card::before {
             content: ''; position: absolute; inset: 0;
             background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0) 100%);
@@ -70,15 +67,13 @@
         }
         @keyframes metalBrush { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
-        /* Giant Watermark Rank */
         .card-watermark {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-family: 'Cinzel', serif; font-size: 4.5rem; font-weight: 700;
+            font-family: 'Cinzel', serif; font-size: 4rem; font-weight: 700;
             color: rgba(255,255,255,0.03); white-space: nowrap; pointer-events: none;
             letter-spacing: 5px; text-transform: uppercase;
         }
 
-        /* Hyper-Realistic EMV Chip */
         .emv-chip {
             width: 42px; height: 32px;
             background: linear-gradient(135deg, #e6c27a 0%, #d4af37 50%, #997a00 100%);
@@ -95,7 +90,6 @@
                 linear-gradient(0deg, transparent 30%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0.3) 40%, transparent 40%, transparent 60%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.3) 70%, transparent 70%);
         }
 
-        /* Dynamic Card Glow Border */
         .tier-border-glow {
             border-color: var(--tier-color) !important;
             box-shadow: 0 0 30px var(--tier-glow), inset 0 0 10px rgba(0,0,0,0.5);
@@ -108,23 +102,22 @@
             background-clip: text;
         }
 
-        /* --- TACTILE KEYPAD --- */
+        /* --- TACTILE KEYPAD (ปรับขนาดเล็กลงให้พอดีมือถือ) --- */
         .key-btn {
-            width: 75px; height: 75px;
+            width: 70px; height: 70px; /* ลดขนาดจาก 75px เป็น 70px */
             border-radius: 50%; background: var(--bg-panel);
             border: 1px solid rgba(255,255,255,0.05);
             display: flex; align-items: center; justify-content: center;
-            font-size: 30px; color: var(--text-main); font-family: 'Space Grotesk', sans-serif;
+            font-size: 26px; color: var(--text-main); font-family: 'Space Grotesk', sans-serif;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
         .key-btn:active {
             background: var(--tier-color); color: #000; border-color: var(--tier-color);
             transform: scale(0.9); box-shadow: 0 0 20px var(--tier-glow);
         }
 
-        /* PIN Dots */
-        .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #444; transition: 0.3s; }
+        .pin-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #444; transition: 0.3s; }
         .pin-dot.active { background: var(--tier-color); border-color: var(--tier-color); transform: scale(1.2); box-shadow: 0 0 12px var(--tier-glow); }
 
         /* --- TRANSACTION LIST --- */
@@ -134,16 +127,12 @@
             border-radius: 36px 36px 0 0;
             box-shadow: 0 -20px 50px rgba(0,0,0,0.9);
         }
-        .tx-item {
-            padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: background 0.2s;
-        }
+        .tx-item { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
         .tx-item:active { background: rgba(255,255,255,0.02); }
         .tx-icon-in { background: rgba(16, 185, 129, 0.1); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.2); }
         .tx-icon-out { background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.2); }
 
-        /* Loader */
-        .lux-loader { width: 60px; height: 60px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--tier-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        .lux-loader { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--tier-color); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
         .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(30px); }
@@ -159,22 +148,22 @@
 
         <div id="loginScreen" class="absolute inset-0 z-30 flex flex-col justify-between bg-[var(--bg-vanta)] transition-all duration-700">
             
-            <div class="flex-1 flex flex-col items-center justify-center pb-6 mt-10">
-                <div class="w-24 h-24 mb-6 bg-[var(--bg-panel)] border border-[#333] rounded-full flex items-center justify-center shadow-2xl relative">
-                    <i class="fas fa-shield-alt text-4xl tier-text-gradient"></i>
+            <div class="flex-1 flex flex-col items-center justify-center pt-8 pb-2">
+                <div class="w-20 h-20 mb-4 bg-[var(--bg-panel)] border border-[#333] rounded-full flex items-center justify-center shadow-2xl relative">
+                    <i class="fas fa-shield-alt text-3xl tier-text-gradient"></i>
                 </div>
                 
-                <h1 class="text-3xl font-eng-lux text-white tracking-[6px] uppercase">TaeBank</h1>
-                <p class="text-xs text-[#888] mt-3 tracking-widest font-medium">ระบบจัดการสินทรัพย์ส่วนบุคคล</p>
+                <h1 class="text-2xl font-eng-lux text-white tracking-[6px] uppercase">TaeBank</h1>
+                <p class="text-[10px] text-[#888] mt-2 tracking-widest font-medium">ระบบจัดการสินทรัพย์ส่วนบุคคล</p>
 
-                <div class="flex gap-5 mt-10">
+                <div class="flex gap-4 mt-6">
                     <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                     <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                 </div>
             </div>
 
-            <div class="w-full pb-12 px-6">
-                <div class="grid grid-cols-3 gap-y-6 gap-x-6 justify-items-center max-w-[320px] mx-auto mb-6">
+            <div class="w-full pb-8 px-6">
+                <div class="grid grid-cols-3 gap-y-4 gap-x-6 justify-items-center max-w-[280px] mx-auto mb-4">
                     <div class="key-btn" onclick="pressKey('1')">1</div>
                     <div class="key-btn" onclick="pressKey('2')">2</div>
                     <div class="key-btn" onclick="pressKey('3')">3</div>
@@ -184,14 +173,14 @@
                     <div class="key-btn" onclick="pressKey('7')">7</div>
                     <div class="key-btn" onclick="pressKey('8')">8</div>
                     <div class="key-btn" onclick="pressKey('9')">9</div>
-                    <div class="w-[75px]"></div>
+                    <div class="w-[70px]"></div>
                     <div class="key-btn" onclick="pressKey('0')">0</div>
                     <div class="key-btn bg-transparent border-transparent text-[#555] hover:text-red-500 shadow-none active:bg-transparent active:scale-90" onclick="deleteKey()">
                         <i class="fas fa-backspace text-2xl"></i>
                     </div>
                 </div>
                 
-                <p class="text-center text-[11px] text-[#444] tracking-wider">
+                <p class="text-center text-[9px] text-[#444] tracking-wider mb-2">
                     พัฒนาโดย พระมหาจักรภัทร คมฺภีรญาณเมธี
                 </p>
             </div>
@@ -199,18 +188,18 @@
 
         <div id="bioScan" class="absolute inset-0 z-40 bg-[var(--bg-vanta)] flex flex-col items-center justify-center hidden">
             <div class="lux-loader mb-6"></div>
-            <h2 class="font-eng-lux tier-text-gradient text-xl tracking-[4px] uppercase">Authenticating</h2>
+            <h2 class="font-eng-lux tier-text-gradient text-lg tracking-[4px] uppercase">Authenticating</h2>
             <p class="mt-2 text-[#666] tracking-widest text-[10px] uppercase">Verifying Prestige Tier...</p>
         </div>
 
         <div id="dashboardScreen" class="hidden w-full h-full flex flex-col relative z-20">
             
-            <div class="pt-14 px-7 pb-4 flex justify-between items-center z-10">
+            <div class="pt-12 px-6 pb-4 flex justify-between items-center z-10">
                 <div>
-                    <p class="text-[#888] text-[10px] tracking-widest uppercase mb-1 font-eng-lux">Portfolio Owner</p>
-                    <h2 id="userNick" class="text-2xl font-semibold text-white tracking-wide">...</h2>
+                    <p class="text-[#888] text-[9px] tracking-widest uppercase mb-1 font-eng-lux">Portfolio Owner</p>
+                    <h2 id="userNick" class="text-xl font-semibold text-white tracking-wide">...</h2>
                 </div>
-                <div onclick="location.reload()" class="w-10 h-10 rounded-full border border-[#333] bg-[var(--bg-panel)] flex items-center justify-center text-gray-400 hover:text-white cursor-pointer transition">
+                <div onclick="location.reload()" class="w-9 h-9 rounded-full border border-[#333] bg-[var(--bg-panel)] flex items-center justify-center text-gray-400 hover:text-white cursor-pointer transition">
                     <i class="fas fa-lock text-xs"></i>
                 </div>
             </div>
@@ -218,55 +207,54 @@
             <div class="flex-1 overflow-y-auto no-scrollbar pb-6 px-6 pt-2">
                 
                 <div class="fade-up" style="animation-delay: 0.1s;">
-                    <div id="memberCard" class="real-card p-6 flex flex-col justify-between">
+                    <div id="memberCard" class="real-card p-5 flex flex-col justify-between">
                         
-                        <div id="cardWatermark" class="card-watermark">MEMBER</div>
+                        <div id="cardWatermark" class="card-watermark opacity-20 text-5xl">MEMBER</div>
 
                         <div class="flex justify-between items-start z-10">
                             <div class="emv-chip"></div>
-                            
                             <div class="text-right">
-                                <span id="memberTierText" class="font-eng-lux tier-text-gradient font-bold text-xs tracking-[3px] uppercase">Standard</span>
+                                <span id="memberTierText" class="font-eng-lux tier-text-gradient font-bold text-[11px] tracking-[2px] uppercase">Standard</span>
                                 <div class="flex items-center justify-end gap-1 mt-1 opacity-50 text-white">
-                                    <i class="fas fa-wifi text-[10px] rotate-90"></i>
+                                    <i class="fas fa-wifi text-[9px] rotate-90"></i>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="z-10 mt-6 mb-2">
-                            <p class="text-[10px] text-[#aaa] font-medium mb-1 uppercase tracking-widest font-eng-lux">Available Balance</p>
+                        <div class="z-10 mt-5 mb-2">
+                            <p class="text-[9px] text-[#aaa] font-medium mb-1 uppercase tracking-widest font-eng-lux">Available Balance</p>
                             <div class="flex items-baseline gap-2">
-                                <span class="text-xl font-numbers text-[var(--tier-color)]">฿</span>
-                                <h1 class="text-[40px] font-bold tracking-tight text-white font-numbers drop-shadow-md leading-none" id="userBalance">0.00</h1>
+                                <span class="text-lg font-numbers text-[var(--tier-color)]">฿</span>
+                                <h1 class="text-[36px] font-bold tracking-tight text-white font-numbers drop-shadow-md leading-none" id="userBalance">0.00</h1>
                             </div>
                         </div>
 
                         <div class="flex justify-between items-end z-10">
                             <div>
-                                <p id="userAccNo" class="font-numbers text-[#ccc] text-xs tracking-[4px] mb-1 font-medium">0000 0000</p>
-                                <p id="userFullName" class="text-[11px] text-[#999] font-medium uppercase tracking-wider truncate w-48">...</p>
+                                <p id="userAccNo" class="font-numbers text-[#ccc] text-[11px] tracking-[4px] mb-1 font-medium">0000 0000</p>
+                                <p id="userFullName" class="text-[10px] text-[#999] font-medium uppercase tracking-wider truncate w-40">...</p>
                             </div>
                             <div class="opacity-80">
                                  <div class="flex">
-                                     <div class="w-8 h-8 rounded-full bg-red-500/80 mix-blend-screen"></div>
-                                     <div class="w-8 h-8 rounded-full bg-orange-400/80 mix-blend-screen -ml-4"></div>
+                                     <div class="w-6 h-6 rounded-full bg-red-500/80 mix-blend-screen"></div>
+                                     <div class="w-6 h-6 rounded-full bg-orange-400/80 mix-blend-screen -ml-3"></div>
                                  </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-panel flex-1 mt-8 flex flex-col fade-up" style="animation-delay: 0.2s;">
-                    <div class="px-8 py-6 flex justify-between items-center border-b border-white/5">
-                        <h3 class="text-white text-sm font-semibold tracking-wide uppercase font-eng-lux">Recent Ledger</h3>
-                        <i class="fas fa-sliders-h text-[#555]"></i>
+                <div class="glass-panel flex-1 mt-6 flex flex-col fade-up" style="animation-delay: 0.2s;">
+                    <div class="px-6 py-5 flex justify-between items-center border-b border-white/5">
+                        <h3 class="text-white text-xs font-semibold tracking-wide uppercase font-eng-lux">Recent Ledger</h3>
+                        <i class="fas fa-sliders-h text-[#555] text-xs"></i>
                     </div>
                     
                     <div id="txList" class="px-4 py-2 space-y-0">
                         </div>
 
-                    <div class="p-6 text-center opacity-40">
-                        <p class="text-[10px] text-white tracking-widest uppercase">
+                    <div class="p-4 text-center opacity-40">
+                        <p class="text-[9px] text-white tracking-widest uppercase">
                             Developed by พระมหาจักรภัทร คมฺภีรญาณเมธี
                         </p>
                     </div>
@@ -317,66 +305,49 @@
             });
         }
 
-        // --- EXCLUSIVE RANK SYSTEM (Clearly Defined Tiers) ---
+        // --- EXCLUSIVE RANK SYSTEM ---
         function applyLuxuryRank(bal) {
             let color, grad, rankName, glow, bgCard, isElite = false;
 
-            // การแบ่ง Rank ชัดเจนมาก
             if (bal < 500) {
-                // SILVER MEMBER
                 color = '#A0AAB2'; 
                 grad = 'linear-gradient(135deg, #78858F, #C4CED4, #A0AAB2)';
-                rankName = 'SILVER';
-                glow = 'rgba(160, 170, 178, 0.3)';
+                rankName = 'SILVER'; glow = 'rgba(160, 170, 178, 0.3)';
                 bgCard = 'linear-gradient(145deg, #1f2124 0%, #0a0b0c 100%)';
             } else if (bal < 1000) {
-                // GOLD PRESTIGE
                 color = '#D4AF37'; 
                 grad = 'linear-gradient(135deg, #BF953F, #FCF6BA, #D4AF37)';
-                rankName = 'GOLD PRESTIGE';
-                glow = 'rgba(212, 175, 55, 0.4)';
+                rankName = 'GOLD PRESTIGE'; glow = 'rgba(212, 175, 55, 0.4)';
                 bgCard = 'linear-gradient(145deg, #241d0f 0%, #080602 100%)';
             } else if (bal < 5000) {
-                // PLATINUM ELITE
                 color = '#E5E4E2'; 
                 grad = 'linear-gradient(135deg, #8A8987, #FFFFFF, #E5E4E2)';
-                rankName = 'PLATINUM';
-                glow = 'rgba(229, 228, 226, 0.4)';
+                rankName = 'PLATINUM'; glow = 'rgba(229, 228, 226, 0.4)';
                 bgCard = 'linear-gradient(145deg, #262626 0%, #080808 100%)';
             } else if (bal < 10000) {
-                // EMERALD WEALTH
                 color = '#50C878'; 
                 grad = 'linear-gradient(135deg, #1E5631, #98FB98, #50C878)';
-                rankName = 'EMERALD';
-                glow = 'rgba(80, 200, 120, 0.4)';
+                rankName = 'EMERALD'; glow = 'rgba(80, 200, 120, 0.4)';
                 bgCard = 'linear-gradient(145deg, #0e1f14 0%, #020503 100%)';
             } else {
-                // 10000+ CENTURION DIAMOND (THE HIGHEST)
-                color = '#00FFFF'; // Diamond Cyan
+                color = '#00FFFF'; 
                 grad = 'linear-gradient(135deg, #008B8B, #E0FFFF, #00FFFF)';
-                rankName = 'CENTURION';
-                glow = 'rgba(0, 255, 255, 0.6)';
+                rankName = 'CENTURION'; glow = 'rgba(0, 255, 255, 0.6)';
                 bgCard = 'linear-gradient(145deg, #050f14 0%, #000000 100%)';
                 isElite = true;
             }
 
-            // Inject CSS Variables
             document.documentElement.style.setProperty('--tier-color', color);
             document.documentElement.style.setProperty('--tier-grad', grad);
             document.documentElement.style.setProperty('--tier-glow', glow);
             document.documentElement.style.setProperty('--card-bg', bgCard);
             
-            // Update Texts
             document.getElementById('memberTierText').innerText = rankName;
             document.getElementById('cardWatermark').innerText = rankName;
 
-            // Glow Effect for Top Tier
             const card = document.getElementById('memberCard');
-            if(isElite) {
-                card.classList.add('tier-border-glow');
-            } else {
-                card.classList.remove('tier-border-glow');
-            }
+            if(isElite) card.classList.add('tier-border-glow');
+            else card.classList.remove('tier-border-glow');
         }
 
         function processLogin() {
@@ -397,7 +368,7 @@
                         document.getElementById('bioScan').classList.add('hidden');
                         document.getElementById('dashboardScreen').classList.remove('hidden');
                         loadData(user, bal, userTx);
-                    }, 2000); 
+                    }, 1500); 
                 }, 400); 
             } else {
                 currentPin = ""; updateDots();
@@ -416,13 +387,13 @@
             document.getElementById('userFullName').innerText = user.name || user.nick;
             document.getElementById('userAccNo').innerText = user.code.replace(/(\d{3})(\d{3})/, '$1 $2');
             
-            animateValue('userBalance', 0, bal, 1500);
+            animateValue('userBalance', 0, bal, 1200);
 
             const list = document.getElementById('txList');
             list.innerHTML = userTx.length ? '' : `
-                <div class="text-center py-10">
-                    <i class="fas fa-folder-open text-3xl text-[#333] mb-3"></i>
-                    <p class="text-[#666] text-xs font-eng-lux tracking-widest uppercase">No Records</p>
+                <div class="text-center py-8">
+                    <i class="fas fa-folder-open text-2xl text-[#333] mb-2"></i>
+                    <p class="text-[#666] text-[10px] font-eng-lux tracking-widest uppercase">No Records</p>
                 </div>`;
             
             userTx.forEach(t => {
@@ -430,16 +401,16 @@
                 const date = new Date(t.date);
                 list.innerHTML += `
                     <div class="tx-item flex justify-between items-center">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center ${isDep ? 'tx-icon-in' : 'tx-icon-out'}">
-                                <i class="fas ${isDep ? 'fa-arrow-down' : 'fa-arrow-up'} text-sm"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full flex items-center justify-center ${isDep ? 'tx-icon-in' : 'tx-icon-out'}">
+                                <i class="fas ${isDep ? 'fa-arrow-down' : 'fa-arrow-up'} text-xs"></i>
                             </div>
                             <div>
-                                <p class="text-[15px] font-semibold text-[#eee] tracking-wide">${isDep ? 'รับเงินฝาก' : 'ถอนเงินสด'}</p>
-                                <p class="text-[11px] text-[#777] mt-0.5 font-numbers tracking-wider">${date.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})} • ${date.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}</p>
+                                <p class="text-[14px] font-medium text-[#eee] tracking-wide">${isDep ? 'รับเงินฝาก' : 'ถอนเงินสด'}</p>
+                                <p class="text-[10px] text-[#777] mt-0.5 font-numbers tracking-wider">${date.toLocaleDateString('en-GB', {day:'2-digit', month:'short'})} • ${date.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}</p>
                             </div>
                         </div>
-                        <p class="text-lg font-bold font-numbers tracking-wide ${isDep ? 'text-[#10B981]' : 'text-white'}">${isDep ? '+' : '-'}${parseFloat(t.amount).toLocaleString()}</p>
+                        <p class="text-base font-bold font-numbers tracking-wide ${isDep ? 'text-[#10B981]' : 'text-white'}">${isDep ? '+' : '-'}${parseFloat(t.amount).toLocaleString()}</p>
                     </div>
                 `;
             });
