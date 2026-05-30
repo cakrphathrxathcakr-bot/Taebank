@@ -383,18 +383,20 @@
                         <h4 class="font-bold text-[15px] mt-1.5 truncate text-white">${m.nick || '-'}</h4>
                         <div class="mt-0.5 text-lg font-num font-bold ${mBal >= 0 ? 'text-emerald-400' : 'text-red-400'}">฿${mBal.toLocaleString()}</div>
                     </div>
-                    <div class="flex flex-col gap-1.5 w-28 flex-shrink-0">
+                    <div class="flex flex-col gap-1.5 w-32 flex-shrink-0">
                         <button class="bg-[var(--gold-mid)] text-black py-2 rounded-lg font-bold text-[10px] btn-atx shadow-md active:scale-95 transition-transform uppercase tracking-widest font-eng">Transact</button>
                         <div class="flex gap-1">
-                            <button class="flex-1 bg-white/5 h-8 rounded-lg border border-white/10 text-gray-400 hover:bg-white/10 btn-ahist transition-colors"><i class="fas fa-history text-xs"></i></button>
-                            <button class="flex-1 bg-blue-500/10 h-8 rounded-lg border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 btn-aedit transition-colors"><i class="fas fa-edit text-xs"></i></button>
-                            <button class="flex-1 bg-red-500/10 h-8 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/20 btn-adel transition-colors"><i class="fas fa-trash text-xs"></i></button>
+                            <button class="flex-1 bg-white/5 h-8 rounded-lg border border-white/10 text-gray-400 hover:bg-white/10 btn-ahist transition-colors" title="History"><i class="fas fa-history text-[10px]"></i></button>
+                            <button class="flex-1 bg-purple-500/10 h-8 rounded-lg border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 btn-aprint transition-colors" title="Print Passbook"><i class="fas fa-print text-[10px]"></i></button>
+                            <button class="flex-1 bg-blue-500/10 h-8 rounded-lg border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 btn-aedit transition-colors" title="Edit"><i class="fas fa-edit text-[10px]"></i></button>
+                            <button class="flex-1 bg-red-500/10 h-8 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/20 btn-adel transition-colors" title="Delete"><i class="fas fa-trash text-[10px]"></i></button>
                         </div>
                     </div>
                 `;
 
                 card.querySelector('.btn-atx').addEventListener('click', () => adminTransact(k, m.nick));
                 card.querySelector('.btn-ahist').addEventListener('click', () => adminHistory(k, m.nick));
+                card.querySelector('.btn-aprint').addEventListener('click', () => adminPrintMenu(k, m.nick, m.name)); // พิมพ์สมุดบัญชี
                 card.querySelector('.btn-aedit').addEventListener('click', () => adminEdit(k, m.nick, m.name));
                 card.querySelector('.btn-adel').addEventListener('click', () => adminDelete(k));
                 list.appendChild(card);
@@ -404,6 +406,229 @@
             document.getElementById('stat-members').innerText = tMem;
             updateAdminChart(chartData);
         };
+
+        // --- ระบบพิมพ์สมุดบัญชี ---
+        window.adminPrintMenu = async (code, nick, name) => {
+            let userTxs = Object.values(STATE.transactions || {})
+                .filter(t => t.studentCode === code)
+                .sort((a,b) => new Date(a.date) - new Date(b.date)); // เรียงจากเก่าไปใหม่ตามหลักการลงสมุด
+
+            const txCount = userTxs.length;
+
+            const res = await Swal.fire({ 
+                title: `<span class="text-[var(--gold-mid)] text-lg">Print System: ${nick}</span>`, 
+                html: `<p class="text-[11px] text-[#8B9BB4] mb-4">Please select the document you want to print.</p>`,
+                showDenyButton: true, 
+                showCancelButton: true, 
+                confirmButtonText: '<i class="fas fa-id-card"></i> พิมพ์หน้าปก (New)', 
+                confirmButtonColor: '#3B82F6', 
+                denyButtonText: '<i class="fas fa-list-alt"></i> พิมพ์รายการ (Update)', 
+                denyButtonColor: '#10B981', 
+                cancelButtonColor: '#1E2B4D' 
+            });
+
+            if (res.isConfirmed) {
+                printCover(code, name);
+            } else if (res.isDenied) {
+                if (txCount === 0) {
+                    Swal.fire({ icon: 'warning', title: 'No Transactions', text: 'บัญชีนี้ยังไม่มีรายการเคลื่อนไหว', confirmButtonColor: '#D4AF37' });
+                    return;
+                }
+
+                // ให้ตั้งค่าการปริ้นท์
+                const printSet = await Swal.fire({
+                    title: '<span class="text-[var(--gold-mid)] text-lg">ตั้งค่าเครื่องพิมพ์สมุด</span>',
+                    html: `
+                        <div class="text-left text-sm text-[#8B9BB4] mb-4">บัญชีนี้มีทั้งหมด <strong class="text-white">${txCount}</strong> รายการ</div>
+                        
+                        <div class="mb-4">
+                            <label class="text-[10px] font-bold uppercase text-[var(--gold-mid)] block mb-1 text-left tracking-widest">เริ่มพิมพ์ตั้งแต่รายการที่ (1-${txCount})</label>
+                            <input type="number" id="p_tx_start" class="admin-input font-num text-lg" value="${txCount}" min="1" max="${txCount}">
+                            <div class="text-left text-[10px] text-gray-500 mt-1">เช่น หากเคยพิมพ์ไปแล้ว 5 รายการ ให้กรอก 6 เพื่อพิมพ์รายการใหม่</div>
+                        </div>
+                        
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-[var(--gold-mid)] block mb-1 text-left tracking-widest">พิมพ์ลงในบรรทัดที่ (1-24)</label>
+                            <input type="number" id="p_line_start" class="admin-input font-num text-lg" value="${(txCount % 24 === 0) ? 24 : txCount % 24}" min="1" max="24">
+                            <div class="text-left text-[10px] text-gray-500 mt-1">ระบุบรรทัดว่างบนกระดาษสมุดจริง ที่ต้องการให้เริ่มพิมพ์บรรทัดแรก</div>
+                        </div>
+                        
+                        <div class="mt-5 text-left text-[10px] text-emerald-400 bg-emerald-500/10 p-2 rounded border border-emerald-500/20">
+                            <i class="fas fa-info-circle"></i> ระบบจะซ่อนเส้นและหัวตารางทั้งหมด เพื่อพิมพ์ทับลงในช่องของสมุดจริงได้พอดี
+                        </div>
+                    `,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonColor: '#10B981',
+                    confirmButtonText: '<i class="fas fa-print"></i> สั่งพิมพ์',
+                    preConfirm: () => {
+                        return {
+                            txStart: parseInt(document.getElementById('p_tx_start').value) || 1,
+                            lineStart: parseInt(document.getElementById('p_line_start').value) || 1
+                        }
+                    }
+                });
+
+                if(printSet.isConfirmed) {
+                    printLedger(code, name, userTxs, printSet.value.txStart, printSet.value.lineStart);
+                }
+            }
+        };
+
+        function openPrintWindow(content) {
+            const printWin = window.open('', '_blank');
+            printWin.document.write(content);
+            printWin.document.close();
+            printWin.focus();
+            setTimeout(() => { printWin.print(); printWin.close(); }, 800);
+        }
+
+        // ดีไซน์หน้าปก พรีเมียม หรูหรา
+        function printCover(code, name) {
+            const formattedCode = code.replace(/(\d{3})(\d{3})/, '$1-$2');
+            const content = `
+                <html>
+                <head>
+                    <title>Print Passbook Cover</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Outfit:wght@400;600&family=Sarabun:wght@300;500&display=swap" rel="stylesheet">
+                    <style>
+                        body { font-family: 'Sarabun', sans-serif; padding: 20px; -webkit-print-color-adjust: exact; background: #fff; }
+                        @media print { @page { margin: 10mm; } body { padding: 0; } }
+                        .cover-box { 
+                            width: 140mm; height: 90mm; border: 1px solid #ddd; padding: 25px; 
+                            position: relative; margin: 0 auto; overflow: hidden; background: #fafafa;
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 8px;
+                        }
+                        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; font-size: 180px; color: #D4AF37; z-index: 0; }
+                    </style>
+                </head>
+                <body>
+                    <div class="cover-box">
+                        <div class="watermark">&#10048;</div>
+                        <div style="position: relative; z-index: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <h2 style="margin: 0; font-size: 26px; font-family: 'Cinzel', serif; color: #050B14; letter-spacing: 2px;">TAEBANK</h2>
+                                    <p style="margin: 2px 0 0 0; font-size: 9px; font-weight: 500; color: #8B9BB4; letter-spacing: 3px; text-transform: uppercase;">Elite Wealth Management</p>
+                                </div>
+                                <div style="font-size: 24px; color: #D4AF37;">&#10048;</div>
+                            </div>
+                            
+                            <div style="height: 2px; background: linear-gradient(90deg, #D4AF37, transparent); margin: 15px 0 20px 0;"></div>
+                            
+                            <h3 style="margin: 0 0 20px 0; font-size: 18px; color: #222; letter-spacing: 1px;">สมุดคู่ฝาก / Passbook</h3>
+                            
+                            <table style="width: 100%; border: none; font-size: 14px; line-height: 2.4;">
+                                <tr>
+                                    <td style="width: 35%; color: #555;">สาขา (Branch)</td>
+                                    <td style="border-bottom: 1px dotted #999;">สำนักงานใหญ่ (HQ)</td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #555;">ชื่อบัญชี (A/C Name)</td>
+                                    <td style="border-bottom: 1px dotted #999; font-weight: 500; font-size: 16px;">${name || 'ไม่ระบุชื่อ'}</td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #555;">เลขที่บัญชี (A/C No.)</td>
+                                    <td style="border-bottom: 1px dotted #999; font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 600; letter-spacing: 2px;">${formattedCode}</td>
+                                </tr>
+                            </table>
+                            
+                            <div style="margin-top: 30px; font-size: 10px; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 10px;">
+                                กรุณานำสมุดบัญชีมาด้วยทุกครั้งที่ทำรายการ / Please present this passbook for every transaction
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            openPrintWindow(content);
+        }
+
+        // ดีไซน์อัปเดตสมุด (ไม่มีกรอบ ไม่มีหัว เว้นบรรทัดให้ตรงช่อง)
+        function printLedger(code, name, userTxs, txStart, lineStart) {
+            let processedTxs = [];
+            let runningBal = 0;
+            
+            // คำนวณยอดคงเหลือทั้งหมดก่อน เพื่อให้ได้ยอดคงเหลือที่ถูกต้อง แม้จะพิมพ์แค่บางรายการ
+            userTxs.forEach((t, index) => {
+                let amt = parseFloat(t.amount);
+                let isDep = t.type === 'deposit';
+                runningBal += isDep ? amt : -amt;
+                
+                // ถ้ารายการนี้อยู่ในช่วงที่สั่งพิมพ์ ให้จัดเก็บใส่ Array ไว้รอ Render
+                if ((index + 1) >= txStart) {
+                    let d = new Date(t.date);
+                    let dateStr = d.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'});
+                    
+                    processedTxs.push({
+                        date: dateStr,
+                        code: isDep ? 'DEP' : 'WTD',
+                        wit: !isDep ? amt.toLocaleString(undefined,{minimumFractionDigits:2}) : '',
+                        dep: isDep ? amt.toLocaleString(undefined,{minimumFractionDigits:2}) : '',
+                        bal: runningBal.toLocaleString(undefined,{minimumFractionDigits:2}),
+                        teller: 'ADM'
+                    });
+                }
+            });
+
+            // สร้าง HTML บรรทัดว่างเพื่อดันตัวอักษรลงมาตามที่กำหนด (บรรทัดที่เริ่มพิมพ์)
+            let rowsHtml = '';
+            for (let i = 1; i < lineStart; i++) {
+                rowsHtml += `<tr class="print-row"><td colspan="6"></td></tr>`;
+            }
+
+            // สร้าง HTML แถวข้อมูล
+            processedTxs.forEach(ptx => {
+                rowsHtml += `
+                    <tr class="print-row">
+                        <td class="col-date">${ptx.date}</td>
+                        <td class="col-code">${ptx.code}</td>
+                        <td class="col-wit">${ptx.wit}</td>
+                        <td class="col-dep">${ptx.dep}</td>
+                        <td class="col-bal">${ptx.bal}</td>
+                        <td class="col-tel">${ptx.teller}</td>
+                    </tr>
+                `;
+            });
+
+            const content = `
+                <html>
+                <head>
+                    <title>Print Passbook Ledger</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Sarabun:wght@400;500&display=swap" rel="stylesheet">
+                    <style>
+                        @media print { 
+                            @page { margin: 0; size: auto; } /* ใช้ค่าตั้งต้นของ Printer */
+                            body { margin: 0; padding: 15mm; -webkit-print-color-adjust: exact; } 
+                        }
+                        body { font-family: 'Outfit', 'Sarabun', monospace; font-size: 12px; color: #000; }
+                        table { width: 100%; border-collapse: collapse; border: none; }
+                        td { padding: 0 4px; border: none; vertical-align: middle; white-space: nowrap; }
+                        
+                        /* ความสูงของแต่ละบรรทัด ปรับแก้ตรงนี้ให้ตรงกับช่องว่างในสมุดจริง (เช่น 24px หรือ 25px) */
+                        .print-row { height: 26px; } 
+                        
+                        .col-date { width: 15%; text-align: center; letter-spacing: 1px; }
+                        .col-code { width: 10%; text-align: center; font-weight: 600; }
+                        .col-wit  { width: 20%; text-align: right; }
+                        .col-dep  { width: 20%; text-align: right; }
+                        .col-bal  { width: 20%; text-align: right; font-weight: 600; }
+                        .col-tel  { width: 15%; text-align: right; }
+                    </style>
+                </head>
+                <body>
+                    <div style="max-width: 750px;">
+                        <table>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                </body>
+                </html>
+            `;
+            openPrintWindow(content);
+        }
 
         function updateAdminChart(dataArr) {
             const ctx = document.getElementById('doughnutChart').getContext('2d');
