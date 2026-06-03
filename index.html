@@ -209,7 +209,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getDatabase, ref, onValue, set, push, update, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-        // คอนฟิก Firebase 
         const firebaseConfig = {
             apiKey: "AIzaSyAiCtKW-U5QWp3yUsvToJlh2pT7sjiQ4Iw",
             authDomain: "taebankwat.firebaseapp.com",
@@ -304,7 +303,6 @@
         };
         window.cancelAdminAuth = () => { document.getElementById('adminCode2').value = ''; switchPage('page-login'); };
 
-        // --- ระบบของลูกค้า (แสดงผลภาษาไทย) ---
         function loadUserPortfolio(key) {
             const user = STATE.members[key];
             let txs = []; let bal = 0;
@@ -356,7 +354,15 @@
             }
         }
 
-        // --- ระบบประมวลผลหน้า Admin ---
+        // ฟังก์ชันช่วยกำหนดสีและชื่อแรงค์
+        function getRankInfo(bal) {
+            if (bal >= 10000) return { name: 'DIAMOND', color: '#38BDF8' }; // ฟ้า Diamond
+            if (bal >= 5000) return { name: 'EMERALD', color: '#10B981' };  // เขียว Emerald
+            if (bal >= 1000) return { name: 'PLATINUM', color: '#E2E8F0' }; // เงิน Platinum
+            if (bal >= 500) return { name: 'GOLD', color: '#D4AF37' };      // ทอง Gold
+            return { name: 'SILVER', color: '#94A3B8' };                    // เทา Silver
+        }
+
         window.adminRender = () => {
             const list = document.getElementById('adminList'); const search = (document.getElementById('adminSearch').value || "").toLowerCase().trim();
             let tBal = 0; let tMem = 0; let chartData = []; list.innerHTML = '';
@@ -409,7 +415,6 @@
             updateAdminChart(chartData);
         };
 
-        // --- 1. ระบบจ่ายดอกเบี้ยด้วยมือแอดมิน (Manual Payout) ---
         window.triggerInterestPayout = async () => {
             const {value: percent} = await Swal.fire({
                 title: '<span class="text-[var(--gold-mid)]">ตั้งค่าการจ่ายดอกเบี้ย</span>',
@@ -443,7 +448,6 @@
                         if (mBal > 0) {
                             let interestAmt = mBal * (p / 100);
                             totalInterestPaid += interestAmt; count++;
-                            
                             const newTxKey = push(ref(db, 'transactions')).key;
                             updates[`transactions/${newTxKey}`] = { studentCode: k, type: 'deposit', amount: interestAmt, date: new Date().toISOString(), printed: false, isInterest: true };
                         }
@@ -459,11 +463,11 @@
             }
         };
 
-        // --- 2. ระบบ Report รูปภาพ (แก้ให้สร้างภาพสมบูรณ์ ไม่ดำ) ---
+        // --- ระบบดาวน์โหลดรูปภาพสรุปยอดเงิน (แบบใหม่ กราฟโดนัท) ---
         window.downloadWealthReport = async () => {
             Swal.fire({ title: 'Generating Report...', text: 'Please wait while we create your beautiful summary image.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }, background: '#0B1121', color: '#fff' });
 
-            let tBal = 0; let memberData = [];
+            let memberData = [];
             Object.keys(STATE.members || {}).forEach(k => {
                 const m = STATE.members[k]; let mBal = 0;
                 if(STATE.transactions) {
@@ -471,34 +475,84 @@
                         if (STATE.transactions[txId].studentCode === k) { mBal += (STATE.transactions[txId].type === 'deposit' ? parseFloat(STATE.transactions[txId].amount) : -parseFloat(STATE.transactions[txId].amount)); }
                     });
                 }
-                if (mBal > 0) { memberData.push({ name: m.name || m.nick || k, bal: mBal, code: k }); tBal += mBal; }
+                if (mBal > 0) { memberData.push({ name: m.name || m.nick || k, bal: mBal, code: k }); }
             });
+
             memberData.sort((a,b) => b.bal - a.bal);
+
+            // สร้างกราฟโดนัทชั่วคราวซ่อนไว้
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 600; tempCanvas.height = 300;
+            tempCanvas.style.cssText = "position: absolute; top: -9999px; left: -9999px;";
+            document.body.appendChild(tempCanvas);
+
+            const tCtx = tempCanvas.getContext('2d');
+            const tempChart = new Chart(tCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: memberData.map(d => d.name),
+                    datasets: [{
+                        data: memberData.map(d => d.bal),
+                        backgroundColor: memberData.map(d => getRankInfo(d.bal).color),
+                        borderWidth: 2, borderColor: '#050B14'
+                    }]
+                },
+                options: {
+                    animation: false, responsive: false,
+                    plugins: { legend: { position: 'right', labels: { color: '#8B9BB4', font: {family: 'Outfit', size: 14, weight: 'bold'}, usePointStyle: true, boxWidth: 8, padding: 15 } } }
+                }
+            });
+
+            const chartImgSrc = tempCanvas.toDataURL('image/png');
+            tempChart.destroy(); document.body.removeChild(tempCanvas);
 
             const reportDiv = document.createElement('div');
             reportDiv.id = "export-report-container";
-            // แก้ไข CSS ตรงนี้โดยดันไปอยู่บนซ้ายนอกจอ เพื่อไม่ให้ทับหน้าเว็บและป้องกันปัญหารูปดำ/โปร่งใส
             reportDiv.style.cssText = "width: 800px; background: #050B14; padding: 40px; color: #fff; font-family: 'Sarabun', sans-serif; position: absolute; top: -9999px; left: -9999px; z-index: -100;";
             
             let rowsHtml = '';
             memberData.forEach((m, index) => {
-                let rankColor = index === 0 ? 'color: #D4AF37;' : (index === 1 ? 'color: #94A3B8;' : (index === 2 ? 'color: #B45309;' : 'color: #8B9BB4;'));
-                let rankTrophy = index < 3 ? '<i class="fas fa-trophy"></i> ' : '';
-                rowsHtml += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); margin-bottom: 8px; border-radius: 12px;"><div style="display: flex; align-items: center; gap: 15px;"><div style="width: 45px; font-weight: bold; font-size: 18px; font-family: 'Outfit'; ${rankColor}">${rankTrophy}#${index + 1}</div><div><div style="font-size: 18px; font-weight: 600;">${m.name}</div><div style="font-size: 12px; color: #8B9BB4; font-family: 'Outfit';">A/C: ${m.code.replace(/(\d{3})(\d{3})/, '$1-$2')}</div></div></div><div style="font-size: 22px; font-family: 'Outfit'; font-weight: bold; color: #10B981;">฿${m.bal.toLocaleString(undefined, {minimumFractionDigits: 2})}</div></div>`;
+                let rank = getRankInfo(m.bal);
+                rowsHtml += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); margin-bottom: 8px; border-radius: 12px; border-left: 4px solid ${rank.color};">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 35px; font-weight: bold; font-size: 18px; font-family: 'Outfit'; color: ${rank.color}; text-align: center;">#${index + 1}</div>
+                            <div>
+                                <div style="font-size: 18px; font-weight: 600;">${m.name}</div>
+                                <div style="font-size: 10px; font-weight: bold; letter-spacing: 1px; color: ${rank.color}; text-transform: uppercase; margin-top: 2px;">${rank.name} CLASS</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 22px; font-family: 'Outfit'; font-weight: bold; color: #FFF;">
+                            ฿${m.bal.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                        </div>
+                    </div>
+                `;
             });
 
             reportDiv.innerHTML = `
-                <div style="text-align: center; margin-bottom: 40px; position: relative;">
-                    <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); font-size: 150px; color: rgba(212,175,55,0.04); z-index: 0;"><i class="fas fa-leaf"></i></div>
+                <div style="text-align: center; margin-bottom: 30px; position: relative;">
+                    <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 150px; color: rgba(212,175,55,0.03); z-index: 0;"><i class="fas fa-leaf"></i></div>
                     <div style="position: relative; z-index: 1;">
                         <h1 style="font-family: 'Cinzel', serif; font-size: 42px; color: #D4AF37; margin: 0; letter-spacing: 8px;">TAEBANK</h1>
-                        <p style="color: #8B9BB4; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; margin-top: 5px; font-weight: bold;">Elite Wealth Management</p>
-                        <div style="margin: 40px 0;"><p style="font-size: 14px; color: #8B9BB4; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; font-weight: bold;">Global Liquidity (เงินรวมทั้งหมด)</p><div style="font-size: 56px; font-family: 'Outfit'; font-weight: bold; color: #fff; text-shadow: 0 0 20px rgba(212,175,55,0.3);">฿${tBal.toLocaleString(undefined, {minimumFractionDigits: 2})}</div></div>
+                        <p style="color: #8B9BB4; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; margin-top: 5px; font-weight: bold;">Wealth Distribution Report</p>
                     </div>
                 </div>
-                <h3 style="color: #D4AF37; font-size: 18px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 10px;"><i class="fas fa-chart-bar"></i> Client Wealth Ranking</h3>
-                <div>${rowsHtml || '<div style="text-align:center; color:#8B9BB4; padding: 20px;">No active accounts found.</div>'}</div>
-                <div style="text-align: center; margin-top: 40px; font-size: 12px; color: #4B5E82;">Generated on ${new Date().toLocaleString('en-GB')} • TaeBank Automated System</div>
+                
+                <div style="text-align: center; margin-bottom: 30px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 20px;">
+                    <img src="${chartImgSrc}" style="display: block; margin: 0 auto;" />
+                </div>
+                
+                <h3 style="color: #D4AF37; font-size: 18px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 10px;">
+                    <i class="fas fa-list"></i> Client Ranking Details
+                </h3>
+                
+                <div>
+                    ${rowsHtml || '<div style="text-align:center; color:#8B9BB4; padding: 20px;">No active accounts found.</div>'}
+                </div>
+                
+                <div style="text-align: center; margin-top: 40px; font-size: 12px; color: #4B5E82;">
+                    Generated on ${new Date().toLocaleString('en-GB')} • TaeBank Automated System
+                </div>
             `;
             document.body.appendChild(reportDiv);
 
@@ -514,7 +568,6 @@
             }, 800);
         };
 
-        // --- 3. ระบบ Passbook Center ---
         window.adminPrintMenu = async (code, user) => {
             let userTxs = [];
             if (STATE.transactions) { Object.keys(STATE.transactions).forEach(id => { if (STATE.transactions[id].studentCode === code) userTxs.push({ id: id, ...STATE.transactions[id] }); }); }
@@ -649,9 +702,16 @@
         }
         function printCover(code, name) { openPrintWindow(`<html><head><title>Print Passbook Cover</title><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Outfit:wght@400;600&family=Sarabun:wght@300;500&display=swap" rel="stylesheet"><style>body { font-family: 'Sarabun', sans-serif; padding: 20px; -webkit-print-color-adjust: exact; background: #fff; } @media print { @page { margin: 10mm; } body { padding: 0; } } .cover-box { width: 140mm; height: 90mm; border: 1px solid #ddd; padding: 25px; position: relative; margin: 0 auto; overflow: hidden; background: #fafafa; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 8px; } .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; font-size: 180px; color: #D4AF37; z-index: 0; }</style></head><body><div class="cover-box"><div class="watermark">&#10048;</div><div style="position: relative; z-index: 1;"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><h2 style="margin: 0; font-size: 26px; font-family: 'Cinzel', serif; color: #050B14; letter-spacing: 2px;">TAEBANK</h2><p style="margin: 2px 0 0 0; font-size: 9px; font-weight: 500; color: #8B9BB4; letter-spacing: 3px; text-transform: uppercase;">Elite Wealth Management</p></div><div style="font-size: 24px; color: #D4AF37;">&#10048;</div></div><div style="height: 2px; background: linear-gradient(90deg, #D4AF37, transparent); margin: 15px 0 20px 0;"></div><h3 style="margin: 0 0 20px 0; font-size: 18px; color: #222; letter-spacing: 1px;">สมุดคู่ฝาก / Passbook</h3><table style="width: 100%; border: none; font-size: 14px; line-height: 2.4;"><tr><td style="width: 35%; color: #555;">สาขา (Branch)</td><td style="border-bottom: 1px dotted #999;">สำนักงานใหญ่ (HQ)</td></tr><tr><td style="color: #555;">ชื่อบัญชี (A/C Name)</td><td style="border-bottom: 1px dotted #999; font-weight: 500; font-size: 16px;">${name || 'ไม่ระบุชื่อ'}</td></tr><tr><td style="color: #555;">เลขที่บัญชี (A/C No.)</td><td style="border-bottom: 1px dotted #999; font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 600; letter-spacing: 2px;">${code.replace(/(\d{3})(\d{3})/, '$1-$2')}</td></tr></table><div style="margin-top: 30px; font-size: 10px; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 10px;">กรุณานำสมุดบัญชีมาด้วยทุกครั้งที่ทำรายการ / Please present this passbook for every transaction</div></div></div></body></html>`); }
         function openPrintWindow(content) { const printWin = window.open('', '_blank'); printWin.document.write(content); printWin.document.close(); printWin.focus(); setTimeout(() => { printWin.print(); printWin.close(); }, 800); }
-        function updateAdminChart(dataArr) { const ctx = document.getElementById('doughnutChart').getContext('2d'); dataArr.sort((a,b) => b.bal - a.bal); const labels = dataArr.map(d => d.name); const data = dataArr.map(d => d.bal); const colors = ['#D4AF37','#3B82F6','#10B981','#8B5CF6','#F59E0B','#06B6D4','#EC4899','#6366F1']; if (myChart) myChart.destroy(); if (data.length === 0) { labels.push('No Assets'); data.push(1); colors.unshift('rgba(255,255,255,0.05)'); } myChart = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 2, borderColor: '#121C33', hoverOffset: 6 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { color: '#8B9BB4', font: {family: 'Outfit', size: 10, weight: 'bold'}, usePointStyle: true, boxWidth: 6, padding: 10 } }, tooltip: { backgroundColor: '#070B19', titleColor: '#D4AF37', bodyColor: '#FFF', borderColor: 'rgba(212,175,55,0.2)', borderWidth: 1, padding: 10, callbacks: { label: (c) => ` ฿${c.raw.toLocaleString()} (${((c.raw / c.chart._metasets[0].total) * 100).toFixed(1)}%)` } } } } }); }
-        
-        // --- ฐานข้อมูล CRUD ---
+        function updateAdminChart(dataArr) { 
+            const ctx = document.getElementById('doughnutChart').getContext('2d'); 
+            dataArr.sort((a,b) => b.bal - a.bal); 
+            const labels = dataArr.map(d => d.name); 
+            const data = dataArr.map(d => d.bal); 
+            const colors = dataArr.map(d => getRankInfo(d.bal).color); 
+            if (myChart) myChart.destroy(); 
+            if (data.length === 0) { labels.push('No Assets'); data.push(1); colors.unshift('rgba(255,255,255,0.05)'); } 
+            myChart = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 2, borderColor: '#121C33', hoverOffset: 6 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { color: '#8B9BB4', font: {family: 'Outfit', size: 10, weight: 'bold'}, usePointStyle: true, boxWidth: 6, padding: 10 } }, tooltip: { backgroundColor: '#070B19', titleColor: '#D4AF37', bodyColor: '#FFF', borderColor: 'rgba(212,175,55,0.2)', borderWidth: 1, padding: 10, callbacks: { label: (c) => ` ฿${c.raw.toLocaleString()} (${((c.raw / c.chart._metasets[0].total) * 100).toFixed(1)}%)` } } } } }); 
+        }
         async function adminTransact(k, nick) { const res = await Swal.fire({ title: `<span class="text-[var(--gold-mid)]">Ledger Entry: ${nick}</span>`, showDenyButton: true, showCancelButton: true, confirmButtonText: '<i class="fas fa-arrow-down"></i> Deposit', confirmButtonColor: '#10B981', denyButtonText: '<i class="fas fa-arrow-up"></i> Withdraw', denyButtonColor: '#EF4444', cancelButtonColor: '#1E2B4D' }); if (res.isConfirmed || res.isDenied) { const {value:amt} = await Swal.fire({ title: '<span class="text-white">Amount</span>', input: 'number', inputAttributes: {min:1}, confirmButtonColor: '#D4AF37', customClass:{input:'admin-input text-center text-xl font-num'}, background: '#0B1121' }); if(amt) { await push(ref(db, 'transactions'), { studentCode: k, type: res.isConfirmed ? 'deposit' : 'withdraw', amount: parseFloat(amt), date: new Date().toISOString(), printed: false }); } } }
         function adminHistory(k, nick) { let hHTML = `<div class="max-h-60 overflow-y-auto pr-2 text-left space-y-2">`; let userTxs = Object.keys(STATE.transactions || {}).filter(id => STATE.transactions[id].studentCode === k).sort((a,b)=>new Date(STATE.transactions[b].date)-new Date(STATE.transactions[a].date)); if(userTxs.length === 0) hHTML += '<p class="text-center py-6 text-[#4B5E82] uppercase tracking-widest text-[10px] font-bold">No Records</p>'; userTxs.forEach(id => { const t = STATE.transactions[id]; const isD = t.type==='deposit'; const isInt = t.isInterest; let title = isInt ? 'Interest' : (isD ? 'Credit' : 'Debit'); let printTag = t.printed ? `<span class="text-[8px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded ml-2">Printed</span>` : `<span class="text-[8px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded ml-2 border border-red-500/30">New</span>`; hHTML += `<div class="flex justify-between items-center bg-white/5 border border-white/5 p-3 rounded-xl"><div><p class="text-[11px] font-bold uppercase tracking-wider ${isD?'text-emerald-400':'text-red-400'}">${title} ${printTag}</p><p class="text-[9px] text-gray-400 font-num font-medium mt-0.5">${new Date(t.date).toLocaleDateString('en-GB')}</p></div><div class="flex items-center gap-3"><span class="font-num font-bold text-sm text-white">${isD?'+':'-'}${parseFloat(t.amount).toLocaleString()}</span><button onclick="window.adminDelTx('${id}')" class="text-red-400 w-7 h-7 rounded-full bg-red-500/10 hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><i class="fas fa-trash-can text-[10px]"></i></button></div></div>`; }); Swal.fire({ title: `<span class="font-eng tracking-widest text-sm text-[var(--gold-mid)]">LEDGER: ${nick}</span>`, html: hHTML + '</div>', showConfirmButton: false, showCloseButton: true, background: '#0B1121' }); }
         window.adminDelTx = async (id) => { if((await Swal.fire({title:'Erase Transaction?', text: 'This action cannot be undone', icon:'warning', showCancelButton:true, confirmButtonColor: '#EF4444', background: '#0B1121'} )).isConfirmed) { await remove(ref(db, 'transactions/'+id)); Swal.close(); } };
