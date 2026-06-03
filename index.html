@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TaeBank - Elite Wealth Management</title>
     
-    <!-- เพิ่มฟอนต์ Great Vibes สำหรับลายเซ็นต์ -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&family=Great+Vibes&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -229,6 +228,9 @@
         
         const ADMIN_PIN_1 = "009098";
         const ADMIN_PIN_2 = "5255272828842525";
+        
+        // ตัวช่วยฟอร์แมตตัวเลข 2 ตำแหน่งเป๊ะๆ เสมอ
+        const fmtAmt = (num) => Number(num).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
         onValue(ref(db, 'members'), s => { 
             STATE.members = s.val() || {}; 
@@ -348,20 +350,19 @@
                                 <div class="w-10 h-10 rounded-full flex items-center justify-center ${isD ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}"><i class="fas ${iconClass} text-xs"></i></div>
                                 <div><p class="text-sm font-bold text-white">${title}</p><p class="text-[10px] text-[#8B9BB4] font-num font-medium mt-0.5">${d.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'})} • ${d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}</p></div>
                             </div>
-                            <p class="font-bold font-num text-base ${isD ? 'text-emerald-400' : 'text-red-400'}">${isD?'+':'-'}${parseFloat(t.amount).toLocaleString()}</p>
+                            <p class="font-bold font-num text-base ${isD ? 'text-emerald-400' : 'text-red-400'}">${isD?'+':'-'}${fmtAmt(t.amount)}</p>
                         </div>`;
                 });
                 if(txs.length > 5) info.innerHTML = `<div class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md py-1.5 px-4 rounded-full border border-[rgba(255,255,255,0.1)] inline-block mx-auto text-[10px] text-[#8B9BB4] font-bold tracking-[1px]">แสดง 5 จาก ${txs.length} รายการ</div>`;
             }
         }
 
-        // --- ฟังก์ชันดึงสี Rank ---
         function getRankInfo(bal) {
-            if (bal >= 10000) return { name: 'DIAMOND', color: '#0284C7' }; // ฟ้า
-            if (bal >= 5000) return { name: 'EMERALD', color: '#059669' };  // เขียว
-            if (bal >= 1000) return { name: 'PLATINUM', color: '#475569' }; // เงิน/เทาเข้ม
-            if (bal >= 500) return { name: 'GOLD', color: '#B48608' };      // ทอง
-            return { name: 'SILVER', color: '#94A3B8' };                    // เทาอ่อน
+            if (bal >= 10000) return { name: 'DIAMOND', color: '#0284C7' };
+            if (bal >= 5000) return { name: 'EMERALD', color: '#059669' }; 
+            if (bal >= 1000) return { name: 'PLATINUM', color: '#475569' };
+            if (bal >= 500) return { name: 'GOLD', color: '#B48608' };     
+            return { name: 'SILVER', color: '#94A3B8' };                   
         }
 
         window.adminRender = () => {
@@ -390,7 +391,7 @@
                     <div class="flex-1 pr-2 overflow-hidden">
                         <span class="font-num text-[9px] text-[var(--gold-mid)] font-bold px-2 py-1 rounded bg-[rgba(212,175,55,0.1)] tracking-widest border border-[rgba(212,175,55,0.2)]">${k}</span>
                         <h4 class="font-bold text-[15px] mt-1.5 truncate text-white">${m.nick || '-'}</h4>
-                        <div class="mt-0.5 text-lg font-num font-bold ${mBal >= 0 ? 'text-emerald-400' : 'text-red-400'}">฿${mBal.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                        <div class="mt-0.5 text-lg font-num font-bold ${mBal >= 0 ? 'text-emerald-400' : 'text-red-400'}">฿${fmtAmt(mBal)}</div>
                     </div>
                     <div class="flex flex-col gap-1.5 w-32 flex-shrink-0">
                         <button class="bg-[var(--gold-mid)] text-black py-2 rounded-lg font-bold text-[10px] btn-atx shadow-md active:scale-95 transition-transform uppercase tracking-widest font-eng">Transact</button>
@@ -411,22 +412,14 @@
                 list.appendChild(card);
             });
 
-            document.getElementById('stat-total').innerText = tBal.toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('stat-total').innerText = fmtAmt(tBal);
             document.getElementById('stat-members').innerText = tMem;
             
-            // กราฟโดนัทหน้าแรก (Dark Theme)
             const ctx = document.getElementById('doughnutChart').getContext('2d'); 
             chartData.sort((a,b) => b.bal - a.bal); 
             const labels = chartData.map(d => d.name); 
             const data = chartData.map(d => d.bal); 
-            // ใช้สีจาก Rank
-            const colors = chartData.map(d => {
-                if (d.bal >= 10000) return '#38BDF8';
-                if (d.bal >= 5000) return '#10B981';
-                if (d.bal >= 1000) return '#E2E8F0';
-                if (d.bal >= 500) return '#D4AF37';
-                return '#94A3B8';
-            }); 
+            const colors = chartData.map(d => getRankInfo(d.bal).color); 
             
             if (myChart) myChart.destroy(); 
             if (data.length === 0) { labels.push('No Assets'); data.push(1); colors.unshift('rgba(255,255,255,0.05)'); } 
@@ -434,7 +427,7 @@
             myChart = new Chart(ctx, { 
                 type: 'doughnut', 
                 data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 2, borderColor: '#121C33', hoverOffset: 6 }] }, 
-                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { color: '#8B9BB4', font: {family: 'Outfit', size: 10, weight: 'bold'}, usePointStyle: true, boxWidth: 6, padding: 10 } }, tooltip: { backgroundColor: '#070B19', titleColor: '#D4AF37', bodyColor: '#FFF', borderColor: 'rgba(212,175,55,0.2)', borderWidth: 1, padding: 10, callbacks: { label: (c) => ` ฿${c.raw.toLocaleString()} (${((c.raw / c.chart._metasets[0].total) * 100).toFixed(1)}%)` } } } } 
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { color: '#8B9BB4', font: {family: 'Outfit', size: 10, weight: 'bold'}, usePointStyle: true, boxWidth: 6, padding: 10 } }, tooltip: { backgroundColor: '#070B19', titleColor: '#D4AF37', bodyColor: '#FFF', borderColor: 'rgba(212,175,55,0.2)', borderWidth: 1, padding: 10, callbacks: { label: (c) => ` ฿${fmtAmt(c.raw)} (${((c.raw / c.chart._metasets[0].total) * 100).toFixed(1)}%)` } } } } 
             });
         };
 
@@ -478,7 +471,7 @@
 
                     if (count > 0) {
                         await update(ref(db), updates);
-                        Swal.fire({ icon: 'success', title: 'จ่ายดอกเบี้ยสำเร็จ', html: `<div class="text-sm text-[#8B9BB4]">จ่ายให้ ${count} บัญชี<br>รวมเป็นเงิน <b>฿${totalInterestPaid.toLocaleString(undefined, {minimumFractionDigits:2})}</b></div>`, confirmButtonColor: '#D4AF37', background: '#0B1121' });
+                        Swal.fire({ icon: 'success', title: 'จ่ายดอกเบี้ยสำเร็จ', html: `<div class="text-sm text-[#8B9BB4]">จ่ายให้ ${count} บัญชี<br>รวมเป็นเงิน <b>฿${fmtAmt(totalInterestPaid)}</b></div>`, confirmButtonColor: '#D4AF37', background: '#0B1121' });
                     } else {
                         Swal.fire({ icon: 'info', title: 'ไม่มีบัญชีที่มียอดเงิน', confirmButtonColor: '#D4AF37', background: '#0B1121' });
                     }
@@ -486,7 +479,6 @@
             }
         };
 
-        // --- 🌟 ระบบ Report รูปภาพ (Light Theme หรูหรา + กราฟ + ลายเซ็นต์) 🌟 ---
         window.downloadWealthReport = async () => {
             Swal.fire({ title: 'Generating Report...', text: 'Please wait while we create your elegant summary image.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }, background: '#0B1121', color: '#fff' });
 
@@ -503,7 +495,6 @@
 
             memberData.sort((a,b) => b.bal - a.bal);
 
-            // 1. สร้างกราฟโดนัท (สำหรับสอดแทรกในรูป)
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = 600; tempCanvas.height = 350;
             tempCanvas.style.cssText = "position: absolute; top: -9999px; left: -9999px;";
@@ -517,7 +508,7 @@
                     datasets: [{
                         data: memberData.map(d => d.bal),
                         backgroundColor: memberData.map(d => getRankInfo(d.bal).color),
-                        borderWidth: 3, borderColor: '#FFFFFF' // ขอบขาวสำหรับ Light Theme
+                        borderWidth: 3, borderColor: '#FFFFFF' 
                     }]
                 },
                 options: {
@@ -529,7 +520,6 @@
             const chartImgSrc = tempCanvas.toDataURL('image/png');
             tempChart.destroy(); document.body.removeChild(tempCanvas);
 
-            // 2. สร้างโครง HTML สีสว่าง
             const reportDiv = document.createElement('div');
             reportDiv.id = "export-report-container";
             reportDiv.style.cssText = "width: 850px; background: #FDFDFC; padding: 50px; color: #0F172A; font-family: 'Sarabun', sans-serif; position: absolute; top: -9999px; left: -9999px; z-index: -100;";
@@ -547,7 +537,7 @@
                             </div>
                         </div>
                         <div style="font-size: 22px; font-family: 'Outfit'; font-weight: bold; color: #0F172A;">
-                            ฿${m.bal.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                            ฿${fmtAmt(m.bal)}
                         </div>
                     </div>
                 `;
@@ -573,7 +563,6 @@
                     ${rowsHtml || '<div style="text-align:center; color:#94A3B8; padding: 20px;">No active accounts found.</div>'}
                 </div>
                 
-                <!-- ส่วนลายเซ็นต์ผู้จัดการ -->
                 <div style="margin-top: 60px; display: flex; justify-content: space-between; align-items: flex-end;">
                     <div style="font-size: 12px; color: #94A3B8;">
                         Generated on ${new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'long',year:'numeric'})} <br> TaeBank Automated System
@@ -591,7 +580,6 @@
             `;
             document.body.appendChild(reportDiv);
 
-            // รอ 1 วินาที ให้ฟอนต์ Great Vibes (ลายเซ็นต์) โหลดสมบูรณ์ก่อนถ่ายรูป
             setTimeout(async () => {
                 try {
                     const canvas = await html2canvas(reportDiv, { backgroundColor: '#FDFDFC', scale: 2 });
@@ -654,7 +642,7 @@
             let printRows = []; let currentBal = prevBal; let updates = {};
 
             if (pbLine === 1 && prevBal !== 0) {
-                printRows.push({ date: new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'}), code: 'B/F', wit: '', dep: '', bal: currentBal.toLocaleString(undefined,{minimumFractionDigits:2}), teller: 'SYS' });
+                printRows.push({ date: new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'}), code: 'B/F', wit: '', dep: '', bal: fmtAmt(currentBal), teller: 'SYS' });
                 linesAvailable--;
             }
 
@@ -662,7 +650,7 @@
             txsToPrint.forEach(t => {
                 currentBal += t.isDep ? t.amt : -t.amt;
                 let displayCode = t.isInterest ? 'INT' : (t.isDep ? 'DEP' : 'WTD');
-                printRows.push({ date: new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'}), code: displayCode, wit: !t.isDep ? t.amt.toLocaleString(undefined,{minimumFractionDigits:2}) : '', dep: t.isDep ? t.amt.toLocaleString(undefined,{minimumFractionDigits:2}) : '', bal: currentBal.toLocaleString(undefined,{minimumFractionDigits:2}), teller: 'ADM' });
+                printRows.push({ date: new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'}), code: displayCode, wit: !t.isDep ? fmtAmt(t.amt) : '', dep: t.isDep ? fmtAmt(t.amt) : '', bal: fmtAmt(currentBal), teller: 'ADM' });
                 updates[`transactions/${t.id}/printed`] = true; 
             });
 
@@ -697,7 +685,7 @@
 
                 if(step2.isConfirmed && runningBal !== 0) {
                     let dStr = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'});
-                    let rowHtml = `<tr class="print-row"><td class="col-date">${dStr}</td><td class="col-code">B/F</td><td class="col-wit"></td><td class="col-dep"></td><td class="col-bal">${runningBal.toLocaleString(undefined,{minimumFractionDigits:2})}</td><td class="col-tel">SYS</td></tr>`;
+                    let rowHtml = `<tr class="print-row"><td class="col-date">${dStr}</td><td class="col-code">B/F</td><td class="col-wit"></td><td class="col-dep"></td><td class="col-bal">${fmtAmt(runningBal)}</td><td class="col-tel">SYS</td></tr>`;
                     openPrintWindow(generateLedgerHTML(rowHtml));
                     await update(ref(db), { [`members/${code}/pbLine`]: 2 });
                 }
@@ -714,7 +702,7 @@
                 let d = new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'});
                 let displayCode = t.isInterest ? 'INT' : (isDep ? 'DEP' : 'WTD');
                 if (lineCount >= 24) { rowsHtml += `</tbody></table><div style="page-break-before: always;"></div><table><tbody>`; lineCount = 0; pageCount++; }
-                rowsHtml += `<tr class="print-row"><td class="col-date">${d}</td><td class="col-code">${displayCode}</td><td class="col-wit">${!isDep ? amt.toLocaleString(undefined,{minimumFractionDigits:2}) : ''}</td><td class="col-dep">${isDep ? amt.toLocaleString(undefined,{minimumFractionDigits:2}) : ''}</td><td class="col-bal">${runningBal.toLocaleString(undefined,{minimumFractionDigits:2})}</td><td class="col-tel">ADM</td></tr>`;
+                rowsHtml += `<tr class="print-row"><td class="col-date">${d}</td><td class="col-code">${displayCode}</td><td class="col-wit">${!isDep ? fmtAmt(amt) : ''}</td><td class="col-dep">${isDep ? fmtAmt(amt) : ''}</td><td class="col-bal">${fmtAmt(runningBal)}</td><td class="col-tel">ADM</td></tr>`;
                 lineCount++;
             });
             openPrintWindow(generateLedgerHTML(rowsHtml));
@@ -731,7 +719,7 @@
                 userTxs.forEach(t => { 
                     let amt = parseFloat(t.amount); let isDep = t.type === 'deposit'; bal += isDep ? amt : -amt; 
                     let displayCode = t.isInterest ? 'INT' : (isDep ? 'DEP' : 'WTD');
-                    rows += `<tr><td style="text-align:center;">${new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'})}</td><td style="text-align:center; font-weight:600; color:${isDep ? '#10B981':'#EF4444'}">${displayCode}</td><td style="text-align:right;">${isDep ? amt.toLocaleString(undefined,{minimumFractionDigits:2}) : '-'}</td><td style="text-align:right;">${!isDep ? amt.toLocaleString(undefined,{minimumFractionDigits:2}) : '-'}</td><td style="text-align:right; font-weight:600;">${bal.toLocaleString(undefined,{minimumFractionDigits:2})}</td><td style="text-align:center;">ADM</td></tr>`; 
+                    rows += `<tr><td style="text-align:center;">${new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'})}</td><td style="text-align:center; font-weight:600; color:${isDep ? '#10B981':'#EF4444'}">${displayCode}</td><td style="text-align:right;">${isDep ? fmtAmt(amt) : '-'}</td><td style="text-align:right;">${!isDep ? fmtAmt(amt) : '-'}</td><td style="text-align:right; font-weight:600;">${fmtAmt(bal)}</td><td style="text-align:center;">ADM</td></tr>`; 
                 });
             }
             openPrintWindow(`<html><head><title>Full Statement - ${formattedCode}</title><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Outfit:wght@400;600&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet"><style>body { font-family: 'Sarabun', sans-serif; padding: 20px 40px; color: #111; font-size: 14px; background: #fff;} @media print { @page { margin: 10mm; } body { padding: 0; -webkit-print-color-adjust: exact; } } .header-box { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #0F172A; padding-bottom: 15px; margin-bottom: 20px; } .bank-title { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 600; color: #050B14; margin: 0; } .bank-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #555; } .acc-info { text-align: right; line-height: 1.6; } table { width: 100%; border-collapse: collapse; margin-top: 10px; font-family: 'Outfit', 'Sarabun', sans-serif; font-size: 13px; } th, td { border: 1px solid #ddd; padding: 10px 8px; } th { background-color: #f8f9fa; font-weight: 600; text-align: center; color: #333; } .report-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; text-align: center; letter-spacing: 1px;}</style></head><body><div class="header-box"><div><h1 class="bank-title">TAEBANK</h1><div class="bank-sub">Elite Wealth Management</div></div><div class="acc-info"><div><strong>ชื่อบัญชี (Account Name):</strong> ${name || '-'}</div><div><strong>เลขที่บัญชี (Account No.):</strong> <span style="font-size: 16px; font-family: 'Outfit', sans-serif; font-weight:600;">${formattedCode}</span></div><div><strong>สาขา (Branch):</strong> สำนักงานใหญ่ (HQ)</div></div></div><div class="report-title">รายงานความเคลื่อนไหวบัญชี (Statement of Account)</div><table><thead><tr><th width="15%">วันที่ (Date)</th><th width="10%">รหัส (Code)</th><th width="20%">ฝาก (Deposit)</th><th width="20%">ถอน (Withdrawal)</th><th width="20%">คงเหลือ (Balance)</th><th width="15%">ผู้บันทึก (Teller)</th></tr></thead><tbody>${rows}</tbody></table><div style="margin-top: 30px; font-size: 11px; color: #777; text-align: center;">เอกสารนี้จัดทำขึ้นโดยระบบอัตโนมัติ / This document is automatically generated. <br> พิมพ์เมื่อ: ${new Date().toLocaleString('th-TH')}</div></body></html>`);
@@ -740,13 +728,13 @@
         function openPrintWindow(content) { const printWin = window.open('', '_blank'); printWin.document.write(content); printWin.document.close(); printWin.focus(); setTimeout(() => { printWin.print(); printWin.close(); }, 800); }
         
         async function adminTransact(k, nick) { const res = await Swal.fire({ title: `<span class="text-[var(--gold-mid)]">Ledger Entry: ${nick}</span>`, showDenyButton: true, showCancelButton: true, confirmButtonText: '<i class="fas fa-arrow-down"></i> Deposit', confirmButtonColor: '#10B981', denyButtonText: '<i class="fas fa-arrow-up"></i> Withdraw', denyButtonColor: '#EF4444', cancelButtonColor: '#1E2B4D' }); if (res.isConfirmed || res.isDenied) { const {value:amt} = await Swal.fire({ title: '<span class="text-white">Amount</span>', input: 'number', inputAttributes: {min:1}, confirmButtonColor: '#D4AF37', customClass:{input:'admin-input text-center text-xl font-num'}, background: '#0B1121' }); if(amt) { await push(ref(db, 'transactions'), { studentCode: k, type: res.isConfirmed ? 'deposit' : 'withdraw', amount: parseFloat(amt), date: new Date().toISOString(), printed: false }); } } }
-        function adminHistory(k, nick) { let hHTML = `<div class="max-h-60 overflow-y-auto pr-2 text-left space-y-2">`; let userTxs = Object.keys(STATE.transactions || {}).filter(id => STATE.transactions[id].studentCode === k).sort((a,b)=>new Date(STATE.transactions[b].date)-new Date(STATE.transactions[a].date)); if(userTxs.length === 0) hHTML += '<p class="text-center py-6 text-[#4B5E82] uppercase tracking-widest text-[10px] font-bold">No Records</p>'; userTxs.forEach(id => { const t = STATE.transactions[id]; const isD = t.type==='deposit'; const isInt = t.isInterest; let title = isInt ? 'Interest' : (isD ? 'Credit' : 'Debit'); let printTag = t.printed ? `<span class="text-[8px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded ml-2">Printed</span>` : `<span class="text-[8px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded ml-2 border border-red-500/30">New</span>`; hHTML += `<div class="flex justify-between items-center bg-white/5 border border-white/5 p-3 rounded-xl"><div><p class="text-[11px] font-bold uppercase tracking-wider ${isD?'text-emerald-400':'text-red-400'}">${title} ${printTag}</p><p class="text-[9px] text-gray-400 font-num font-medium mt-0.5">${new Date(t.date).toLocaleDateString('en-GB')}</p></div><div class="flex items-center gap-3"><span class="font-num font-bold text-sm text-white">${isD?'+':'-'}${parseFloat(t.amount).toLocaleString()}</span><button onclick="window.adminDelTx('${id}')" class="text-red-400 w-7 h-7 rounded-full bg-red-500/10 hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><i class="fas fa-trash-can text-[10px]"></i></button></div></div>`; }); Swal.fire({ title: `<span class="font-eng tracking-widest text-sm text-[var(--gold-mid)]">LEDGER: ${nick}</span>`, html: hHTML + '</div>', showConfirmButton: false, showCloseButton: true, background: '#0B1121' }); }
+        function adminHistory(k, nick) { let hHTML = `<div class="max-h-60 overflow-y-auto pr-2 text-left space-y-2">`; let userTxs = Object.keys(STATE.transactions || {}).filter(id => STATE.transactions[id].studentCode === k).sort((a,b)=>new Date(STATE.transactions[b].date)-new Date(STATE.transactions[a].date)); if(userTxs.length === 0) hHTML += '<p class="text-center py-6 text-[#4B5E82] uppercase tracking-widest text-[10px] font-bold">No Records</p>'; userTxs.forEach(id => { const t = STATE.transactions[id]; const isD = t.type==='deposit'; const isInt = t.isInterest; let title = isInt ? 'Interest' : (isD ? 'Credit' : 'Debit'); let printTag = t.printed ? `<span class="text-[8px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded ml-2">Printed</span>` : `<span class="text-[8px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded ml-2 border border-red-500/30">New</span>`; hHTML += `<div class="flex justify-between items-center bg-white/5 border border-white/5 p-3 rounded-xl"><div><p class="text-[11px] font-bold uppercase tracking-wider ${isD?'text-emerald-400':'text-red-400'}">${title} ${printTag}</p><p class="text-[9px] text-gray-400 font-num font-medium mt-0.5">${new Date(t.date).toLocaleDateString('en-GB')}</p></div><div class="flex items-center gap-3"><span class="font-num font-bold text-sm text-white">${isD?'+':'-'}${fmtAmt(t.amount)}</span><button onclick="window.adminDelTx('${id}')" class="text-red-400 w-7 h-7 rounded-full bg-red-500/10 hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><i class="fas fa-trash-can text-[10px]"></i></button></div></div>`; }); Swal.fire({ title: `<span class="font-eng tracking-widest text-sm text-[var(--gold-mid)]">LEDGER: ${nick}</span>`, html: hHTML + '</div>', showConfirmButton: false, showCloseButton: true, background: '#0B1121' }); }
         window.adminDelTx = async (id) => { if((await Swal.fire({title:'Erase Transaction?', text: 'This action cannot be undone', icon:'warning', showCancelButton:true, confirmButtonColor: '#EF4444', background: '#0B1121'} )).isConfirmed) { await remove(ref(db, 'transactions/'+id)); Swal.close(); } };
         async function adminEdit(k, nick, name) { const {value:form} = await Swal.fire({ title: '<span class="text-white text-lg">Edit Client Info</span>', html: `<div class="text-left text-[9px] text-[#8B9BB4] uppercase tracking-widest mb-1 ml-2">Nickname</div><input id="enick" class="admin-input mb-3" value="${nick}"><div class="text-left text-[9px] text-[#8B9BB4] uppercase tracking-widest mb-1 ml-2">Full Name</div><input id="ename" class="admin-input" value="${name}">`, preConfirm: () => [document.getElementById('enick').value, document.getElementById('ename').value], confirmButtonColor: '#D4AF37', background: '#0B1121' }); if(form) await update(ref(db, 'members/'+k), { nick: form[0], name: form[1] }); }
         async function adminDelete(k) { if((await Swal.fire({title:'Permanent Delete?', text: 'Client data and assets will be erased!', icon:'warning', showCancelButton:true, confirmButtonColor:'#EF4444', background: '#0B1121'})).isConfirmed) { await remove(ref(db, 'members/'+k)); Object.keys(STATE.transactions || {}).forEach(async id => { if(STATE.transactions[id].studentCode === k) await remove(ref(db, 'transactions/'+id)); }); } }
         window.adminAddMember = async () => { const {value:v} = await Swal.fire({ title: '<span class="text-white text-lg">Create Client</span>', html: `<input id="acode" class="admin-input mb-3 font-num text-center" placeholder="6-Digit Account ID"><input id="anick" class="admin-input mb-3 text-center" placeholder="Nickname"><input id="aname" class="admin-input text-center text-sm" placeholder="Full Name">`, preConfirm: () => [document.getElementById('acode').value.replace(/[^a-zA-Z0-9]/g,''), document.getElementById('anick').value, document.getElementById('aname').value], confirmButtonColor:'#D4AF37', background: '#0B1121' }); if(v && v[0]) await set(ref(db, 'members/'+v[0]), { code: v[0], nick: v[1], name: v[2], pbPage: 1, pbLine: 1 }); };
         window.adminImportCSV = (el) => { Papa.parse(el.files[0], { header: true, complete: async (r) => { for(let row of r.data) { const code = String(row.เลขที่บัญชี||'').replace(/[^a-zA-Z0-9]/g,''); if(!code) continue; await set(ref(db, 'members/'+code), { code: code, nick: row['นมัสการ สามเณร..']||'', name: row.ชื่อจริง||'', pbPage: 1, pbLine: 1 }); const bal = parseFloat(String(row.ยอดคงเหลือ||'').replace(/,/g,'')); if(bal > 0) await push(ref(db, 'transactions'), { studentCode: code, type: 'deposit', amount: bal, date: new Date().toISOString(), printed: false }); } Swal.fire({icon:'success', title:'Import Completed', confirmButtonColor:'#D4AF37', background: '#0B1121'}); el.value = ''; }}); };
-        function animateValue(id, start, end, duration) { const obj = document.getElementById(id); let startTimestamp = null; const step = (timestamp) => { if (!startTimestamp) startTimestamp = timestamp; const progress = Math.min((timestamp - startTimestamp) / duration, 1); obj.innerText = (progress * (end - start) + start).toLocaleString(undefined, {minimumFractionDigits: 2}); if (progress < 1) window.requestAnimationFrame(step); }; window.requestAnimationFrame(step); }
+        function animateValue(id, start, end, duration) { const obj = document.getElementById(id); let startTimestamp = null; const step = (timestamp) => { if (!startTimestamp) startTimestamp = timestamp; const progress = Math.min((timestamp - startTimestamp) / duration, 1); obj.innerText = fmtAmt(progress * (end - start) + start); if (progress < 1) window.requestAnimationFrame(step); }; window.requestAnimationFrame(step); }
     </script>
 </body>
 </html>
