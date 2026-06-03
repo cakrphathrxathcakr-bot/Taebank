@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TaeBank - Elite Wealth Management</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- เพิ่มฟอนต์ Great Vibes สำหรับลายเซ็นต์ -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&family=Great+Vibes&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -354,13 +355,13 @@
             }
         }
 
-        // ฟังก์ชันช่วยกำหนดสีและชื่อแรงค์
+        // --- ฟังก์ชันดึงสี Rank ---
         function getRankInfo(bal) {
-            if (bal >= 10000) return { name: 'DIAMOND', color: '#38BDF8' }; // ฟ้า Diamond
-            if (bal >= 5000) return { name: 'EMERALD', color: '#10B981' };  // เขียว Emerald
-            if (bal >= 1000) return { name: 'PLATINUM', color: '#E2E8F0' }; // เงิน Platinum
-            if (bal >= 500) return { name: 'GOLD', color: '#D4AF37' };      // ทอง Gold
-            return { name: 'SILVER', color: '#94A3B8' };                    // เทา Silver
+            if (bal >= 10000) return { name: 'DIAMOND', color: '#0284C7' }; // ฟ้า
+            if (bal >= 5000) return { name: 'EMERALD', color: '#059669' };  // เขียว
+            if (bal >= 1000) return { name: 'PLATINUM', color: '#475569' }; // เงิน/เทาเข้ม
+            if (bal >= 500) return { name: 'GOLD', color: '#B48608' };      // ทอง
+            return { name: 'SILVER', color: '#94A3B8' };                    // เทาอ่อน
         }
 
         window.adminRender = () => {
@@ -412,7 +413,29 @@
 
             document.getElementById('stat-total').innerText = tBal.toLocaleString(undefined, {minimumFractionDigits: 2});
             document.getElementById('stat-members').innerText = tMem;
-            updateAdminChart(chartData);
+            
+            // กราฟโดนัทหน้าแรก (Dark Theme)
+            const ctx = document.getElementById('doughnutChart').getContext('2d'); 
+            chartData.sort((a,b) => b.bal - a.bal); 
+            const labels = chartData.map(d => d.name); 
+            const data = chartData.map(d => d.bal); 
+            // ใช้สีจาก Rank
+            const colors = chartData.map(d => {
+                if (d.bal >= 10000) return '#38BDF8';
+                if (d.bal >= 5000) return '#10B981';
+                if (d.bal >= 1000) return '#E2E8F0';
+                if (d.bal >= 500) return '#D4AF37';
+                return '#94A3B8';
+            }); 
+            
+            if (myChart) myChart.destroy(); 
+            if (data.length === 0) { labels.push('No Assets'); data.push(1); colors.unshift('rgba(255,255,255,0.05)'); } 
+            
+            myChart = new Chart(ctx, { 
+                type: 'doughnut', 
+                data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 2, borderColor: '#121C33', hoverOffset: 6 }] }, 
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { color: '#8B9BB4', font: {family: 'Outfit', size: 10, weight: 'bold'}, usePointStyle: true, boxWidth: 6, padding: 10 } }, tooltip: { backgroundColor: '#070B19', titleColor: '#D4AF37', bodyColor: '#FFF', borderColor: 'rgba(212,175,55,0.2)', borderWidth: 1, padding: 10, callbacks: { label: (c) => ` ฿${c.raw.toLocaleString()} (${((c.raw / c.chart._metasets[0].total) * 100).toFixed(1)}%)` } } } } 
+            });
         };
 
         window.triggerInterestPayout = async () => {
@@ -463,9 +486,9 @@
             }
         };
 
-        // --- ระบบดาวน์โหลดรูปภาพสรุปยอดเงิน (แบบใหม่ กราฟโดนัท) ---
+        // --- 🌟 ระบบ Report รูปภาพ (Light Theme หรูหรา + กราฟ + ลายเซ็นต์) 🌟 ---
         window.downloadWealthReport = async () => {
-            Swal.fire({ title: 'Generating Report...', text: 'Please wait while we create your beautiful summary image.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }, background: '#0B1121', color: '#fff' });
+            Swal.fire({ title: 'Generating Report...', text: 'Please wait while we create your elegant summary image.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }, background: '#0B1121', color: '#fff' });
 
             let memberData = [];
             Object.keys(STATE.members || {}).forEach(k => {
@@ -480,9 +503,9 @@
 
             memberData.sort((a,b) => b.bal - a.bal);
 
-            // สร้างกราฟโดนัทชั่วคราวซ่อนไว้
+            // 1. สร้างกราฟโดนัท (สำหรับสอดแทรกในรูป)
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 600; tempCanvas.height = 300;
+            tempCanvas.width = 600; tempCanvas.height = 350;
             tempCanvas.style.cssText = "position: absolute; top: -9999px; left: -9999px;";
             document.body.appendChild(tempCanvas);
 
@@ -494,35 +517,36 @@
                     datasets: [{
                         data: memberData.map(d => d.bal),
                         backgroundColor: memberData.map(d => getRankInfo(d.bal).color),
-                        borderWidth: 2, borderColor: '#050B14'
+                        borderWidth: 3, borderColor: '#FFFFFF' // ขอบขาวสำหรับ Light Theme
                     }]
                 },
                 options: {
                     animation: false, responsive: false,
-                    plugins: { legend: { position: 'right', labels: { color: '#8B9BB4', font: {family: 'Outfit', size: 14, weight: 'bold'}, usePointStyle: true, boxWidth: 8, padding: 15 } } }
+                    plugins: { legend: { position: 'right', labels: { color: '#334155', font: {family: 'Outfit', size: 14, weight: 'bold'}, usePointStyle: true, boxWidth: 10, padding: 15 } } }
                 }
             });
 
             const chartImgSrc = tempCanvas.toDataURL('image/png');
             tempChart.destroy(); document.body.removeChild(tempCanvas);
 
+            // 2. สร้างโครง HTML สีสว่าง
             const reportDiv = document.createElement('div');
             reportDiv.id = "export-report-container";
-            reportDiv.style.cssText = "width: 800px; background: #050B14; padding: 40px; color: #fff; font-family: 'Sarabun', sans-serif; position: absolute; top: -9999px; left: -9999px; z-index: -100;";
+            reportDiv.style.cssText = "width: 850px; background: #FDFDFC; padding: 50px; color: #0F172A; font-family: 'Sarabun', sans-serif; position: absolute; top: -9999px; left: -9999px; z-index: -100;";
             
             let rowsHtml = '';
             memberData.forEach((m, index) => {
                 let rank = getRankInfo(m.bal);
                 rowsHtml += `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); margin-bottom: 8px; border-radius: 12px; border-left: 4px solid ${rank.color};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-bottom: 1px solid #E2E8F0; background: #FFFFFF; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid ${rank.color}; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <div style="width: 35px; font-weight: bold; font-size: 18px; font-family: 'Outfit'; color: ${rank.color}; text-align: center;">#${index + 1}</div>
                             <div>
-                                <div style="font-size: 18px; font-weight: 600;">${m.name}</div>
+                                <div style="font-size: 18px; font-weight: 600; color: #1E293B;">${m.name}</div>
                                 <div style="font-size: 10px; font-weight: bold; letter-spacing: 1px; color: ${rank.color}; text-transform: uppercase; margin-top: 2px;">${rank.name} CLASS</div>
                             </div>
                         </div>
-                        <div style="font-size: 22px; font-family: 'Outfit'; font-weight: bold; color: #FFF;">
+                        <div style="font-size: 22px; font-family: 'Outfit'; font-weight: bold; color: #0F172A;">
                             ฿${m.bal.toLocaleString(undefined, {minimumFractionDigits: 2})}
                         </div>
                     </div>
@@ -531,41 +555,53 @@
 
             reportDiv.innerHTML = `
                 <div style="text-align: center; margin-bottom: 30px; position: relative;">
-                    <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 150px; color: rgba(212,175,55,0.03); z-index: 0;"><i class="fas fa-leaf"></i></div>
                     <div style="position: relative; z-index: 1;">
-                        <h1 style="font-family: 'Cinzel', serif; font-size: 42px; color: #D4AF37; margin: 0; letter-spacing: 8px;">TAEBANK</h1>
-                        <p style="color: #8B9BB4; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; margin-top: 5px; font-weight: bold;">Wealth Distribution Report</p>
+                        <h1 style="font-family: 'Cinzel', serif; font-size: 46px; color: #0F172A; margin: 0; letter-spacing: 8px;">TAEBANK</h1>
+                        <p style="color: #64748B; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; margin-top: 5px; font-weight: 600;">Wealth Distribution Report</p>
                     </div>
                 </div>
                 
-                <div style="text-align: center; margin-bottom: 30px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 20px;">
-                    <img src="${chartImgSrc}" style="display: block; margin: 0 auto;" />
+                <div style="text-align: center; margin-bottom: 40px; padding: 20px;">
+                    <img src="${chartImgSrc}" style="display: block; margin: 0 auto; filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.05));" />
                 </div>
                 
-                <h3 style="color: #D4AF37; font-size: 18px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 10px;">
-                    <i class="fas fa-list"></i> Client Ranking Details
+                <h3 style="color: #0F172A; font-family: 'Cinzel', serif; font-size: 20px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; border-bottom: 2px solid #E2E8F0; padding-bottom: 10px;">
+                    Client Ranking Details
                 </h3>
                 
                 <div>
-                    ${rowsHtml || '<div style="text-align:center; color:#8B9BB4; padding: 20px;">No active accounts found.</div>'}
+                    ${rowsHtml || '<div style="text-align:center; color:#94A3B8; padding: 20px;">No active accounts found.</div>'}
                 </div>
                 
-                <div style="text-align: center; margin-top: 40px; font-size: 12px; color: #4B5E82;">
-                    Generated on ${new Date().toLocaleString('en-GB')} • TaeBank Automated System
+                <!-- ส่วนลายเซ็นต์ผู้จัดการ -->
+                <div style="margin-top: 60px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div style="font-size: 12px; color: #94A3B8;">
+                        Generated on ${new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'long',year:'numeric'})} <br> TaeBank Automated System
+                    </div>
+                    <div style="text-align: right; padding-right: 20px;">
+                        <div style="font-family: 'Great Vibes', cursive; font-size: 42px; color: #0F172A; margin-bottom: -5px; transform: rotate(-2deg);">
+                            Ven.Maha.Chakkraphat Atthajak
+                        </div>
+                        <div style="width: 100%; height: 1px; background: #CBD5E1; margin-bottom: 8px;"></div>
+                        <div style="font-size: 14px; font-family: 'Sarabun', sans-serif; font-weight: 600; color: #475569;">
+                            ( ผู้จัดการธนาคาร )
+                        </div>
+                    </div>
                 </div>
             `;
             document.body.appendChild(reportDiv);
 
+            // รอ 1 วินาที ให้ฟอนต์ Great Vibes (ลายเซ็นต์) โหลดสมบูรณ์ก่อนถ่ายรูป
             setTimeout(async () => {
                 try {
-                    const canvas = await html2canvas(reportDiv, { backgroundColor: '#050B14', scale: 2 });
+                    const canvas = await html2canvas(reportDiv, { backgroundColor: '#FDFDFC', scale: 2 });
                     const imgData = canvas.toDataURL('image/png');
                     const link = document.createElement('a'); link.download = `TaeBank_Wealth_Report_${new Date().getTime()}.png`; link.href = imgData; link.click();
-                    Swal.fire({ icon: 'success', title: 'ดาวน์โหลดสำเร็จ!', text: 'รูปภาพถูกบันทึกลงในเครื่องของคุณแล้ว', confirmButtonColor: '#D4AF37', background: '#0B1121' });
+                    Swal.fire({ icon: 'success', title: 'ดาวน์โหลดสำเร็จ!', text: 'รายงานสรุปภาพรวมพร้อมลายเซ็นต์ถูกสร้างเรียบร้อยแล้ว', confirmButtonColor: '#D4AF37', background: '#0B1121' });
                 } catch (error) {
                     console.error(error); Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถสร้างรูปภาพได้', confirmButtonColor: '#EF4444', background: '#0B1121' });
                 } finally { document.body.removeChild(reportDiv); }
-            }, 800);
+            }, 1000);
         };
 
         window.adminPrintMenu = async (code, user) => {
@@ -698,20 +734,11 @@
                     rows += `<tr><td style="text-align:center;">${new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'})}</td><td style="text-align:center; font-weight:600; color:${isDep ? '#10B981':'#EF4444'}">${displayCode}</td><td style="text-align:right;">${isDep ? amt.toLocaleString(undefined,{minimumFractionDigits:2}) : '-'}</td><td style="text-align:right;">${!isDep ? amt.toLocaleString(undefined,{minimumFractionDigits:2}) : '-'}</td><td style="text-align:right; font-weight:600;">${bal.toLocaleString(undefined,{minimumFractionDigits:2})}</td><td style="text-align:center;">ADM</td></tr>`; 
                 });
             }
-            openPrintWindow(`<html><head><title>Full Statement - ${formattedCode}</title><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Outfit:wght@400;600&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet"><style>body { font-family: 'Sarabun', sans-serif; padding: 20px 40px; color: #111; font-size: 14px; background: #fff;} @media print { @page { margin: 10mm; } body { padding: 0; -webkit-print-color-adjust: exact; } } .header-box { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #D4AF37; padding-bottom: 15px; margin-bottom: 20px; } .bank-title { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 600; color: #050B14; margin: 0; } .bank-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #555; } .acc-info { text-align: right; line-height: 1.6; } table { width: 100%; border-collapse: collapse; margin-top: 10px; font-family: 'Outfit', 'Sarabun', sans-serif; font-size: 13px; } th, td { border: 1px solid #ddd; padding: 10px 8px; } th { background-color: #f8f9fa; font-weight: 600; text-align: center; color: #333; } .report-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; text-align: center; letter-spacing: 1px;}</style></head><body><div class="header-box"><div><h1 class="bank-title">TAEBANK</h1><div class="bank-sub">Elite Wealth Management</div></div><div class="acc-info"><div><strong>ชื่อบัญชี (Account Name):</strong> ${name || '-'}</div><div><strong>เลขที่บัญชี (Account No.):</strong> <span style="font-size: 16px; font-family: 'Outfit', sans-serif; font-weight:600;">${formattedCode}</span></div><div><strong>สาขา (Branch):</strong> สำนักงานใหญ่ (HQ)</div></div></div><div class="report-title">รายงานความเคลื่อนไหวบัญชี (Statement of Account)</div><table><thead><tr><th width="15%">วันที่ (Date)</th><th width="10%">รหัส (Code)</th><th width="20%">ฝาก (Deposit)</th><th width="20%">ถอน (Withdrawal)</th><th width="20%">คงเหลือ (Balance)</th><th width="15%">ผู้บันทึก (Teller)</th></tr></thead><tbody>${rows}</tbody></table><div style="margin-top: 30px; font-size: 11px; color: #777; text-align: center;">เอกสารนี้จัดทำขึ้นโดยระบบอัตโนมัติ / This document is automatically generated. <br> พิมพ์เมื่อ: ${new Date().toLocaleString('th-TH')}</div></body></html>`);
+            openPrintWindow(`<html><head><title>Full Statement - ${formattedCode}</title><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Outfit:wght@400;600&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet"><style>body { font-family: 'Sarabun', sans-serif; padding: 20px 40px; color: #111; font-size: 14px; background: #fff;} @media print { @page { margin: 10mm; } body { padding: 0; -webkit-print-color-adjust: exact; } } .header-box { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #0F172A; padding-bottom: 15px; margin-bottom: 20px; } .bank-title { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 600; color: #050B14; margin: 0; } .bank-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #555; } .acc-info { text-align: right; line-height: 1.6; } table { width: 100%; border-collapse: collapse; margin-top: 10px; font-family: 'Outfit', 'Sarabun', sans-serif; font-size: 13px; } th, td { border: 1px solid #ddd; padding: 10px 8px; } th { background-color: #f8f9fa; font-weight: 600; text-align: center; color: #333; } .report-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; text-align: center; letter-spacing: 1px;}</style></head><body><div class="header-box"><div><h1 class="bank-title">TAEBANK</h1><div class="bank-sub">Elite Wealth Management</div></div><div class="acc-info"><div><strong>ชื่อบัญชี (Account Name):</strong> ${name || '-'}</div><div><strong>เลขที่บัญชี (Account No.):</strong> <span style="font-size: 16px; font-family: 'Outfit', sans-serif; font-weight:600;">${formattedCode}</span></div><div><strong>สาขา (Branch):</strong> สำนักงานใหญ่ (HQ)</div></div></div><div class="report-title">รายงานความเคลื่อนไหวบัญชี (Statement of Account)</div><table><thead><tr><th width="15%">วันที่ (Date)</th><th width="10%">รหัส (Code)</th><th width="20%">ฝาก (Deposit)</th><th width="20%">ถอน (Withdrawal)</th><th width="20%">คงเหลือ (Balance)</th><th width="15%">ผู้บันทึก (Teller)</th></tr></thead><tbody>${rows}</tbody></table><div style="margin-top: 30px; font-size: 11px; color: #777; text-align: center;">เอกสารนี้จัดทำขึ้นโดยระบบอัตโนมัติ / This document is automatically generated. <br> พิมพ์เมื่อ: ${new Date().toLocaleString('th-TH')}</div></body></html>`);
         }
-        function printCover(code, name) { openPrintWindow(`<html><head><title>Print Passbook Cover</title><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Outfit:wght@400;600&family=Sarabun:wght@300;500&display=swap" rel="stylesheet"><style>body { font-family: 'Sarabun', sans-serif; padding: 20px; -webkit-print-color-adjust: exact; background: #fff; } @media print { @page { margin: 10mm; } body { padding: 0; } } .cover-box { width: 140mm; height: 90mm; border: 1px solid #ddd; padding: 25px; position: relative; margin: 0 auto; overflow: hidden; background: #fafafa; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 8px; } .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; font-size: 180px; color: #D4AF37; z-index: 0; }</style></head><body><div class="cover-box"><div class="watermark">&#10048;</div><div style="position: relative; z-index: 1;"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><h2 style="margin: 0; font-size: 26px; font-family: 'Cinzel', serif; color: #050B14; letter-spacing: 2px;">TAEBANK</h2><p style="margin: 2px 0 0 0; font-size: 9px; font-weight: 500; color: #8B9BB4; letter-spacing: 3px; text-transform: uppercase;">Elite Wealth Management</p></div><div style="font-size: 24px; color: #D4AF37;">&#10048;</div></div><div style="height: 2px; background: linear-gradient(90deg, #D4AF37, transparent); margin: 15px 0 20px 0;"></div><h3 style="margin: 0 0 20px 0; font-size: 18px; color: #222; letter-spacing: 1px;">สมุดคู่ฝาก / Passbook</h3><table style="width: 100%; border: none; font-size: 14px; line-height: 2.4;"><tr><td style="width: 35%; color: #555;">สาขา (Branch)</td><td style="border-bottom: 1px dotted #999;">สำนักงานใหญ่ (HQ)</td></tr><tr><td style="color: #555;">ชื่อบัญชี (A/C Name)</td><td style="border-bottom: 1px dotted #999; font-weight: 500; font-size: 16px;">${name || 'ไม่ระบุชื่อ'}</td></tr><tr><td style="color: #555;">เลขที่บัญชี (A/C No.)</td><td style="border-bottom: 1px dotted #999; font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 600; letter-spacing: 2px;">${code.replace(/(\d{3})(\d{3})/, '$1-$2')}</td></tr></table><div style="margin-top: 30px; font-size: 10px; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 10px;">กรุณานำสมุดบัญชีมาด้วยทุกครั้งที่ทำรายการ / Please present this passbook for every transaction</div></div></div></body></html>`); }
+        function printCover(code, name) { openPrintWindow(`<html><head><title>Print Passbook Cover</title><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Outfit:wght@400;600&family=Sarabun:wght@300;500&display=swap" rel="stylesheet"><style>body { font-family: 'Sarabun', sans-serif; padding: 20px; -webkit-print-color-adjust: exact; background: #fff; } @media print { @page { margin: 10mm; } body { padding: 0; } } .cover-box { width: 140mm; height: 90mm; border: 1px solid #ddd; padding: 25px; position: relative; margin: 0 auto; overflow: hidden; background: #fafafa; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 8px; } .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; font-size: 180px; color: #0F172A; z-index: 0; }</style></head><body><div class="cover-box"><div class="watermark">&#10048;</div><div style="position: relative; z-index: 1;"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><h2 style="margin: 0; font-size: 26px; font-family: 'Cinzel', serif; color: #050B14; letter-spacing: 2px;">TAEBANK</h2><p style="margin: 2px 0 0 0; font-size: 9px; font-weight: 500; color: #8B9BB4; letter-spacing: 3px; text-transform: uppercase;">Elite Wealth Management</p></div><div style="font-size: 24px; color: #0F172A;">&#10048;</div></div><div style="height: 2px; background: linear-gradient(90deg, #0F172A, transparent); margin: 15px 0 20px 0;"></div><h3 style="margin: 0 0 20px 0; font-size: 18px; color: #222; letter-spacing: 1px;">สมุดคู่ฝาก / Passbook</h3><table style="width: 100%; border: none; font-size: 14px; line-height: 2.4;"><tr><td style="width: 35%; color: #555;">สาขา (Branch)</td><td style="border-bottom: 1px dotted #999;">สำนักงานใหญ่ (HQ)</td></tr><tr><td style="color: #555;">ชื่อบัญชี (A/C Name)</td><td style="border-bottom: 1px dotted #999; font-weight: 500; font-size: 16px;">${name || 'ไม่ระบุชื่อ'}</td></tr><tr><td style="color: #555;">เลขที่บัญชี (A/C No.)</td><td style="border-bottom: 1px dotted #999; font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 600; letter-spacing: 2px;">${code.replace(/(\d{3})(\d{3})/, '$1-$2')}</td></tr></table><div style="margin-top: 30px; font-size: 10px; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 10px;">กรุณานำสมุดบัญชีมาด้วยทุกครั้งที่ทำรายการ / Please present this passbook for every transaction</div></div></div></body></html>`); }
         function openPrintWindow(content) { const printWin = window.open('', '_blank'); printWin.document.write(content); printWin.document.close(); printWin.focus(); setTimeout(() => { printWin.print(); printWin.close(); }, 800); }
-        function updateAdminChart(dataArr) { 
-            const ctx = document.getElementById('doughnutChart').getContext('2d'); 
-            dataArr.sort((a,b) => b.bal - a.bal); 
-            const labels = dataArr.map(d => d.name); 
-            const data = dataArr.map(d => d.bal); 
-            const colors = dataArr.map(d => getRankInfo(d.bal).color); 
-            if (myChart) myChart.destroy(); 
-            if (data.length === 0) { labels.push('No Assets'); data.push(1); colors.unshift('rgba(255,255,255,0.05)'); } 
-            myChart = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 2, borderColor: '#121C33', hoverOffset: 6 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { color: '#8B9BB4', font: {family: 'Outfit', size: 10, weight: 'bold'}, usePointStyle: true, boxWidth: 6, padding: 10 } }, tooltip: { backgroundColor: '#070B19', titleColor: '#D4AF37', bodyColor: '#FFF', borderColor: 'rgba(212,175,55,0.2)', borderWidth: 1, padding: 10, callbacks: { label: (c) => ` ฿${c.raw.toLocaleString()} (${((c.raw / c.chart._metasets[0].total) * 100).toFixed(1)}%)` } } } } }); 
-        }
+        
         async function adminTransact(k, nick) { const res = await Swal.fire({ title: `<span class="text-[var(--gold-mid)]">Ledger Entry: ${nick}</span>`, showDenyButton: true, showCancelButton: true, confirmButtonText: '<i class="fas fa-arrow-down"></i> Deposit', confirmButtonColor: '#10B981', denyButtonText: '<i class="fas fa-arrow-up"></i> Withdraw', denyButtonColor: '#EF4444', cancelButtonColor: '#1E2B4D' }); if (res.isConfirmed || res.isDenied) { const {value:amt} = await Swal.fire({ title: '<span class="text-white">Amount</span>', input: 'number', inputAttributes: {min:1}, confirmButtonColor: '#D4AF37', customClass:{input:'admin-input text-center text-xl font-num'}, background: '#0B1121' }); if(amt) { await push(ref(db, 'transactions'), { studentCode: k, type: res.isConfirmed ? 'deposit' : 'withdraw', amount: parseFloat(amt), date: new Date().toISOString(), printed: false }); } } }
         function adminHistory(k, nick) { let hHTML = `<div class="max-h-60 overflow-y-auto pr-2 text-left space-y-2">`; let userTxs = Object.keys(STATE.transactions || {}).filter(id => STATE.transactions[id].studentCode === k).sort((a,b)=>new Date(STATE.transactions[b].date)-new Date(STATE.transactions[a].date)); if(userTxs.length === 0) hHTML += '<p class="text-center py-6 text-[#4B5E82] uppercase tracking-widest text-[10px] font-bold">No Records</p>'; userTxs.forEach(id => { const t = STATE.transactions[id]; const isD = t.type==='deposit'; const isInt = t.isInterest; let title = isInt ? 'Interest' : (isD ? 'Credit' : 'Debit'); let printTag = t.printed ? `<span class="text-[8px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded ml-2">Printed</span>` : `<span class="text-[8px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded ml-2 border border-red-500/30">New</span>`; hHTML += `<div class="flex justify-between items-center bg-white/5 border border-white/5 p-3 rounded-xl"><div><p class="text-[11px] font-bold uppercase tracking-wider ${isD?'text-emerald-400':'text-red-400'}">${title} ${printTag}</p><p class="text-[9px] text-gray-400 font-num font-medium mt-0.5">${new Date(t.date).toLocaleDateString('en-GB')}</p></div><div class="flex items-center gap-3"><span class="font-num font-bold text-sm text-white">${isD?'+':'-'}${parseFloat(t.amount).toLocaleString()}</span><button onclick="window.adminDelTx('${id}')" class="text-red-400 w-7 h-7 rounded-full bg-red-500/10 hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><i class="fas fa-trash-can text-[10px]"></i></button></div></div>`; }); Swal.fire({ title: `<span class="font-eng tracking-widest text-sm text-[var(--gold-mid)]">LEDGER: ${nick}</span>`, html: hHTML + '</div>', showConfirmButton: false, showCloseButton: true, background: '#0B1121' }); }
         window.adminDelTx = async (id) => { if((await Swal.fire({title:'Erase Transaction?', text: 'This action cannot be undone', icon:'warning', showCancelButton:true, confirmButtonColor: '#EF4444', background: '#0B1121'} )).isConfirmed) { await remove(ref(db, 'transactions/'+id)); Swal.close(); } };
