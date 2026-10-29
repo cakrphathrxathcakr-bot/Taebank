@@ -5,494 +5,214 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TaeBank - Elite Wealth Management</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         :root {
-            --bg-main: #040911;
-            --bg-card: rgba(15, 25, 48, 0.65);
+            --bg-main: #050B14; /* Deep Royal Navy */
+            --bg-card: rgba(18, 29, 58, 0.6);
             --text-main: #F0F6FC; 
             --text-muted: #8B9BB4;
-            --gold-light: #F3E5AB; 
-            --gold-mid: #D4AF37; 
-            --gold-dark: #996515; 
-            --admin-border: rgba(212, 175, 55, 0.18);
+            --gold-light: #E2C275; --gold-mid: #D4AF37; --gold-dark: #B38728; 
+            --admin-border: rgba(212, 175, 55, 0.15);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            font-family: 'Sarabun', sans-serif; 
-            background: var(--bg-main); 
-            color: var(--text-main); 
-            margin: 0; padding: 0; 
-            overflow: hidden; 
-            user-select: none; 
-        }
-        .font-eng { font-family: 'Cinzel', serif; } 
-        .font-num { font-family: 'Outfit', sans-serif; }
+        body { font-family: 'Sarabun', sans-serif; background: var(--bg-main); color: var(--text-main); margin: 0; padding: 0; overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .font-eng { font-family: 'Cinzel', serif; } .font-num { font-family: 'Outfit', sans-serif; }
 
-        /* Page Transitions */
-        .page-view { 
-            display: none; 
-            width: 100%; 
-            height: 100dvh; 
-            position: absolute; 
-            top: 0; left: 0; 
-            flex-direction: column; 
-            align-items: center; 
-            z-index: 10; 
-            opacity: 0; 
-            transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: scale(0.98);
-        } 
-        .page-view.active { 
-            display: flex; 
-            z-index: 50; 
-            opacity: 1; 
-            transform: scale(1);
-        }
+        /* Smooth Page Transitions */
+        .page-view { display: none; width: 100%; height: 100dvh; position: absolute; top: 0; left: 0; flex-direction: column; align-items: center; z-index: 10; opacity: 0; transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1); } 
+        .page-view.active { display: flex; z-index: 50; opacity: 1; }
 
-        .ambient-bg { 
-            position: fixed; 
-            inset: 0; 
-            background: 
-                radial-gradient(circle at 50% -10%, rgba(212, 175, 55, 0.12) 0%, transparent 50%),
-                radial-gradient(circle at 50% 20%, #132247 0%, var(--bg-main) 70%); 
-            z-index: 0; 
-            pointer-events: none; 
-        }
+        /* Ambient Glow Background */
+        .ambient-bg { position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, #15244D 0%, var(--bg-main) 60%); z-index: 0; pointer-events: none; }
         
-        /* Keypad Styling */
-        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 26px; justify-items: center; max-width: 290px; margin: 0 auto; }
-        .key-btn { 
-            width: 70px; height: 70px; 
-            border-radius: 50%; 
-            background: rgba(255,255,255,0.03); 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 26px; font-weight: 400; font-family: 'Outfit'; 
-            cursor: pointer; 
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 8px 20px rgba(0,0,0,0.4); 
-            border: 1px solid rgba(255,255,255,0.07); 
-            backdrop-filter: blur(12px); 
-            color: #FFF; 
-            transition: all 0.15s ease; 
-        }
-        .key-btn:hover { border-color: rgba(212,175,55,0.3); background: rgba(255,255,255,0.06); }
-        .key-btn:active, .key-btn.pressed { 
-            transform: scale(0.90); 
-            color: var(--gold-light); 
-            background: rgba(212,175,55,0.18); 
-            border-color: var(--gold-mid); 
-            box-shadow: 0 0 20px rgba(212,175,55,0.35); 
-        }
+        /* Dark Glass Keypad */
+        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 24px; justify-items: center; max-width: 280px; margin: 0 auto; }
+        .key-btn { width: 68px; height: 68px; border-radius: 50%; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 300; font-family: 'Outfit'; cursor: pointer; box-shadow: inset 0 0 10px rgba(255,255,255,0.02), 0 4px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px); color: #FFF; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .key-btn:active { transform: scale(0.92); color: var(--gold-mid); background: rgba(212,175,55,0.1); border-color: rgba(212,175,55,0.3); box-shadow: 0 0 15px rgba(212,175,55,0.2); }
         
-        .pin-dot { 
-            width: 13px; height: 13px; 
-            border-radius: 50%; 
-            background: rgba(255,255,255,0.08); 
-            border: 1px solid rgba(255,255,255,0.25); 
-            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); 
-            margin: 0 9px; 
-        }
-        .pin-dot.active { 
-            background: var(--gold-mid); 
-            transform: scale(1.35); 
-            border-color: var(--gold-light); 
-            box-shadow: 0 0 14px rgba(212,175,55,0.8); 
-        }
-        .pin-dot.error {
-            background: #EF4444;
-            border-color: #FCA5A5;
-            box-shadow: 0 0 14px rgba(239,68,68,0.8);
-            animation: shake 0.4s ease;
-        }
+        .pin-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin: 0 8px; }
+        .pin-dot.active { background: var(--gold-mid); transform: scale(1.4); border-color: var(--gold-mid); box-shadow: 0 0 12px rgba(212,175,55,0.6); }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-6px); }
-            75% { transform: translateX(6px); }
-        }
-
+        /* Logo Pulse Animation */
         .logo-pulse { animation: softPulse 3s infinite alternate ease-in-out; }
-        @keyframes softPulse { 
-            0% { box-shadow: 0 0 15px rgba(212,175,55,0.1); border-color: rgba(212,175,55,0.25); } 
-            100% { box-shadow: 0 0 35px rgba(212,175,55,0.45); border-color: rgba(212,175,55,0.6); } 
-        }
+        @keyframes softPulse { 0% { box-shadow: 0 0 15px rgba(212,175,55,0.1); border-color: rgba(212,175,55,0.2); } 100% { box-shadow: 0 0 30px rgba(212,175,55,0.4); border-color: rgba(212,175,55,0.5); } }
 
-        /* Luxury Member Card */
+        /* Elite Card Design */
         .lux-card { 
-            width: 100%; aspect-ratio: 1.586/1; 
-            border-radius: 22px; padding: 24px; 
+            width: 100%; aspect-ratio: 1.586/1; border-radius: 20px; padding: 24px; 
             display: flex; flex-direction: column; justify-content: space-between; 
-            position: relative; overflow: hidden; 
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.25);
-            border: 1px solid rgba(255,255,255,0.15); 
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.15); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .lux-card::before { 
-            content: ''; position: absolute; inset: 0; 
-            background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.18) 0%, transparent 60%); 
-            pointer-events: none; 
-        }
-        .chip { 
-            width: 42px; height: 30px; 
-            background: linear-gradient(135deg, #F3E5AB 0%, #D4AF37 50%, #996515 100%); 
-            border-radius: 6px; position: relative; overflow: hidden; 
-            box-shadow: inset 0 0 4px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3); 
-        }
-        .chip::after { content: ''; position: absolute; width: 100%; height: 1px; background: rgba(0,0,0,0.25); top: 50%; } 
-        .chip::before { content: ''; position: absolute; height: 100%; width: 1px; background: rgba(0,0,0,0.25); left: 50%; }
+        .lux-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%); pointer-events: none; }
+        .chip { width: 40px; height: 28px; background: linear-gradient(135deg, #E2C275, #B38728); border-radius: 6px; position: relative; overflow: hidden; opacity: 0.9; box-shadow: inset 0 0 4px rgba(0,0,0,0.3); }
+        .chip::after { content: ''; position: absolute; width: 100%; height: 1px; background: rgba(0,0,0,0.3); top: 50%; } .chip::before { content: ''; position: absolute; height: 100%; width: 1px; background: rgba(0,0,0,0.3); left: 50%; }
 
-        .rank-diamond { 
-            background: linear-gradient(135deg, #FFFFFF 0%, #E0F2FE 45%, #BAE6FD 100%) !important; 
-            color: #0F172A !important; 
-            border-color: #FFF !important; 
-        }
-        .rank-diamond::after { 
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; 
-            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.85) 50%, transparent 60%); 
-            animation: shine 4.5s infinite; pointer-events: none; 
-        }
+        /* Diamond Rank Animation */
+        .rank-diamond { background: linear-gradient(135deg, #FFFFFF 0%, #E0F2FE 50%, #F8FAFC 100%) !important; color: #0F172A !important; border-color: #FFF !important; }
+        .rank-diamond::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.9) 50%, transparent 60%); animation: shine 4s infinite; pointer-events: none; }
         @keyframes shine { 0% { transform: translateX(-100%) translateY(-100%); } 100% { transform: translateX(100%) translateY(100%); } }
 
         /* Glassmorphism Panels */
-        .admin-glass { 
-            background: var(--bg-card); 
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); 
-            border: 1px solid var(--admin-border); 
-            border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
-        }
-        .admin-input { 
-            background: rgba(4, 9, 17, 0.6); 
-            border: 1px solid rgba(212, 175, 55, 0.3); 
-            color: #FFF; border-radius: 14px; padding: 13px 16px; 
-            width: 100%; outline: none; transition: 0.25s; 
-            font-family: 'Outfit', 'Sarabun', sans-serif;
-        }
-        .admin-input:focus { 
-            border-color: var(--gold-mid); 
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15); 
-        }
+        .admin-glass { background: var(--bg-card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--admin-border); border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .admin-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.3); color: #FFF; border-radius: 14px; padding: 14px; width: 100%; outline: none; transition: 0.3s; font-family: 'Outfit'; letter-spacing: 2px;}
+        .admin-input:focus { border-color: var(--gold-mid); box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1); }
         
-        .admin-row { 
-            background: rgba(255,255,255,0.025); 
-            border: 1px solid rgba(255,255,255,0.06); 
-            border-radius: 18px; padding: 15px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            transition: all 0.25s ease; 
-        }
-        .admin-row:hover { border-color: rgba(212, 175, 55, 0.25); background: rgba(255,255,255,0.04); }
-        .admin-row:active { transform: scale(0.99); }
+        /* List Rows */
+        .admin-row { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 18px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .admin-row:active { transform: scale(0.98); border-color: rgba(212, 175, 55, 0.4); background: rgba(212, 175, 55, 0.05); }
 
-        .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+        /* Entry Animations */
+        .fade-up { animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(30px); }
         @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-        .swal2-popup { 
-            border-radius: 26px !important; 
-            font-family: 'Sarabun', sans-serif !important; 
-            padding: 24px !important; 
-            background: #0A1120 !important; 
-            color: #FFF !important; 
-            border: 1px solid rgba(212, 175, 55, 0.25) !important; 
-            box-shadow: 0 25px 60px rgba(0,0,0,0.85) !important;
-        }
+        /* Swals - Dark Theme */
+        .swal2-popup { border-radius: 28px !important; font-family: 'Sarabun' !important; padding: 24px !important; background: #0B1121 !important; color: #FFF !important; border: 1px solid rgba(212, 175, 55, 0.2) !important; box-shadow: 0 20px 50px rgba(0,0,0,0.8) !important;}
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .filter-pill {
-            padding: 6px 12px;
-            border-radius: 999px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.03);
-            color: #8B9BB4;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .filter-pill.active {
-            background: rgba(212,175,55,0.15);
-            border-color: var(--gold-mid);
-            color: var(--gold-mid);
-        }
     </style>
 </head>
 <body>
-    <div class="ambient-bg"></div>
 
-    <!-- ==================== PAGE 1: PIN LOGIN ==================== -->
     <div id="page-login" class="page-view active justify-center">
-        <div class="w-full max-w-[380px] h-full mx-auto flex flex-col justify-between px-6 py-8 relative z-10">
-            <div class="flex-1 flex flex-col items-center justify-center fade-up w-full" style="animation-delay: 0.05s;">
-                <div class="w-20 h-20 mb-4 bg-[rgba(18,29,58,0.85)] rounded-full flex items-center justify-center border border-[rgba(212,175,55,0.35)] logo-pulse relative backdrop-blur-md">
-                    <i class="fas fa-leaf text-[38px] text-[var(--gold-mid)]"></i>
-                    <div id="db-led" class="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-amber-500 border-2 border-[#050B14] transition-colors duration-500" title="Database Status"></div>
+        <div class="ambient-bg"></div>
+        <div class="w-full max-w-[380px] h-full mx-auto flex flex-col justify-between px-6 py-10 relative z-10">
+            
+            <div class="flex-1 flex flex-col items-center justify-center fade-up w-full" style="animation-delay: 0.1s;">
+                <div class="w-20 h-20 mb-5 bg-[rgba(18,29,58,0.8)] rounded-full flex items-center justify-center border border-[rgba(212,175,55,0.3)] logo-pulse relative backdrop-blur-sm">
+                    <i class="fas fa-leaf text-[40px] text-[var(--gold-mid)]"></i>
+                    <div id="db-led" class="absolute bottom-1 right-1 w-3 h-3 rounded-full bg-red-500 border border-[#050B14] transition-colors duration-500"></div>
                 </div>
-                <h1 class="text-2xl font-eng tracking-[7px] font-bold text-white drop-shadow-lg">TAEBANK</h1>
-                <p id="status-text" class="text-[9px] text-[var(--text-muted)] mt-1.5 tracking-[2.5px] uppercase font-bold flex items-center gap-1.5">
-                    <i class="fas fa-circle-notch fa-spin text-[8px]"></i> Connecting Secure Link...
-                </p>
+                <h1 class="text-2xl font-eng tracking-[6px] font-bold text-white drop-shadow-lg">TAEBANK</h1>
+                <p id="status-text" class="text-[9px] text-[var(--text-muted)] mt-1.5 tracking-[3px] uppercase font-bold">Connecting Secure Link...</p>
                 
-                <div id="pin-container" class="flex justify-center mt-8 w-full h-6 items-center">
+                <div class="flex justify-center mt-8 w-full h-6">
                     <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                     <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                 </div>
-                <p class="text-[11px] text-[#64748B] mt-3">กรุณากดรหัสประจำตัว 6 หลัก</p>
             </div>
-
-            <div class="w-full fade-up" style="animation-delay: 0.15s;">
+            
+            <div class="w-full fade-up" style="animation-delay: 0.2s;">
                 <div class="keypad-grid mb-6">
-                    <div class="key-btn" data-key="1" onclick="pressKey('1')">1</div>
-                    <div class="key-btn" data-key="2" onclick="pressKey('2')">2</div>
-                    <div class="key-btn" data-key="3" onclick="pressKey('3')">3</div>
-                    <div class="key-btn" data-key="4" onclick="pressKey('4')">4</div>
-                    <div class="key-btn" data-key="5" onclick="pressKey('5')">5</div>
-                    <div class="key-btn" data-key="6" onclick="pressKey('6')">6</div>
-                    <div class="key-btn" data-key="7" onclick="pressKey('7')">7</div>
-                    <div class="key-btn" data-key="8" onclick="pressKey('8')">8</div>
-                    <div class="key-btn" data-key="9" onclick="pressKey('9')">9</div>
-                    <div class="key-btn" style="background: transparent; box-shadow: none; color: #64748B; border:none; font-size: 13px; font-weight: 600;" onclick="clearPin()">CLR</div>
-                    <div class="key-btn" data-key="0" onclick="pressKey('0')">0</div>
-                    <div class="key-btn" style="background: transparent; box-shadow: none; color: #EF4444; border:none;" onclick="deleteKey()">
-                        <i class="fas fa-delete-left text-2xl"></i>
-                    </div>
+                    <div class="key-btn" onclick="pressKey('1')">1</div><div class="key-btn" onclick="pressKey('2')">2</div><div class="key-btn" onclick="pressKey('3')">3</div>
+                    <div class="key-btn" onclick="pressKey('4')">4</div><div class="key-btn" onclick="pressKey('5')">5</div><div class="key-btn" onclick="pressKey('6')">6</div>
+                    <div class="key-btn" onclick="pressKey('7')">7</div><div class="key-btn" onclick="pressKey('8')">8</div><div class="key-btn" onclick="pressKey('9')">9</div>
+                    <div></div><div class="key-btn" onclick="pressKey('0')">0</div>
+                    <div class="key-btn" style="background: transparent; box-shadow: none; color: #EF4444; border:none;" onclick="deleteKey()"><i class="fas fa-backspace text-2xl"></i></div>
                 </div>
-                <p class="text-center text-[9px] text-[#4B5E82] tracking-[2.5px] uppercase font-bold">Elite Wealth Management System</p>
+                <p class="text-center text-[9px] text-[#4B5E82] tracking-[2px] uppercase font-bold">Designed for Excellence</p>
             </div>
         </div>
     </div>
 
-    <!-- ==================== PAGE 2: ADMIN STEP-2 AUTH ==================== -->
     <div id="page-admin-auth" class="page-view justify-center">
+        <div class="ambient-bg"></div>
         <div class="w-full max-w-[400px] px-8 flex flex-col items-center fade-up mx-auto relative z-10">
-            <div class="w-20 h-20 mb-6 bg-[rgba(212,175,55,0.08)] rounded-full flex items-center justify-center border border-[rgba(212,175,55,0.35)] shadow-[0_0_30px_rgba(212,175,55,0.2)]">
+            <div class="w-20 h-20 mb-6 bg-[rgba(212,175,55,0.05)] rounded-full flex items-center justify-center border border-[rgba(212,175,55,0.3)] shadow-[0_0_30px_rgba(212,175,55,0.15)]">
                 <i class="fas fa-fingerprint text-4xl text-[var(--gold-mid)]"></i>
             </div>
             <h1 class="text-2xl font-eng tracking-[5px] font-bold text-white mb-2 text-center">SECURE GATEWAY</h1>
-            <p class="text-[10px] text-[#8B9BB4] tracking-[2px] uppercase font-bold mb-8 text-center">Level 2 Authorization Required</p>
-            <div class="w-full space-y-4">
-                <input type="password" id="adminCode2" placeholder="Enter 16-Digit Master Key" class="admin-input text-center text-lg tracking-[4px]" autocomplete="off" onkeydown="if(event.key==='Enter') verifyAdminStep2()">
-                <button onclick="verifyAdminStep2()" class="w-full bg-gradient-to-r from-[#BF953F] via-[#FCF6BA] to-[#B38728] text-black font-bold font-eng tracking-[4px] py-3.5 rounded-xl shadow-[0_10px_20px_rgba(212,175,55,0.25)] active:scale-95 transition-transform">
-                    AUTHENTICATE
-                </button>
-                <button onclick="cancelAdminAuth()" class="w-full text-[#8B9BB4] font-bold text-[11px] tracking-widest uppercase py-2 hover:text-white transition-colors">
-                    <i class="fas fa-arrow-left mr-1"></i> Cancel Connection
-                </button>
+            <p class="text-[10px] text-[#8B9BB4] tracking-[2px] uppercase font-bold mb-10 text-center">Level 2 Authorization Required</p>
+            
+            <div class="w-full space-y-5">
+                <input type="password" id="adminCode2" placeholder="Enter 16-Digit Master Key" class="admin-input text-center text-lg tracking-[4px]" autocomplete="off">
+                <button onclick="verifyAdminStep2()" class="w-full bg-gradient-to-r from-[#BF953F] via-[#FCF6BA] to-[#B38728] text-black font-bold font-eng tracking-[4px] py-3.5 rounded-xl shadow-[0_10px_20px_rgba(212,175,55,0.2)] active:scale-95 transition-transform">AUTHENTICATE</button>
+                <button onclick="cancelAdminAuth()" class="w-full text-[#8B9BB4] font-bold text-[10px] tracking-widest uppercase mt-4 hover:text-white transition-colors bg-transparent border-none">Cancel Connection</button>
             </div>
         </div>
     </div>
 
-    <!-- ==================== PAGE 3: USER PORTFOLIO ==================== -->
     <div id="page-user" class="page-view">
-        <div class="w-full max-w-[430px] flex flex-col h-[100dvh] mx-auto relative z-10">
-            <!-- Header -->
-            <div class="pt-8 px-6 pb-3 flex justify-between items-center fade-up" style="animation-delay: 0.05s;">
-                <div class="flex items-center gap-3.5">
-                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[rgba(212,175,55,0.2)] to-[rgba(255,255,255,0.02)] flex items-center justify-center border border-[rgba(212,175,55,0.3)] text-[var(--gold-mid)] text-xl shadow-lg">
-                        <i class="fas fa-gem"></i>
-                    </div>
-                    <div>
-                        <p class="text-[var(--text-muted)] text-[10px] uppercase tracking-[1px] font-bold">ยินดีต้อนรับ,</p>
-                        <h2 id="userNick" class="text-xl font-bold leading-tight text-white drop-shadow-md">...</h2>
-                    </div>
+        <div class="ambient-bg"></div>
+        <div class="w-full max-w-[420px] flex flex-col h-100dvh mx-auto relative z-10">
+            <div class="pt-12 px-6 pb-4 flex justify-between items-center fade-up" style="animation-delay: 0.1s;">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-[rgba(255,255,255,0.05)] flex items-center justify-center border border-[rgba(255,255,255,0.1)] text-[var(--gold-mid)] text-xl backdrop-blur-md"><i class="fas fa-gem"></i></div>
+                    <div><p class="text-[var(--text-muted)] text-[9px] uppercase tracking-[2px] font-bold">Welcome back,</p><h2 id="userNick" class="text-2xl font-bold leading-none mt-1 text-white drop-shadow-md">...</h2></div>
                 </div>
-                <button onclick="logoutUser()" class="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:text-red-400 active:scale-95 transition-all flex items-center gap-2 text-xs font-bold">
-                    <span>ออก</span> <i class="fas fa-sign-out-alt"></i>
-                </button>
+                <button onclick="location.reload()" class="w-10 h-10 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-gray-400 active:text-red-500 active:scale-90 transition-all flex items-center justify-center text-sm backdrop-blur-md"><i class="fas fa-sign-out-alt"></i></button>
             </div>
             
-            <!-- Scrollable Content -->
-            <div class="flex-1 overflow-y-auto no-scrollbar pb-12 px-6 pt-2">
-                <!-- Luxury Card -->
-                <div id="memberCard" class="lux-card fade-up" style="animation-delay: 0.1s;">
+            <div class="flex-1 overflow-y-auto no-scrollbar pb-10 px-6 pt-2">
+                <div id="memberCard" class="lux-card fade-up" style="animation-delay: 0.2s;">
                     <div class="flex justify-between items-start z-10">
-                        <div class=" flex items-center gap-2.5">
-                            <div class="chip"></div>
-                            <i class="fas fa-wifi rotate-90 text-xs opacity-60"></i>
-                        </div>
-                        <span id="memberTierText" class="text-[10px] font-bold tracking-[1px] bg-black/35 text-white px-3 py-1 rounded-full backdrop-blur-md border border-white/15">มาตรฐาน</span>
+                        <div class="chip"></div>
+                        <span id="memberTierText" class="font-eng text-[10px] font-bold tracking-[3px] bg-black/30 px-3 py-1 rounded-full uppercase backdrop-blur-md border border-white/10">STANDARD</span>
                     </div>
-                    <div class="z-10 my-2">
-                        <div class="flex items-center gap-2 mb-1">
-                            <p class="text-[10px] font-bold opacity-80 uppercase tracking-[1px]">ยอดเงินคงเหลือสุทธิ</p>
-                            <button onclick="toggleBalancePrivacy()" class="opacity-70 hover:opacity-100 text-xs" title="ซ่อน/แสดงยอดเงิน">
-                                <i id="eyeIcon" class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                        <div class="flex items-baseline gap-1.5">
-                            <span class="text-xl font-num opacity-90 font-semibold">฿</span>
-                            <h1 class="text-[36px] font-bold font-num tracking-tight leading-none drop-shadow-md" id="userBalance">0.00</h1>
-                        </div>
+                    <div class="z-10 mt-6 mb-2">
+                        <p class="text-[9px] font-bold opacity-80 uppercase tracking-[3px] mb-1.5">Available Wealth</p>
+                        <div class="flex items-baseline gap-2"><span class="text-xl font-num opacity-90">฿</span><h1 class="text-[40px] font-bold font-num tracking-tight leading-none drop-shadow-lg" id="userBalance">0.00</h1></div>
                     </div>
                     <div class="flex justify-between items-end z-10">
-                        <div>
-                            <p id="userAccNo" class="font-num text-xs tracking-[3px] font-semibold opacity-90">000 000</p>
-                            <p id="userFullName" class="text-[11px] font-medium tracking-wide mt-0.5 uppercase opacity-80">...</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="font-eng text-[10px] tracking-[2px] font-bold opacity-75">TAEBANK ELITE</span>
-                        </div>
+                        <div><p id="userAccNo" class="font-num text-xs tracking-[4px] font-medium opacity-90">000 000</p><p id="userFullName" class="text-[10px] font-medium tracking-wide mt-1 uppercase opacity-75">...</p></div>
+                        <div class="flex opacity-80"><div class="w-6 h-6 rounded-full bg-black/30 mix-blend-overlay"></div><div class="w-6 h-6 rounded-full bg-white/40 mix-blend-overlay -ml-3"></div></div>
                     </div>
                 </div>
 
-                <!-- Tier Progress Bar -->
-                <div class="mt-3 admin-glass p-3.5 fade-up" style="animation-delay: 0.15s;">
-                    <div class="flex justify-between items-center text-[11px] mb-1.5">
-                        <span id="nextTierLabel" class="text-[#8B9BB4] font-medium">สถานะระดับสมาชิก</span>
-                        <span id="nextTierPercent" class="font-num font-bold text-[var(--gold-mid)]">0%</span>
+                <div class="mt-8 fade-up" style="animation-delay: 0.3s;">
+                    <div class="flex justify-between items-end mb-4 px-1">
+                        <h3 class="text-lg font-bold tracking-tight text-white">Recent Activities</h3>
+                        <span class="text-[9px] font-bold text-[var(--gold-mid)] uppercase tracking-[2px]">Last 5 Records</span>
                     </div>
-                    <div class="w-full h-1.5 bg-black/40 rounded-full overflow-hidden p-[1px]">
-                        <div id="nextTierBar" class="h-full bg-gradient-to-r from-[#B38728] via-[#D4AF37] to-[#FCF6BA] rounded-full transition-all duration-700" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <!-- Quick Summary Stats -->
-                <div class="grid grid-cols-3 gap-2.5 mt-3 fade-up" style="animation-delay: 0.2s;">
-                    <div class="admin-glass p-3 text-center">
-                        <p class="text-[9px] text-[#8B9BB4] font-bold uppercase">ฝากสะสม</p>
-                        <p id="userStatDep" class="text-xs font-num font-bold text-emerald-400 mt-1">+฿0.00</p>
-                    </div>
-                    <div class="admin-glass p-3 text-center">
-                        <p class="text-[9px] text-[#8B9BB4] font-bold uppercase">ถอนสะสม</p>
-                        <p id="userStatWit" class="text-xs font-num font-bold text-red-400 mt-1">-฿0.00</p>
-                    </div>
-                    <div class="admin-glass p-3 text-center">
-                        <p class="text-[9px] text-[#8B9BB4] font-bold uppercase">ดอกเบี้ยสะสม</p>
-                        <p id="userStatInt" class="text-xs font-num font-bold text-[var(--gold-mid)] mt-1">+฿0.00</p>
-                    </div>
-                </div>
-
-                <!-- Transaction List -->
-                <div class="mt-6 fade-up" style="animation-delay: 0.25s;">
-                    <div class="flex justify-between items-center mb-3.5 px-1">
-                        <div>
-                            <h3 class="text-base font-bold tracking-tight text-white">รายการเคลื่อนไหวบัญชี</h3>
-                            <p class="text-[10px] text-[#8B9BB4]">แตะที่รายการเพื่อดูใบเสร็จดิจิทัล (E-Slip)</p>
-                        </div>
-                        <button id="btnToggleAllTx" onclick="toggleUserTxLimit()" class="text-[10px] font-bold text-[var(--gold-mid)] bg-[rgba(212,175,55,0.1)] border border-[rgba(212,175,55,0.25)] px-3 py-1.5 rounded-full uppercase tracking-[0.5px] active:scale-95 transition-transform">
-                            ดูทั้งหมด
-                        </button>
-                    </div>
-                    <div id="userTxList" class="space-y-2.5"></div>
+                    <div id="userTxList" class="space-y-3"></div>
+                    <div id="userTxMore" class="mt-6 text-center"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ==================== PAGE 4: ADMIN COMMAND CENTER ==================== -->
     <div id="page-admin" class="page-view overflow-y-auto no-scrollbar pb-12">
-        <div class="w-full max-w-[540px] p-4 sm:p-5 flex flex-col gap-4 mx-auto relative z-10">
-            <!-- Admin Top Bar -->
-            <div class="flex justify-between items-center admin-glass p-4 fade-up" style="animation-delay: 0.05s;">
+        <div class="ambient-bg"></div>
+        <div class="w-full max-w-[500px] p-5 flex flex-col gap-5 mx-auto relative z-10">
+            
+            <div class="flex justify-between items-center admin-glass p-4 fade-up" style="animation-delay: 0.1s;">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-[rgba(212,175,55,0.12)] flex items-center justify-center text-[var(--gold-mid)] border border-[rgba(212,175,55,0.3)] shadow-[0_0_15px_rgba(212,175,55,0.2)]">
-                        <i class="fas fa-user-shield text-lg"></i>
-                    </div>
-                    <div>
-                        <h2 class="font-bold font-eng tracking-[3px] text-white text-sm sm:text-base">COMMAND CENTER</h2>
-                        <p class="text-[9px] text-[#8B9BB4] uppercase tracking-[1.5px] font-bold">Ven.Maha.Chakkraphat Atthajak</p>
-                    </div>
+                    <div class="w-10 h-10 rounded-full bg-[rgba(212,175,55,0.1)] flex items-center justify-center text-[var(--gold-mid)] border border-[rgba(212,175,55,0.3)] shadow-[0_0_15px_rgba(212,175,55,0.2)]"><i class="fas fa-user-shield text-lg"></i></div>
+                    <div><h2 class="font-bold font-eng tracking-[4px] text-white text-base">COMMAND</h2><p class="text-[8px] text-[#8B9BB4] uppercase tracking-[2px] font-bold">System Administrator</p></div>
                 </div>
-                <button onclick="logoutUser()" class="bg-red-500/10 text-red-400 px-3.5 py-2 rounded-xl font-bold text-[10px] tracking-wider border border-red-500/20 hover:bg-red-500 hover:text-white active:scale-95 transition-all">
-                    <i class="fas fa-power-off mr-1"></i> EXIT
-                </button>
+                <button onclick="location.reload()" class="bg-red-500/10 text-red-500 px-4 py-2 rounded-xl font-bold text-[9px] tracking-widest border border-red-500/20 active:bg-red-500 active:text-white transition-all">TERMINATE</button>
             </div>
 
-            <!-- KPI Cards -->
-            <div class="grid grid-cols-2 gap-3 fade-up" style="animation-delay: 0.1s;">
-                <div class="admin-glass p-4 relative overflow-hidden">
-                    <p class="text-[9px] text-[var(--gold-mid)] font-bold uppercase tracking-[1.5px]">เงินฝากรวมทั้งระบบ</p>
-                    <h3 id="stat-total" class="text-2xl font-bold font-num mt-1 text-white drop-shadow-md">฿0.00</h3>
-                    <p id="stat-unprinted" class="text-[10px] text-amber-400 mt-1 font-medium">รอพิมพ์สมุด 0 รายการ</p>
-                    <div class="absolute -right-2 -bottom-2 opacity-5 text-6xl text-[var(--gold-mid)]"><i class="fas fa-coins"></i></div>
-                </div>
-                <div class="admin-glass p-4 relative overflow-hidden">
-                    <p class="text-[9px] text-[var(--gold-mid)] font-bold uppercase tracking-[1.5px]">จำนวนสมาชิกทั้งหมด</p>
-                    <h3 id="stat-members" class="text-2xl font-bold font-num mt-1 text-white drop-shadow-md">0</h3>
-                    <p id="stat-active-members" class="text-[10px] text-emerald-400 mt-1 font-medium">บัญชีมีเงินฝาก 0 รูป/คน</p>
-                    <div class="absolute -right-2 -bottom-2 opacity-5 text-6xl text-[var(--gold-mid)]"><i class="fas fa-users"></i></div>
-                </div>
-                
-                <!-- Interest Banner -->
-                <div class="admin-glass p-4 relative overflow-hidden col-span-2 cursor-pointer transition-all active:scale-98 border-emerald-500/30 hover:border-emerald-400" onclick="triggerInterestPayout()" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.14) 0%, rgba(5, 11, 20, 0.7) 100%);">
-                    <div class="flex justify-between items-center relative z-10">
-                        <div>
-                            <p class="text-[9px] text-emerald-400 font-bold uppercase tracking-[2px] mb-0.5"><i class="fas fa-hand-holding-dollar mr-1"></i> Interest Dividend System</p>
-                            <h3 class="text-base font-bold text-white">ระบบคำนวณและปันผลดอกเบี้ยอัตโนมัติ</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                            <i class="fas fa-percent text-sm"></i>
-                        </div>
-                    </div>
-                </div>
+            <div class="grid grid-cols-2 gap-3 fade-up" style="animation-delay: 0.2s;">
+                <div class="admin-glass p-5 relative overflow-hidden"><p class="text-[9px] text-[var(--gold-mid)] font-bold uppercase tracking-[2px]">Total Liquidity</p><h3 id="stat-total" class="text-2xl font-bold font-num mt-1 text-white drop-shadow-md">0.00</h3><div class="absolute -right-2 -bottom-2 opacity-5 text-6xl text-[var(--gold-mid)]"><i class="fas fa-coins"></i></div></div>
+                <div class="admin-glass p-5 relative overflow-hidden"><p class="text-[9px] text-[var(--gold-mid)] font-bold uppercase tracking-[2px]">Total Clients</p><h3 id="stat-members" class="text-2xl font-bold font-num mt-1 text-white drop-shadow-md">0</h3><div class="absolute -right-2 -bottom-2 opacity-5 text-6xl text-[var(--gold-mid)]"><i class="fas fa-users"></i></div></div>
             </div>
 
-            <!-- Wealth Distribution Chart -->
-            <div class="admin-glass p-4 fade-up" style="animation-delay: 0.15s;">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-[10px] font-bold text-white uppercase tracking-[2px]"><i class="fas fa-chart-pie text-[var(--gold-mid)] mr-1.5"></i> สัดส่วนเงินฝาก (Wealth Distribution)</h3>
+            <div class="admin-glass p-5 fade-up" style="animation-delay: 0.3s;">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-[10px] font-bold text-white uppercase tracking-[3px]"><i class="fas fa-chart-pie text-[var(--gold-mid)] mr-2"></i> Wealth Distribution</h3>
                 </div>
-                <div class="relative h-[200px] w-full"><canvas id="doughnutChart"></canvas></div>
+                <div class="relative h-[220px] w-full"><canvas id="doughnutChart"></canvas></div>
             </div>
 
-            <!-- Action Buttons (4 Grid) -->
-            <div class="grid grid-cols-4 gap-2 fade-up" style="animation-delay: 0.2s;">
-                <button onclick="adminAddMember()" class="bg-gradient-to-br from-blue-600 to-blue-900 text-white p-2.5 rounded-xl font-bold text-[10px] tracking-wider uppercase shadow-lg flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform border border-blue-400/30">
-                    <i class="fas fa-user-plus text-sm"></i> เปิดบัญชี
-                </button>
-                <label class="bg-gradient-to-br from-emerald-600 to-emerald-900 text-white p-2.5 rounded-xl font-bold text-[10px] tracking-wider uppercase shadow-lg flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 transition-transform border border-emerald-400/30">
-                    <i class="fas fa-file-import text-sm"></i> นำเข้า CSV
-                    <input type="file" id="csvIn" accept=".csv" class="hidden" onchange="adminImportCSV(this)">
-                </label>
-                <button onclick="exportBackupCSV()" class="bg-gradient-to-br from-purple-600 to-purple-900 text-white p-2.5 rounded-xl font-bold text-[10px] tracking-wider uppercase shadow-lg flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform border border-purple-400/30">
-                    <i class="fas fa-file-csv text-sm"></i> ส่งออก CSV
-                </button>
-                <button onclick="downloadWealthReport()" class="bg-gradient-to-br from-[#BF953F] to-[#B38728] text-black p-2.5 rounded-xl font-bold text-[10px] tracking-wider uppercase shadow-lg flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform border border-[#FCF6BA]/50">
-                    <i class="fas fa-image text-sm"></i> รายงานภาพ
-                </button>
+            <div class="grid grid-cols-2 gap-3 fade-up" style="animation-delay: 0.4s;">
+                <button onclick="adminAddMember()" class="bg-gradient-to-br from-blue-600 to-blue-900 text-white p-3 rounded-xl font-bold text-[10px] tracking-widest uppercase shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform border border-blue-500/30"><i class="fas fa-user-plus text-base"></i> Create</button>
+                <label class="bg-gradient-to-br from-emerald-600 to-emerald-900 text-white p-3 rounded-xl font-bold text-[10px] tracking-widest uppercase shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-transform border border-emerald-500/30"><i class="fas fa-file-import text-base"></i> Import <input type="file" id="csvIn" accept=".csv" class="hidden" onchange="adminImportCSV(this)"></label>
             </div>
 
-            <!-- Client List & Filters -->
-            <div class="admin-glass p-4 min-h-[420px] fade-up" style="animation-delay: 0.25s;">
-                <div class="relative mb-3">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[#8B9BB4] text-xs"></i>
-                    <input type="text" id="adminSearch" oninput="adminRender()" placeholder="ค้นหารหัสบัญชี, ชื่อเล่น หรือ ชื่อ-นามสกุล..." class="admin-input pl-10 py-2.5 text-xs">
+            <div class="admin-glass p-5 min-h-[400px] fade-up" style="animation-delay: 0.5s;">
+                <div class="relative mb-5">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[#8B9BB4] text-sm"></i>
+                    <input type="text" id="adminSearch" onkeyup="adminRender()" placeholder="Search records..." class="admin-input pl-11 text-xs font-sans tracking-normal">
                 </div>
-
-                <!-- Filter & Sort Bar -->
-                <div class="flex items-center justify-between gap-2 mb-4 overflow-x-auto no-scrollbar pb-1">
-                    <div class="flex gap-1.5">
-                        <button class="filter-pill active" id="flt-all" onclick="setAdminFilter('all')">ทั้งหมด</button>
-                        <button class="filter-pill" id="flt-unprinted" onclick="setAdminFilter('unprinted')">รอพิมพ์สมุด</button>
-                    </div>
-                    <select id="adminSort" onchange="adminRender()" class="bg-black/40 border border-white/10 text-[#8B9BB4] text-[10px] font-bold rounded-lg px-2.5 py-1.5 outline-none">
-                        <option value="code">เรียงตามรหัส</option>
-                        <option value="bal_desc">ยอดเงิน มาก → น้อย</option>
-                        <option value="bal_asc">ยอดเงิน น้อย → มาก</option>
-                    </select>
-                </div>
-
-                <div id="adminList" class="space-y-2.5"></div>
+                <div id="adminList" class="space-y-2"></div>
             </div>
         </div>
     </div>
 
-    <!-- ==================== APPLICATION LOGIC ==================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getDatabase, ref, onValue, set, push, update, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
+        // *** 🛑 ใส่รหัส Firebase Config ของท่านตรงนี้ 🛑 ***
         const firebaseConfig = {
             apiKey: "AIzaSyAiCtKW-U5QWp3yUsvToJlh2pT7sjiQ4Iw",
             authDomain: "taebankwat.firebaseapp.com",
@@ -508,79 +228,44 @@
 
         let STATE = { members: null, transactions: null };
         let currentPin = "";
-        let activeUserKey = null;
-        let showAllUserTx = false;
-        let hideBalance = false;
-        let currentUserBalanceVal = 0;
-        let adminFilterMode = 'all';
         let myChart = null;
         
         const ADMIN_PIN_1 = "009098";
         const ADMIN_PIN_2 = "5255272828842525";
-        
-        const fmtAmt = (num) => Number(num || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-        // Realtime Database Listeners
+        // Connection Status
         onValue(ref(db, 'members'), s => { 
             STATE.members = s.val() || {}; 
-            const led = document.getElementById('db-led');
-            led.className = "absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#050B14] shadow-[0_0_10px_#10B981]";
-            
-            const st = document.getElementById('status-text');
-            st.innerHTML = `<i class="fas fa-shield-halved text-[10px]"></i> Secure Link Established`;
-            st.classList.replace('text-[var(--text-muted)]', 'text-[var(--gold-mid)]');
-            
+            document.getElementById('db-led').classList.replace('bg-red-500', 'bg-emerald-500');
+            document.getElementById('db-led').classList.add('shadow-[0_0_8px_#10B981]');
+            document.getElementById('status-text').innerText = "Secure Link Established";
+            document.getElementById('status-text').classList.replace('text-[var(--text-muted)]', 'text-[var(--gold-mid)]');
             if(document.getElementById('page-admin').classList.contains('active')) adminRender();
-            if(activeUserKey && document.getElementById('page-user').classList.contains('active')) loadUserPortfolio(activeUserKey, false);
         });
-
         onValue(ref(db, 'transactions'), s => { 
             STATE.transactions = s.val() || {}; 
             if(document.getElementById('page-admin').classList.contains('active')) adminRender();
-            if(activeUserKey && document.getElementById('page-user').classList.contains('active')) loadUserPortfolio(activeUserKey, false);
         });
 
-        // Keyboard Support for PIN Login
-        document.addEventListener('keydown', (e) => {
-            if (!document.getElementById('page-login').classList.contains('active')) return;
-            if (Swal.isVisible()) return;
-            if (e.key >= '0' && e.key <= '9') {
-                const btn = document.querySelector(`.key-btn[data-key="${e.key}"]`);
-                if (btn) { btn.classList.add('pressed'); setTimeout(() => btn.classList.remove('pressed'), 150); }
-                window.pressKey(e.key);
-            } else if (e.key === 'Backspace') {
-                window.deleteKey();
-            } else if (e.key === 'Escape') {
-                window.clearPin();
-            }
-        });
-
-        // Navigation
+        // UI Transitions
         window.switchPage = (pageId) => {
             document.querySelectorAll('.page-view').forEach(p => {
                 p.style.opacity = '0';
-                setTimeout(() => p.classList.remove('active'), 400);
+                setTimeout(() => p.classList.remove('active'), 600);
             });
             setTimeout(() => {
                 const target = document.getElementById(pageId);
                 target.classList.add('active');
-                setTimeout(() => target.style.opacity = '1', 30);
-            }, 400);
-        };
+                setTimeout(() => target.style.opacity = '1', 50);
+            }, 600);
+        }
 
-        window.logoutUser = () => {
-            activeUserKey = null;
-            showAllUserTx = false;
-            resetPin();
-            switchPage('page-login');
-        };
-
-        // Keypad Controls
+        // Keypad Logic
         window.pressKey = (n) => {
             if(currentPin.length < 6) {
                 currentPin += n;
                 document.querySelectorAll('.pin-dot')[currentPin.length - 1].classList.add('active');
-                if(currentPin.length === 6) setTimeout(processEntry, 200);
+                if(currentPin.length === 6) setTimeout(processEntry, 250);
             }
         };
 
@@ -591,41 +276,28 @@
             }
         };
 
-        window.clearPin = () => resetPin();
-
-        function resetPin() { 
-            currentPin = ""; 
-            document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('active', 'error')); 
-        }
+        function resetPin() { currentPin = ""; document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('active')); }
 
         function processEntry() {
-            if (STATE.members === null) { 
-                Swal.fire({ icon: 'info', title: 'กำลังเชื่อมต่อฐานข้อมูล', text: 'กรุณารอสักครู่แล้วลองใหม่อีกครั้ง', confirmButtonColor: '#D4AF37' }); 
-                resetPin(); 
-                return; 
-            }
+            if (STATE.members === null) { Swal.fire('Initializing', 'Connecting to database...', 'info'); resetPin(); return; }
 
             if (currentPin === ADMIN_PIN_1) {
                 switchPage('page-admin-auth');
                 resetPin();
-                setTimeout(() => document.getElementById('adminCode2').focus(), 550);
+                setTimeout(() => document.getElementById('adminCode2').focus(), 700);
             } else {
                 let mKey = Object.keys(STATE.members).find(k => k === currentPin || STATE.members[k].code === currentPin);
                 if (mKey) {
-                    activeUserKey = mKey;
-                    resetPin();
                     switchPage('page-user');
-                    loadUserPortfolio(mKey, true);
+                    loadUserPortfolio(mKey);
                 } else {
-                    document.querySelectorAll('.pin-dot').forEach(d => d.classList.add('error'));
-                    setTimeout(() => {
-                        Swal.fire({ icon: 'error', title: 'รหัสไม่ถูกต้อง', text: 'ไม่พบหมายเลขบัญชีนี้ในระบบ', confirmButtonColor: '#D4AF37', timer: 1800, showConfirmButton: false });
-                        resetPin();
-                    }, 350);
+                    Swal.fire({ icon: 'error', title: 'ACCESS DENIED', text: 'Invalid Portfolio ID', confirmButtonColor: '#D4AF37' });
+                    resetPin();
                 }
             }
         }
 
+        // --- 2FA ADMIN AUTHENTICATION ---
         window.verifyAdminStep2 = () => {
             const input = document.getElementById('adminCode2').value;
             if(input === ADMIN_PIN_2) {
@@ -633,880 +305,183 @@
                 switchPage('page-admin');
                 adminRender();
             } else {
-                Swal.fire({ icon: 'error', title: 'ACCESS DENIED', text: 'รหัสมาสเตอร์คีย์ไม่ถูกต้อง', confirmButtonColor: '#EF4444' });
+                Swal.fire({ icon: 'error', title: 'BREACH DETECTED', text: 'Invalid Master Key', confirmButtonColor: '#EF4444' });
                 document.getElementById('adminCode2').value = '';
             }
         };
-
-        window.cancelAdminAuth = () => { 
-            document.getElementById('adminCode2').value = ''; 
-            switchPage('page-login'); 
+        window.cancelAdminAuth = () => {
+            document.getElementById('adminCode2').value = '';
+            switchPage('page-login');
         };
 
-        // ==================== USER VIEW FUNCTIONS ====================
-        window.toggleBalancePrivacy = () => {
-            hideBalance = !hideBalance;
-            const balEl = document.getElementById('userBalance');
-            const eyeEl = document.getElementById('eyeIcon');
-            if (hideBalance) {
-                balEl.innerText = "••,•••.••";
-                eyeEl.className = "fas fa-eye-slash";
-            } else {
-                balEl.innerText = fmtAmt(currentUserBalanceVal);
-                eyeEl.className = "fas fa-eye";
-            }
-        };
-
-        window.toggleUserTxLimit = () => {
-            showAllUserTx = !showAllUserTx;
-            if (activeUserKey) loadUserPortfolio(activeUserKey, false);
-        };
-
-        function loadUserPortfolio(key, animate = true) {
+        // --- USER PORTFOLIO ---
+        function loadUserPortfolio(key) {
             const user = STATE.members[key];
-            if (!user) return;
-
-            let txs = []; 
-            let bal = 0, totalDep = 0, totalWit = 0, totalInt = 0;
-
+            let txs = []; let bal = 0;
             if(STATE.transactions) {
                 Object.keys(STATE.transactions).forEach(id => {
                     let t = STATE.transactions[id];
-                    if (t.studentCode === key || t.studentCode === user.code) { 
-                        let amt = parseFloat(t.amount) || 0;
-                        txs.push({ id, ...t }); 
-                        if (t.type === 'deposit') {
-                            bal += amt;
-                            if (t.isInterest) totalInt += amt;
-                            else totalDep += amt;
-                        } else {
-                            bal -= amt;
-                            totalWit += amt;
-                        }
-                    }
+                    if (t.studentCode === key || t.studentCode === user.code) { txs.push(t); bal += (t.type === 'deposit' ? parseFloat(t.amount) : -parseFloat(t.amount)); }
                 });
             }
 
-            currentUserBalanceVal = bal;
-
-            // Tier & Progress Calculation
-            let bg, text, rank, nextTarget, progressPct;
-            if (bal < 500) { 
-                bg = 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)'; text = '#F8FAFC'; rank = 'ระดับ ซิลเวอร์ (SILVER)'; 
-                nextTarget = 500; progressPct = Math.max(0, (bal / 500) * 100);
-                document.getElementById('nextTierLabel').innerText = `อีก ฿${fmtAmt(500 - bal)} เพื่อเลื่อนเป็นระดับ โกลด์`;
-            } else if (bal < 1000) { 
-                bg = 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 50%, #B38728 100%)'; text = '#422006'; rank = 'ระดับ โกลด์ (GOLD)'; 
-                nextTarget = 1000; progressPct = ((bal - 500) / 500) * 100;
-                document.getElementById('nextTierLabel').innerText = `อีก ฿${fmtAmt(1000 - bal)} เพื่อเลื่อนเป็นระดับ แพลทินัม`;
-            } else if (bal < 5000) { 
-                bg = 'linear-gradient(135deg, #334155 0%, #090D16 100%)'; text = '#F1F5F9'; rank = 'ระดับ แพลทินัม (PLATINUM)'; 
-                nextTarget = 5000; progressPct = ((bal - 1000) / 4000) * 100;
-                document.getElementById('nextTierLabel').innerText = `อีก ฿${fmtAmt(5000 - bal)} เพื่อเลื่อนเป็นระดับ เอมเมอรัลด์`;
-            } else if (bal < 10000) { 
-                bg = 'linear-gradient(135deg, #065F46 0%, #022C22 100%)'; text = '#A7F3D0'; rank = 'ระดับ เอมเมอรัลด์ (EMERALD)'; 
-                nextTarget = 10000; progressPct = ((bal - 5000) / 5000) * 100;
-                document.getElementById('nextTierLabel').innerText = `อีก ฿${fmtAmt(10000 - bal)} เพื่อเลื่อนเป็นระดับ ไดมอนด์`;
-            } else { 
-                bg = ''; text = ''; rank = 'ระดับ ไดมอนด์ (DIAMOND)'; 
-                progressPct = 100;
-                document.getElementById('nextTierLabel').innerText = `คุณอยู่ในระดับสูงสุดของธนาคารแล้ว (สูงสุด)`;
-            }
+            let bg, text, rank;
+            if (bal < 500) { bg = 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)'; text = '#F8FAFC'; rank = 'SILVER CLASS'; }
+            else if (bal < 1000) { bg = 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 50%, #B38728 100%)'; text = '#422006'; rank = 'GOLD PRESTIGE'; } 
+            else if (bal < 5000) { bg = 'linear-gradient(135deg, #334155 0%, #020617 100%)'; text = '#F1F5F9'; rank = 'PLATINUM ELITE'; } 
+            else if (bal < 10000) { bg = 'linear-gradient(135deg, #065F46 0%, #022C22 100%)'; text = '#A7F3D0'; rank = 'EMERALD RESERVE'; } 
+            else { bg = ''; text = ''; rank = 'DIAMOND ELITE'; } 
             
-            document.getElementById('nextTierPercent').innerText = `${Math.min(100, Math.floor(progressPct))}%`;
-            document.getElementById('nextTierBar').style.width = `${Math.min(100, progressPct)}%`;
-
             const card = document.getElementById('memberCard');
-            if(bal >= 10000) { 
-                card.className = 'lux-card rank-diamond'; card.style.background = ''; card.style.color = ''; 
-            } else { 
-                card.className = 'lux-card'; card.style.background = bg; card.style.color = text; 
-            }
+            if(bal >= 10000) { card.className = 'lux-card rank-diamond fade-up'; card.style.background = ''; card.style.color = ''; } 
+            else { card.className = 'lux-card fade-up'; card.style.background = bg; card.style.color = text; }
             
             document.getElementById('memberTierText').innerText = rank;
             document.getElementById('userNick').innerText = user.nick || '-';
             document.getElementById('userFullName').innerText = user.name || '-';
             document.getElementById('userAccNo').innerText = (user.code || key).replace(/(\d{3})(\d{3})/, '$1 $2');
             
-            document.getElementById('userStatDep').innerText = `+฿${fmtAmt(totalDep)}`;
-            document.getElementById('userStatWit').innerText = `-฿${fmtAmt(totalWit)}`;
-            document.getElementById('userStatInt').innerText = `+฿${fmtAmt(totalInt)}`;
+            animateValue("userBalance", 0, bal, 1200);
 
-            if (!hideBalance) {
-                if (animate) animateValue("userBalance", 0, bal, 900);
-                else document.getElementById("userBalance").innerText = fmtAmt(bal);
-            }
-
-            // Render Transactions
-            const list = document.getElementById('userTxList');
-            const btnToggle = document.getElementById('btnToggleAllTx');
-            list.innerHTML = ''; 
-            txs.sort((a,b) => new Date(b.date) - new Date(a.date));
+            const list = document.getElementById('userTxList'); const info = document.getElementById('userTxMore');
+            list.innerHTML = ''; txs.sort((a,b) => new Date(b.date) - new Date(a.date));
             
-            if (txs.length <= 5) {
-                btnToggle.style.display = 'none';
-            } else {
-                btnToggle.style.display = 'inline-block';
-                btnToggle.innerText = showAllUserTx ? `ย่อรายการ (5 ล่าสุด)` : `ดูทั้งหมด (${txs.length})`;
-            }
-
-            if(txs.length === 0) {
-                list.innerHTML = `<div class="text-center py-10 admin-glass shadow-none"><i class="fas fa-box-open text-3xl text-[#4B5E82] mb-2"></i><p class="text-[#8B9BB4] text-xs font-bold tracking-[1px] mt-1">ยังไม่มีรายการเคลื่อนไหวในบัญชี</p></div>`;
-            } else {
-                const displayTxs = showAllUserTx ? txs : txs.slice(0, 5);
-                displayTxs.forEach(t => {
-                    const isD = t.type === 'deposit'; 
-                    const isInt = t.isInterest; 
-                    const d = new Date(t.date);
-                    let title = isInt ? 'ปันผลดอกเบี้ยธนาคาร' : (isD ? 'ฝากเงินเข้าบัญชี' : 'ถอนเงินออกจากบัญชี');
-                    if (t.note) title += ` (${t.note})`;
-                    let iconClass = isInt ? 'fa-percent' : (isD ? 'fa-arrow-down' : 'fa-arrow-up');
-                    
-                    const item = document.createElement('div');
-                    item.className = "admin-row cursor-pointer";
-                    item.onclick = () => showDigitalSlip(t, user.name || user.nick, key);
-                    item.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center ${isD ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}">
-                                <i class="fas ${iconClass} text-xs"></i>
+            if(txs.length === 0) list.innerHTML = `<div class="text-center py-10 admin-glass shadow-none"><i class="fas fa-box-open text-3xl text-[#4B5E82] mb-2"></i><p class="text-[#8B9BB4] text-[9px] font-bold uppercase tracking-[2px]">No activities yet</p></div>`;
+            else {
+                txs.slice(0, 5).forEach(t => {
+                    const isD = t.type === 'deposit'; const d = new Date(t.date);
+                    list.innerHTML += `
+                        <div class="admin-row mb-3 shadow-[0_2px_10px_rgba(0,0,0,0.2)]">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center ${isD ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}"><i class="fas ${isD ? 'fa-arrow-down' : 'fa-arrow-up'} text-xs"></i></div>
+                                <div><p class="text-sm font-bold text-white">${isD ? 'Asset Received' : 'Cash Withdrawal'}</p><p class="text-[10px] text-[#8B9BB4] font-num font-medium mt-0.5">${d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})} • ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</p></div>
                             </div>
-                            <div>
-                                <p class="text-sm font-bold text-white leading-snug">${title}</p>
-                                <p class="text-[10px] text-[#8B9BB4] font-num font-medium mt-0.5">
-                                    ${d.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'})} • ${d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})} น.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-bold font-num text-base ${isD ? 'text-emerald-400' : 'text-red-400'}">${isD?'+':'-'}${fmtAmt(t.amount)}</p>
-                            <span class="text-[9px] text-[#64748B]"><i class="fas fa-receipt mr-1"></i>ดูสลิป</span>
-                        </div>
-                    `;
-                    list.appendChild(item);
+                            <p class="font-bold font-num text-base ${isD ? 'text-emerald-400' : 'text-red-400'}">${isD?'+':'-'}${parseFloat(t.amount).toLocaleString()}</p>
+                        </div>`;
                 });
+                if(txs.length > 5) info.innerHTML = `<div class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md py-1.5 px-4 rounded-full border border-[rgba(255,255,255,0.1)] inline-block mx-auto text-[9px] text-[#8B9BB4] font-bold uppercase tracking-[2px]">Showing 5 of ${txs.length}</div>`;
             }
         }
 
-        // Digital Slip Modal for Users
-        function showDigitalSlip(tx, accName, accCode) {
-            const isD = tx.type === 'deposit';
-            const isInt = tx.isInterest;
-            const title = isInt ? 'รับดอกเบี้ยปันผล (Interest)' : (isD ? 'รายการฝากเงิน (Deposit)' : 'รายการถอนเงิน (Withdrawal)');
-            const d = new Date(tx.date);
-            Swal.fire({
-                title: `<span class="font-eng tracking-widest text-base text-[var(--gold-mid)]">TAEBANK E-SLIP</span>`,
-                html: `
-                    <div class="bg-black/30 border border-white/10 rounded-2xl p-4 text-left space-y-2.5 mt-2">
-                        <div class="text-center pb-3 border-b border-white/10">
-                            <div class="w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center ${isD ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <p class="text-xs text-[#8B9BB4]">${title}</p>
-                            <h3 class="text-2xl font-num font-bold ${isD ? 'text-emerald-400' : 'text-red-400'} mt-1">฿${fmtAmt(tx.amount)}</h3>
-                        </div>
-                        <div class="flex justify-between text-xs"><span class="text-[#8B9BB4]">ชื่อบัญชี:</span><span class="font-bold text-white">${accName}</span></div>
-                        <div class="flex justify-between text-xs"><span class="text-[#8B9BB4]">เลขที่บัญชี:</span><span class="font-num font-bold text-white">${accCode.replace(/(\d{3})(\d{3})/, '$1-$2')}</span></div>
-                        <div class="flex justify-between text-xs"><span class="text-[#8B9BB4]">วันที่-เวลา:</span><span class="font-num text-white">${d.toLocaleDateString('th-TH', {day:'2-digit',month:'short',year:'numeric'})} ${d.toLocaleTimeString('th-TH', {hour:'2-digit',minute:'2-digit'})} น.</span></div>
-                        ${tx.note ? `<div class="flex justify-between text-xs"><span class="text-[#8B9BB4]">บันทึกช่วยจำ:</span><span class="text-white">${tx.note}</span></div>` : ''}
-                        <div class="flex justify-between text-xs"><span class="text-[#8B9BB4]">สถานะสมุดคู่ฝาก:</span><span class="${tx.printed ? 'text-emerald-400' : 'text-amber-400'} font-bold">${tx.printed ? 'พิมพ์ลงสมุดแล้ว' : 'รอปรับสมุด'}</span></div>
-                        <div class="pt-2 border-t border-white/5 text-center text-[9px] text-[#64748B] font-num">REF ID: ${tx.id.slice(-10).toUpperCase()}</div>
-                    </div>
-                `,
-                confirmButtonText: 'ปิดหน้าต่าง',
-                confirmButtonColor: '#D4AF37'
-            });
-        }
-
-        // ==================== ADMIN FUNCTIONS ====================
-        function getRankInfo(bal) {
-            if (bal >= 10000) return { name: 'DIAMOND', color: '#0284C7' };
-            if (bal >= 5000) return { name: 'EMERALD', color: '#059669' }; 
-            if (bal >= 1000) return { name: 'PLATINUM', color: '#475569' };
-            if (bal >= 500) return { name: 'GOLD', color: '#B48608' };     
-            return { name: 'SILVER', color: '#94A3B8' };                   
-        }
-
-        window.setAdminFilter = (mode) => {
-            adminFilterMode = mode;
-            document.getElementById('flt-all').classList.toggle('active', mode === 'all');
-            document.getElementById('flt-unprinted').classList.toggle('active', mode === 'unprinted');
-            adminRender();
-        };
-
+        // --- ADMIN PANEL ---
         window.adminRender = () => {
-            const list = document.getElementById('adminList'); 
-            const search = (document.getElementById('adminSearch').value || "").toLowerCase().trim();
-            const sortMode = document.getElementById('adminSort')?.value || 'code';
-            
-            let tBal = 0, tMem = 0, activeMem = 0, totalUnprinted = 0; 
-            let chartData = []; 
-            let memberItems = [];
-            list.innerHTML = '';
+            const list = document.getElementById('adminList'); const search = (document.getElementById('adminSearch').value || "").toLowerCase().trim();
+            let tBal = 0; let tMem = 0; let chartData = []; list.innerHTML = '';
 
-            Object.keys(STATE.members || {}).forEach(k => {
+            Object.keys(STATE.members || {}).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(k => {
                 const m = STATE.members[k];
-                tMem++; 
-                let mBal = 0; 
-                let unprintedCount = 0;
-
-                if(STATE.transactions) { 
-                    Object.keys(STATE.transactions).forEach(txId => { 
-                        const tx = STATE.transactions[txId];
-                        if (tx.studentCode === k) {
-                            mBal += (tx.type === 'deposit' ? parseFloat(tx.amount) : -parseFloat(tx.amount)); 
-                            if(!tx.printed) { unprintedCount++; totalUnprinted++; }
-                        }
-                    }); 
-                }
-                tBal += mBal; 
-                if (mBal > 0) {
-                    activeMem++;
-                    chartData.push({ name: m.nick || k, bal: mBal });
-                }
-
-                // Filter Check
                 if (search && !k.includes(search) && !(m.nick||'').toLowerCase().includes(search) && !(m.name||'').toLowerCase().includes(search)) return;
-                if (adminFilterMode === 'unprinted' && unprintedCount === 0) return;
 
-                memberItems.push({ k, m, mBal, unprintedCount });
-            });
+                tMem++; let mBal = 0;
+                if(STATE.transactions) { Object.keys(STATE.transactions).forEach(txId => { if (STATE.transactions[txId].studentCode === k) mBal += (STATE.transactions[txId].type === 'deposit' ? parseFloat(STATE.transactions[txId].amount) : -parseFloat(STATE.transactions[txId].amount)); }); }
+                tBal += mBal; if (mBal > 0) chartData.push({ name: m.nick || k, bal: mBal });
 
-            // Sorting
-            memberItems.sort((a, b) => {
-                if (sortMode === 'bal_desc') return b.mBal - a.mBal;
-                if (sortMode === 'bal_asc') return a.mBal - b.mBal;
-                return parseInt(a.k) - parseInt(b.k);
-            });
-
-            if (memberItems.length === 0) {
-                list.innerHTML = `<div class="text-center py-10 text-[#64748B] text-xs">ไม่พบรายชื่อบัญชีที่ค้นหา</div>`;
-            }
-
-            memberItems.forEach(({ k, m, mBal, unprintedCount }) => {
-                let rank = getRankInfo(mBal);
-                let printBadge = unprintedCount > 0 ? `<div class="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[9px] font-num font-bold rounded-full flex items-center justify-center border border-[var(--bg-main)] animate-pulse">${unprintedCount}</div>` : '';
-
-                const card = document.createElement('div'); 
-                card.className = 'admin-row';
+                const card = document.createElement('div'); card.className = 'admin-row';
                 card.innerHTML = `
-                    <div class="flex-1 pr-3 overflow-hidden">
-                        <div class="flex items-center gap-1.5">
-                            <span class="font-num text-[10px] text-[var(--gold-mid)] font-bold px-2 py-0.5 rounded bg-[rgba(212,175,55,0.12)] tracking-wider border border-[rgba(212,175,55,0.25)]">${k}</span>
-                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded text-white" style="background:${rank.color}">${rank.name}</span>
-                        </div>
-                        <h4 class="font-bold text-[15px] mt-1.5 truncate text-white">${m.nick || '-'} <span class="text-xs font-normal text-[#8B9BB4]">(${m.name || '-'})</span></h4>
-                        <div class="mt-0.5 text-lg font-num font-bold ${mBal >= 0 ? 'text-emerald-400' : 'text-red-400'}">฿${fmtAmt(mBal)}</div>
+                    <div class="flex-1 pr-2 overflow-hidden">
+                        <span class="font-num text-[9px] text-[var(--gold-mid)] font-bold px-2 py-1 rounded bg-[rgba(212,175,55,0.1)] tracking-widest border border-[rgba(212,175,55,0.2)]">${k}</span>
+                        <h4 class="font-bold text-[15px] mt-1.5 truncate text-white">${m.nick || '-'}</h4>
+                        <div class="mt-0.5 text-lg font-num font-bold ${mBal >= 0 ? 'text-emerald-400' : 'text-red-400'}">฿${mBal.toLocaleString()}</div>
                     </div>
-                    <div class="flex flex-col gap-1.5 w-32 flex-shrink-0">
-                        <button class="bg-gradient-to-r from-[#D4AF37] to-[#B38728] text-black py-2 rounded-lg font-bold text-[10px] btn-atx shadow-md active:scale-95 transition-transform uppercase tracking-wider">
-                            <i class="fas fa-exchange-alt mr-1"></i> ฝาก / ถอน
-                        </button>
+                    <div class="flex flex-col gap-1.5 w-28 flex-shrink-0">
+                        <button class="bg-[var(--gold-mid)] text-black py-2 rounded-lg font-bold text-[10px] btn-atx shadow-md active:scale-95 transition-transform uppercase tracking-widest font-eng">Transact</button>
                         <div class="flex gap-1">
-                            <button class="flex-1 bg-white/5 h-8 rounded-lg border border-white/10 text-gray-300 hover:bg-white/10 btn-ahist transition-colors" title="ประวัติธุรกรรม"><i class="fas fa-history text-[10px]"></i></button>
-                            <button class="flex-1 bg-purple-500/10 h-8 rounded-lg border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 btn-aprint transition-colors relative" title="ศูนย์พิมพ์สมุดบัญชี"><i class="fas fa-print text-[10px]"></i>${printBadge}</button>
-                            <button class="flex-1 bg-blue-500/10 h-8 rounded-lg border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 btn-aedit transition-colors" title="แก้ไขข้อมูล"><i class="fas fa-edit text-[10px]"></i></button>
-                            <button class="flex-1 bg-red-500/10 h-8 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/20 btn-adel transition-colors" title="ลบบัญชี"><i class="fas fa-trash text-[10px]"></i></button>
+                            <button class="flex-1 bg-white/5 h-8 rounded-lg border border-white/10 text-gray-400 hover:bg-white/10 btn-ahist transition-colors"><i class="fas fa-history text-xs"></i></button>
+                            <button class="flex-1 bg-blue-500/10 h-8 rounded-lg border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 btn-aedit transition-colors"><i class="fas fa-edit text-xs"></i></button>
+                            <button class="flex-1 bg-red-500/10 h-8 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/20 btn-adel transition-colors"><i class="fas fa-trash text-xs"></i></button>
                         </div>
                     </div>
                 `;
 
-                card.querySelector('.btn-atx').addEventListener('click', () => adminTransact(k, m.nick, mBal));
+                card.querySelector('.btn-atx').addEventListener('click', () => adminTransact(k, m.nick));
                 card.querySelector('.btn-ahist').addEventListener('click', () => adminHistory(k, m.nick));
-                card.querySelector('.btn-aprint').addEventListener('click', () => adminPrintMenu(k, m)); 
                 card.querySelector('.btn-aedit').addEventListener('click', () => adminEdit(k, m.nick, m.name));
-                card.querySelector('.btn-adel').addEventListener('click', () => adminDelete(k, m.nick));
+                card.querySelector('.btn-adel').addEventListener('click', () => adminDelete(k));
                 list.appendChild(card);
             });
 
-            document.getElementById('stat-total').innerText = `฿${fmtAmt(tBal)}`;
+            document.getElementById('stat-total').innerText = tBal.toLocaleString(undefined, {minimumFractionDigits: 2});
             document.getElementById('stat-members').innerText = tMem;
-            document.getElementById('stat-active-members').innerText = `บัญชีมีเงินฝาก ${activeMem} รูป/คน`;
-            document.getElementById('stat-unprinted').innerText = `รอพิมพ์สมุด ${totalUnprinted} รายการ`;
-            
-            // Update Chart
-            const ctx = document.getElementById('doughnutChart').getContext('2d'); 
-            chartData.sort((a,b) => b.bal - a.bal); 
-            const labels = chartData.map(d => d.name); 
-            const data = chartData.map(d => d.bal); 
-            const colors = chartData.map(d => getRankInfo(d.bal).color); 
-            
-            if (myChart) myChart.destroy(); 
-            if (data.length === 0) { labels.push('ยังไม่มีข้อมูลเงินฝาก'); data.push(1); colors.unshift('rgba(255,255,255,0.05)'); } 
-            
-            myChart = new Chart(ctx, { 
-                type: 'doughnut', 
-                data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 2, borderColor: '#0F1930', hoverOffset: 6 }] }, 
-                options: { 
-                    responsive: true, maintainAspectRatio: false, cutout: '74%', 
-                    plugins: { 
-                        legend: { position: 'right', labels: { color: '#8B9BB4', font: {family: 'Sarabun', size: 11, weight: 'bold'}, usePointStyle: true, boxWidth: 7, padding: 10 } }, 
-                        tooltip: { 
-                            backgroundColor: '#070B19', titleColor: '#D4AF37', bodyColor: '#FFF', borderColor: 'rgba(212,175,55,0.2)', borderWidth: 1, padding: 10, 
-                            callbacks: { label: (c) => ` ฿${fmtAmt(c.raw)} (${((c.raw / (tBal || 1)) * 100).toFixed(1)}%)` } 
-                        } 
-                    } 
-                } 
-            });
+            updateAdminChart(chartData);
         };
 
-        // Enhanced Deposit / Withdraw Modal with Overdraft Check & Quick Chips
-        async function adminTransact(k, nick, currentBal) {
-            const { value: result } = await Swal.fire({
-                title: `<span class="text-[var(--gold-mid)] text-lg">ทำรายการบัญชี: ${nick}</span>`,
-                html: `
-                    <div class="text-xs text-[#8B9BB4] mb-3">ยอดคงเหลือปัจจุบัน: <b class="text-emerald-400 font-num text-sm">฿${fmtAmt(currentBal)}</b></div>
-                    <div class="grid grid-cols-2 gap-2 mb-4">
-                        <button type="button" id="txTypeDep" class="py-2.5 rounded-xl font-bold text-xs border border-emerald-500 bg-emerald-500/20 text-emerald-400 flex items-center justify-center gap-1.5">
-                            <i class="fas fa-arrow-down"></i> ฝากเงิน (Deposit)
-                        </button>
-                        <button type="button" id="txTypeWit" class="py-2.5 rounded-xl font-bold text-xs border border-white/10 bg-white/5 text-gray-400 flex items-center justify-center gap-1.5">
-                            <i class="fas fa-arrow-up"></i> ถอนเงิน (Withdraw)
-                        </button>
-                    </div>
-                    <input id="swalTxAmt" type="number" step="0.01" min="1" placeholder="ระบุจำนวนเงิน (บาท)" class="admin-input text-center text-2xl font-num font-bold mb-2">
-                    <div class="grid grid-cols-4 gap-1.5 mb-3">
-                        <button type="button" class="q-amt bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg py-1.5 text-xs font-num text-gray-300" data-add="20">+20</button>
-                        <button type="button" class="q-amt bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg py-1.5 text-xs font-num text-gray-300" data-add="50">+50</button>
-                        <button type="button" class="q-amt bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg py-1.5 text-xs font-num text-gray-300" data-add="100">+100</button>
-                        <button type="button" class="q-amt bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg py-1.5 text-xs font-num text-gray-300" data-add="500">+500</button>
-                    </div>
-                    <input id="swalTxNote" type="text" placeholder="บันทึกช่วยจำ (ถ้ามี)" class="admin-input text-xs py-2.5">
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'ยืนยันทำรายการ',
-                cancelButtonText: 'ยกเลิก',
-                confirmButtonColor: '#D4AF37',
-                didOpen: () => {
-                    let selectedType = 'deposit';
-                    const btnDep = document.getElementById('txTypeDep');
-                    const btnWit = document.getElementById('txTypeWit');
-                    const amtIn = document.getElementById('swalTxAmt');
-                    amtIn.focus();
+        function updateAdminChart(dataArr) {
+            const ctx = document.getElementById('doughnutChart').getContext('2d');
+            dataArr.sort((a,b) => b.bal - a.bal);
+            const labels = dataArr.map(d => d.name); const data = dataArr.map(d => d.bal);
+            const colors = ['#D4AF37','#3B82F6','#10B981','#8B5CF6','#F59E0B','#06B6D4','#EC4899','#6366F1'];
 
-                    btnDep.onclick = () => {
-                        selectedType = 'deposit';
-                        btnDep.className = "py-2.5 rounded-xl font-bold text-xs border border-emerald-500 bg-emerald-500/20 text-emerald-400 flex items-center justify-center gap-1.5";
-                        btnWit.className = "py-2.5 rounded-xl font-bold text-xs border border-white/10 bg-white/5 text-gray-400 flex items-center justify-center gap-1.5";
-                    };
-                    btnWit.onclick = () => {
-                        selectedType = 'withdraw';
-                        btnWit.className = "py-2.5 rounded-xl font-bold text-xs border border-red-500 bg-red-500/20 text-red-400 flex items-center justify-center gap-1.5";
-                        btnDep.className = "py-2.5 rounded-xl font-bold text-xs border border-white/10 bg-white/5 text-gray-400 flex items-center justify-center gap-1.5";
-                    };
+            if (myChart) myChart.destroy();
+            if (data.length === 0) { labels.push('No Assets'); data.push(1); colors.unshift('rgba(255,255,255,0.05)'); }
 
-                    document.querySelectorAll('.q-amt').forEach(b => {
-                        b.onclick = () => {
-                            const cur = parseFloat(amtIn.value) || 0;
-                            amtIn.value = cur + parseFloat(b.dataset.add);
-                        };
-                    });
-
-                    Swal.getPopup().dataset.txType = 'deposit';
-                    btnDep.addEventListener('click', () => Swal.getPopup().dataset.txType = 'deposit');
-                    btnWit.addEventListener('click', () => Swal.getPopup().dataset.txType = 'withdraw');
-                },
-                preConfirm: () => {
-                    const type = Swal.getPopup().dataset.txType || 'deposit';
-                    const amt = parseFloat(document.getElementById('swalTxAmt').value);
-                    const note = document.getElementById('swalTxNote').value.trim();
-                    if (!amt || amt <= 0) {
-                        Swal.showValidationMessage('กรุณาระบุจำนวนเงินที่มากกว่า 0');
-                        return false;
-                    }
-                    if (type === 'withdraw' && amt > currentBal) {
-                        Swal.showValidationMessage(`ยอดเงินในบัญชีไม่เพียงพอ (คงเหลือ ฿${fmtAmt(currentBal)})`);
-                        return false;
-                    }
-                    return { type, amt, note };
-                }
+            myChart = new Chart(ctx, {
+                type: 'doughnut', data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 2, borderColor: '#121C33', hoverOffset: 6 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { color: '#8B9BB4', font: {family: 'Outfit', size: 10, weight: 'bold'}, usePointStyle: true, boxWidth: 6, padding: 10 } }, tooltip: { backgroundColor: '#070B19', titleColor: '#D4AF37', bodyColor: '#FFF', borderColor: 'rgba(212,175,55,0.2)', borderWidth: 1, padding: 10, callbacks: { label: (c) => ` ฿${c.raw.toLocaleString()} (${((c.raw / c.chart._metasets[0].total) * 100).toFixed(1)}%)` } } } }
             });
+        }
 
-            if (result) {
-                const payload = { 
-                    studentCode: k, 
-                    type: result.type, 
-                    amount: result.amt, 
-                    date: new Date().toISOString(), 
-                    printed: false 
-                };
-                if (result.note) payload.note = result.note;
-                await push(ref(db, 'transactions'), payload);
-                Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', text: `${result.type === 'deposit' ? 'ฝากเงิน' : 'ถอนเงิน'} ฿${fmtAmt(result.amt)} เรียบร้อยแล้ว`, timer: 1400, showConfirmButton: false });
+        async function adminTransact(k, nick) {
+            const res = await Swal.fire({ title: `<span class="text-[var(--gold-mid)]">Ledger Entry: ${nick}</span>`, showDenyButton: true, showCancelButton: true, confirmButtonText: '<i class="fas fa-arrow-down"></i> Deposit', confirmButtonColor: '#10B981', denyButtonText: '<i class="fas fa-arrow-up"></i> Withdraw', denyButtonColor: '#EF4444', cancelButtonColor: '#1E2B4D' });
+            if (res.isConfirmed || res.isDenied) {
+                const {value:amt} = await Swal.fire({ title: '<span class="text-white">Amount</span>', input: 'number', inputAttributes: {min:1}, confirmButtonColor: '#D4AF37', customClass:{input:'admin-input text-center text-xl font-num'} });
+                if(amt) await push(ref(db, 'transactions'), { studentCode: k, type: res.isConfirmed ? 'deposit' : 'withdraw', amount: parseFloat(amt), date: new Date().toISOString() });
             }
         }
 
-        // Export Backup CSV
-        window.exportBackupCSV = () => {
-            if (!STATE.members) return;
-            let csvRows = [["เลขที่บัญชี", "นมัสการ สามเณร..", "ชื่อจริง", "ยอดคงเหลือ", "หน้าสมุด", "บรรทัดสมุด"]];
-            Object.keys(STATE.members).sort((a,b) => parseInt(a)-parseInt(b)).forEach(k => {
-                const m = STATE.members[k];
-                let bal = 0;
-                if (STATE.transactions) {
-                    Object.keys(STATE.transactions).forEach(id => {
-                        const t = STATE.transactions[id];
-                        if (t.studentCode === k) bal += (t.type === 'deposit' ? parseFloat(t.amount) : -parseFloat(t.amount));
-                    });
-                }
-                csvRows.push([k, m.nick || '', m.name || '', bal.toFixed(2), m.pbPage || 1, m.pbLine || 1]);
+        function adminHistory(k, nick) {
+            let hHTML = `<div class="max-h-60 overflow-y-auto pr-2 text-left space-y-2">`;
+            let userTxs = Object.keys(STATE.transactions || {}).filter(id => STATE.transactions[id].studentCode === k).sort((a,b)=>new Date(STATE.transactions[b].date)-new Date(STATE.transactions[a].date));
+            if(userTxs.length === 0) hHTML += '<p class="text-center py-6 text-[#4B5E82] uppercase tracking-widest text-[10px] font-bold">No Records</p>';
+            userTxs.forEach(id => {
+                const t = STATE.transactions[id]; const isD = t.type==='deposit';
+                hHTML += `<div class="flex justify-between items-center bg-white/5 border border-white/5 p-3 rounded-xl">
+                    <div><p class="text-[11px] font-bold uppercase tracking-wider ${isD?'text-emerald-400':'text-red-400'}">${isD?'Credit':'Debit'}</p><p class="text-[9px] text-gray-400 font-num font-medium mt-0.5">${new Date(t.date).toLocaleDateString('en-GB')}</p></div>
+                    <div class="flex items-center gap-3"><span class="font-num font-bold text-sm text-white">${isD?'+':'-'}${parseFloat(t.amount).toLocaleString()}</span><button onclick="window.adminDelTx('${id}')" class="text-red-400 w-7 h-7 rounded-full bg-red-500/10 hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><i class="fas fa-trash-can text-[10px]"></i></button></div>
+                </div>`;
             });
-            const csvContent = "\uFEFF" + csvRows.map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `TaeBank_Backup_${new Date().toISOString().slice(0,10)}.csv`;
-            link.click();
-        };
+            Swal.fire({ title: `<span class="font-eng tracking-widest text-sm text-[var(--gold-mid)]">LEDGER: ${nick}</span>`, html: hHTML + '</div>', showConfirmButton: false, showCloseButton: true });
+        }
 
-        window.triggerInterestPayout = async () => {
-            const {value: percent} = await Swal.fire({
-                title: '<span class="text-[var(--gold-mid)]">ตั้งค่าการจ่ายดอกเบี้ย</span>',
-                html: '<div class="text-[#8B9BB4] text-sm mb-3">ระบุเปอร์เซ็นต์ดอกเบี้ยที่ต้องการจ่ายให้ทุกบัญชี (%)</div>',
-                input: 'number', inputAttributes: { min: 0.1, step: 0.1 }, inputPlaceholder: 'เช่น 2.5 หรือ 5',
-                showCancelButton: true, confirmButtonColor: '#10B981', confirmButtonText: 'คำนวณดอกเบี้ย', cancelButtonText: 'ยกเลิก',
-                customClass: {input: 'admin-input text-center text-xl font-num text-white'}
-            });
+        window.adminDelTx = async (id) => { if((await Swal.fire({title:'Erase Transaction?', text: 'This action cannot be undone', icon:'warning', showCancelButton:true, confirmButtonColor: '#EF4444'})).isConfirmed) { await remove(ref(db, 'transactions/'+id)); Swal.close(); } };
 
-            if (percent) {
-                const p = parseFloat(percent);
-                if (p <= 0) return;
+        async function adminEdit(k, nick, name) {
+            const {value:form} = await Swal.fire({ title: '<span class="text-white text-lg">Edit Client Info</span>', html: `<div class="text-left text-[9px] text-[#8B9BB4] uppercase tracking-widest mb-1 ml-2">Nickname</div><input id="enick" class="admin-input mb-3" value="${nick}"><div class="text-left text-[9px] text-[#8B9BB4] uppercase tracking-widest mb-1 ml-2">Full Name</div><input id="ename" class="admin-input" value="${name}">`, preConfirm: () => [document.getElementById('enick').value, document.getElementById('ename').value], confirmButtonColor: '#D4AF37' });
+            if(form) await update(ref(db, 'members/'+k), { nick: form[0], name: form[1] });
+        }
 
-                const confirm = await Swal.fire({
-                    title: 'ยืนยันการจ่ายดอกเบี้ย?', 
-                    html: `<div class="text-[#8B9BB4] text-sm">ระบบจะคำนวณดอกเบี้ย <b>${p}%</b> จากยอดเงินคงเหลือปัจจุบันของทุกบัญชี และโอนเข้าบัญชีทันที</div>`, 
-                    icon: 'warning',
-                    showCancelButton: true, confirmButtonColor: '#10B981', confirmButtonText: 'ยืนยันจ่ายดอกเบี้ย', cancelButtonText: 'ยกเลิก'
-                });
-
-                if (confirm.isConfirmed) {
-                    Swal.fire({ title: 'กำลังดำเนินการ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-
-                    let updates = {}; let totalInterestPaid = 0; let count = 0;
-                    Object.keys(STATE.members || {}).forEach(k => {
-                        let mBal = 0;
-                        if (STATE.transactions) {
-                            Object.keys(STATE.transactions).forEach(txId => {
-                                if (STATE.transactions[txId].studentCode === k) { 
-                                    mBal += (STATE.transactions[txId].type === 'deposit' ? parseFloat(STATE.transactions[txId].amount) : -parseFloat(STATE.transactions[txId].amount)); 
-                                }
-                            });
-                        }
-                        
-                        if (mBal > 0) {
-                            let interestAmt = Number((mBal * (p / 100)).toFixed(2));
-                            if (interestAmt > 0) {
-                                totalInterestPaid += interestAmt; count++;
-                                const newTxKey = push(ref(db, 'transactions')).key;
-                                updates[`transactions/${newTxKey}`] = { studentCode: k, type: 'deposit', amount: interestAmt, date: new Date().toISOString(), printed: false, isInterest: true, note: `ดอกเบี้ย ${p}%` };
-                            }
-                        }
-                    });
-
-                    if (count > 0) {
-                        await update(ref(db), updates);
-                        Swal.fire({ icon: 'success', title: 'จ่ายดอกเบี้ยสำเร็จ', html: `<div class="text-sm text-[#8B9BB4]">จ่ายให้ ${count} บัญชี<br>รวมเป็นเงินทั้งสิ้น <b class="text-emerald-400">฿${fmtAmt(totalInterestPaid)}</b></div>`, confirmButtonColor: '#D4AF37' });
-                    } else {
-                        Swal.fire({ icon: 'info', title: 'ไม่มีบัญชีที่มียอดเงินคงเหลือ', confirmButtonColor: '#D4AF37' });
-                    }
-                }
-            }
-        };
-
-        window.downloadWealthReport = async () => {
-            Swal.fire({ title: 'กำลังสร้างรายงานภาพ...', text: 'กรุณารอสักครู่ ระบบกำลังจัดหน้าเอกสารพร้อมลายเซ็น', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-
-            let memberData = [];
-            let grandTotal = 0;
-            Object.keys(STATE.members || {}).forEach(k => {
-                const m = STATE.members[k]; let mBal = 0;
-                if(STATE.transactions) {
-                    Object.keys(STATE.transactions).forEach(txId => {
-                        if (STATE.transactions[txId].studentCode === k) { mBal += (STATE.transactions[txId].type === 'deposit' ? parseFloat(STATE.transactions[txId].amount) : -parseFloat(STATE.transactions[txId].amount)); }
-                    });
-                }
-                if (mBal > 0) { 
-                    memberData.push({ name: m.name || m.nick || k, bal: mBal, code: k }); 
-                    grandTotal += mBal;
-                }
-            });
-
-            memberData.sort((a,b) => b.bal - a.bal);
-
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 600; tempCanvas.height = 350;
-            tempCanvas.style.cssText = "position: absolute; top: -9999px; left: -9999px;";
-            document.body.appendChild(tempCanvas);
-
-            const tCtx = tempCanvas.getContext('2d');
-            const tempChart = new Chart(tCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: memberData.map(d => d.name),
-                    datasets: [{
-                        data: memberData.map(d => d.bal),
-                        backgroundColor: memberData.map(d => getRankInfo(d.bal).color),
-                        borderWidth: 3, borderColor: '#FFFFFF' 
-                    }]
-                },
-                options: {
-                    animation: false, responsive: false,
-                    plugins: { legend: { position: 'right', labels: { color: '#334155', font: {family: 'Sarabun', size: 14, weight: 'bold'}, usePointStyle: true, boxWidth: 10, padding: 15 } } }
-                }
-            });
-
-            const chartImgSrc = tempCanvas.toDataURL('image/png');
-            tempChart.destroy(); document.body.removeChild(tempCanvas);
-
-            const reportDiv = document.createElement('div');
-            reportDiv.id = "export-report-container";
-            reportDiv.style.cssText = "width: 850px; background: #FDFDFC; padding: 50px; color: #0F172A; font-family: 'Sarabun', sans-serif; position: absolute; top: -9999px; left: -9999px; z-index: -100;";
-            
-            let rowsHtml = '';
-            memberData.forEach((m, index) => {
-                let rank = getRankInfo(m.bal);
-                rowsHtml += `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-bottom: 1px solid #E2E8F0; background: #FFFFFF; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid ${rank.color}; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <div style="width: 35px; font-weight: bold; font-size: 18px; font-family: 'Outfit'; color: ${rank.color}; text-align: center;">#${index + 1}</div>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 600; color: #1E293B;">${m.name}</div>
-                                <div style="font-size: 10px; font-weight: bold; letter-spacing: 1px; color: ${rank.color}; text-transform: uppercase; margin-top: 2px;">${rank.name} CLASS</div>
-                            </div>
-                        </div>
-                        <div style="font-size: 22px; font-family: 'Outfit'; font-weight: bold; color: #0F172A;">
-                            ฿${fmtAmt(m.bal)}
-                        </div>
-                    </div>
-                `;
-            });
-
-            reportDiv.innerHTML = `
-                <div style="text-align: center; margin-bottom: 30px; position: relative;">
-                    <h1 style="font-family: 'Cinzel', serif; font-size: 46px; color: #0F172A; margin: 0; letter-spacing: 8px;">TAEBANK</h1>
-                    <p style="color: #64748B; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; margin-top: 5px; font-weight: 600;">Wealth Distribution Report</p>
-                    <div style="margin-top: 12px; display: inline-block; background: #F1F5F9; padding: 6px 20px; border-radius: 99px; font-size: 14px; font-weight: bold; color: #0F172A;">
-                        สภาพคล่องรวมทั้งสิ้น (Total Liquidity): ฿${fmtAmt(grandTotal)}
-                    </div>
-                </div>
-                
-                <div style="text-align: center; margin-bottom: 40px; padding: 20px;">
-                    <img src="${chartImgSrc}" style="display: block; margin: 0 auto; filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.05));" />
-                </div>
-                
-                <h3 style="color: #0F172A; font-family: 'Cinzel', serif; font-size: 20px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; border-bottom: 2px solid #E2E8F0; padding-bottom: 10px;">
-                    Client Ranking Details
-                </h3>
-                
-                <div>
-                    ${rowsHtml || '<div style="text-align:center; color:#94A3B8; padding: 20px;">No active accounts found.</div>'}
-                </div>
-                
-                <div style="margin-top: 60px; display: flex; justify-content: space-between; align-items: flex-end;">
-                    <div style="font-size: 12px; color: #94A3B8;">
-                        Generated on ${new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'long',year:'numeric'})} <br> TaeBank Automated System
-                    </div>
-                    <div style="text-align: right; padding-right: 20px;">
-                        <div style="font-family: 'Great Vibes', cursive; font-size: 42px; color: #0F172A; margin-bottom: -5px; transform: rotate(-2deg);">
-                            Ven.Maha.Chakkraphat Atthajak
-                        </div>
-                        <div style="width: 100%; height: 1px; background: #CBD5E1; margin-bottom: 8px;"></div>
-                        <div style="font-size: 14px; font-family: 'Sarabun', sans-serif; font-weight: 600; color: #475569;">
-                            ( ผู้จัดการธนาคาร )
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(reportDiv);
-
-            setTimeout(async () => {
-                try {
-                    const canvas = await html2canvas(reportDiv, { backgroundColor: '#FDFDFC', scale: 2 });
-                    const imgData = canvas.toDataURL('image/png');
-                    const link = document.createElement('a'); link.download = `TaeBank_Wealth_Report_${new Date().getTime()}.png`; link.href = imgData; link.click();
-                    Swal.fire({ icon: 'success', title: 'ดาวน์โหลดสำเร็จ!', text: 'รายงานสรุปภาพรวมพร้อมลายเซ็นถูกสร้างเรียบร้อยแล้ว', confirmButtonColor: '#D4AF37' });
-                } catch (error) {
-                    console.error(error); Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถสร้างรูปภาพได้', confirmButtonColor: '#EF4444' });
-                } finally { document.body.removeChild(reportDiv); }
-            }, 800);
-        };
-
-        // ==================== PASSBOOK & PRINT CENTER ====================
-        window.adminPrintMenu = async (code, user) => {
-            let userTxs = [];
-            if (STATE.transactions) { Object.keys(STATE.transactions).forEach(id => { if (STATE.transactions[id].studentCode === code) userTxs.push({ id: id, ...STATE.transactions[id] }); }); }
-            userTxs.sort((a,b) => new Date(a.date) - new Date(b.date)); 
-            let unprintedCount = userTxs.filter(t => !t.printed).length;
-
-            Swal.fire({ 
-                title: `<span class="text-[var(--gold-mid)] text-xl font-eng tracking-widest">PASSBOOK CENTER</span>`, 
-                html: `
-                    <div class="mb-5 bg-black/25 p-4 rounded-xl border border-white/10 text-left">
-                        <div class="flex justify-between items-center mb-2"><span class="text-xs text-[#8B9BB4]">ชื่อบัญชี (Name):</span> <span class="text-sm font-bold text-white">${user.name || user.nick || '-'}</span></div>
-                        <div class="flex justify-between items-center mb-2"><span class="text-xs text-[#8B9BB4]">สมุดอยู่ที่หน้า:</span> <span class="text-sm font-bold text-[var(--gold-mid)] font-num">${user.pbPage || 1}</span></div>
-                        <div class="flex justify-between items-center mb-2"><span class="text-xs text-[#8B9BB4]">บรรทัดถัดไปที่จะพิมพ์:</span> <span class="text-sm font-bold text-[var(--gold-mid)] font-num">${user.pbLine || 1}</span></div>
-                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-white/10"><span class="text-xs text-[#8B9BB4]">รายการรออัปเดต:</span> <span class="text-sm font-bold ${unprintedCount > 0 ? 'text-emerald-400' : 'text-gray-500'}">${unprintedCount} รายการ</span></div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2.5">
-                        <button id="btn-pb-update" class="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white p-3.5 rounded-xl font-bold tracking-wider flex items-center justify-between px-5 active:scale-95 transition-transform shadow-lg border border-emerald-500/30">
-                            <div class="flex items-center gap-3"><i class="fas fa-print text-lg"></i> <span class="text-sm">อัปเดตสมุด (Update Passbook)</span></div>
-                            ${unprintedCount > 0 ? `<span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse">${unprintedCount} NEW</span>` : ''}
-                        </button>
-                        <button id="btn-pb-new" class="bg-blue-600/20 text-blue-400 border border-blue-500/30 p-3.5 rounded-xl font-bold tracking-wider flex items-center gap-3 px-5 active:scale-95 transition-transform text-sm"><i class="fas fa-book-medical text-lg"></i> ออกสมุดบัญชีใหม่ (New Book)</button>
-                        <button id="btn-pb-reprint" class="bg-white/5 text-gray-300 border border-white/10 p-3.5 rounded-xl font-bold tracking-wider flex items-center gap-3 px-5 active:scale-95 transition-transform text-sm hover:bg-white/10"><i class="fas fa-history text-lg"></i> พิมพ์ประวัติทั้งหมดลงสมุด (Reprint)</button>
-                        <button id="btn-pb-a4" class="bg-transparent text-[#8B9BB4] p-2 rounded-xl font-bold tracking-wider flex items-center justify-center gap-2 hover:text-white transition-colors text-xs mt-1 underline"><i class="fas fa-file-invoice"></i> พิมพ์รายการเดินบัญชี A4 (Statement)</button>
-                    </div>
-                `,
-                showConfirmButton: false, showCloseButton: true,
-                didOpen: () => {
-                    document.getElementById('btn-pb-update').onclick = () => { Swal.close(); triggerAutoLedgerPrint(code, user, userTxs); };
-                    document.getElementById('btn-pb-new').onclick = () => { Swal.close(); flowNewPassbook(code, user.name, userTxs); };
-                    document.getElementById('btn-pb-reprint').onclick = () => { Swal.close(); flowReprintAll(code, userTxs); };
-                    document.getElementById('btn-pb-a4').onclick = () => { Swal.close(); printFullStatement(code, user.name, userTxs); };
-                }
-            });
-        };
-
-        async function triggerAutoLedgerPrint(code, user, userTxs) {
-            let unprintedTxs = []; let prevBal = 0; let runningBal = 0;
-            userTxs.forEach(t => {
-                let amt = parseFloat(t.amount); let isDep = t.type === 'deposit';
-                if (!t.printed) { unprintedTxs.push({ id: t.id, isDep, amt, date: t.date, isInterest: t.isInterest }); } 
-                else { prevBal += isDep ? amt : -amt; }
-                runningBal += isDep ? amt : -amt;
-            });
-            if (unprintedTxs.length === 0) return Swal.fire({ icon: 'success', title: 'สมุดเป็นปัจจุบัน', text: 'ไม่มีรายการใหม่ที่ค้างพิมพ์ลงสมุด', confirmButtonColor: '#10B981' });
-
-            let pbPage = user.pbPage || 1; let pbLine = user.pbLine || 1; const MAX_LINES = 24;
-            let linesAvailable = MAX_LINES - pbLine + 1;
-            let printRows = []; let currentBal = prevBal; let updates = {};
-
-            if (pbLine === 1 && prevBal !== 0) {
-                printRows.push({ date: new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'}), code: 'B/F', wit: '', dep: '', bal: fmtAmt(currentBal), teller: 'SYS' });
-                linesAvailable--;
-            }
-
-            let txsToPrint = unprintedTxs.slice(0, linesAvailable);
-            txsToPrint.forEach(t => {
-                currentBal += t.isDep ? t.amt : -t.amt;
-                let displayCode = t.isInterest ? 'INT' : (t.isDep ? 'DEP' : 'WTD');
-                printRows.push({ date: new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'}), code: displayCode, wit: !t.isDep ? fmtAmt(t.amt) : '', dep: t.isDep ? fmtAmt(t.amt) : '', bal: fmtAmt(currentBal), teller: 'ADM' });
-                updates[`transactions/${t.id}/printed`] = true; 
-            });
-
-            let linesUsed = printRows.length; let nextLine = pbLine + linesUsed; let nextPage = pbPage; let isPageFull = false;
-            if (nextLine > MAX_LINES) { nextLine = 1; nextPage++; isPageFull = true; }
-            updates[`members/${code}/pbPage`] = nextPage; updates[`members/${code}/pbLine`] = nextLine;
-
-            const printConfirm = await Swal.fire({ 
-                title: '<span class="text-[var(--gold-mid)]">พร้อมพิมพ์สมุดบัญชี</span>', 
-                html: `<div class="text-[#8B9BB4] text-sm">กรุณาสอดสมุดบัญชี <b>หน้าที่ ${pbPage}</b> เข้าเครื่องพิมพ์<br>ระบบจะพิมพ์เริ่มจากบรรทัดที่ <b>${pbLine}</b> (จำนวน ${linesUsed} บรรทัด)</div>`, 
-                showCancelButton: true, confirmButtonColor: '#10B981', confirmButtonText: '<i class="fas fa-print"></i> เริ่มพิมพ์', cancelButtonText: 'ยกเลิก'
-            });
-            if (printConfirm.isConfirmed) {
-                let rowsHtml = '';
-                for (let i = 1; i < pbLine; i++) rowsHtml += `<tr class="print-row"><td colspan="6"></td></tr>`;
-                printRows.forEach(ptx => { rowsHtml += `<tr class="print-row"><td class="col-date">${ptx.date}</td><td class="col-code">${ptx.code}</td><td class="col-wit">${ptx.wit}</td><td class="col-dep">${ptx.dep}</td><td class="col-bal">${ptx.bal}</td><td class="col-tel">${ptx.teller}</td></tr>`; });
-                openPrintWindow(generateLedgerHTML(rowsHtml));
-                await update(ref(db), updates);
-
-                if (isPageFull && unprintedTxs.length > linesAvailable) {
-                    setTimeout(() => { Swal.fire({ icon: 'info', title: 'หน้าสมุดเต็มแล้ว', text: 'ระบบได้ขึ้นหน้าใหม่ กรุณาพลิกสมุดเป็นหน้าถัดไป และกดทำรายการอัปเดตอีกครั้ง', confirmButtonColor: '#3B82F6' }); }, 1500);
-                }
+        async function adminDelete(k) {
+            if((await Swal.fire({title:'Permanent Delete?', text: 'Client data and assets will be erased!', icon:'warning', showCancelButton:true, confirmButtonColor:'#EF4444'})).isConfirmed) {
+                await remove(ref(db, 'members/'+k));
+                Object.keys(STATE.transactions || {}).forEach(async id => { if(STATE.transactions[id].studentCode === k) await remove(ref(db, 'transactions/'+id)); });
             }
         }
 
-        async function flowNewPassbook(code, name, userTxs) {
-            const step1 = await Swal.fire({ title: '<span class="text-[var(--gold-mid)]">ขั้นตอนที่ 1: พิมพ์หน้าปก</span>', html: '<div class="text-[#8B9BB4] text-sm">กรุณาสอด <b>ปกสมุดบัญชี</b> เข้าเครื่องพิมพ์</div>', showCancelButton: true, confirmButtonColor: '#3B82F6', confirmButtonText: '<i class="fas fa-print"></i> พิมพ์หน้าปก', cancelButtonText: 'ข้ามไป' });
-            if(step1.isConfirmed) printCover(code, name);
+        window.adminAddMember = async () => {
+            const {value:v} = await Swal.fire({ title: '<span class="text-white text-lg">Create Client</span>', html: `<input id="acode" class="admin-input mb-3 font-num text-center" placeholder="6-Digit Account ID"><input id="anick" class="admin-input mb-3 text-center" placeholder="Nickname"><input id="aname" class="admin-input text-center text-sm" placeholder="Full Name">`, preConfirm: () => [document.getElementById('acode').value.replace(/[^a-zA-Z0-9]/g,''), document.getElementById('anick').value, document.getElementById('aname').value], confirmButtonColor:'#D4AF37' });
+            if(v && v[0]) await set(ref(db, 'members/'+v[0]), { code: v[0], nick: v[1], name: v[2] });
+        };
 
-            const step2 = await Swal.fire({ title: '<span class="text-[var(--gold-mid)]">ขั้นตอนที่ 2: ตั้งค่าสมุดใหม่</span>', html: '<div class="text-[#8B9BB4] text-sm">ระบบจะรีเซ็ตบรรทัดกลับไปหน้าที่ 1 บรรทัดที่ 1<br>ต้องการพิมพ์ <b>ยอดยกมา (B/F)</b> ลงในหน้าแรกเลยหรือไม่?</div>', showDenyButton: true, showCancelButton: true, confirmButtonColor: '#10B981', confirmButtonText: 'ใช่ พิมพ์ยอดยกมา', denyButtonColor: '#6B7280', denyButtonText: 'แค่รีเซ็ตบรรทัด (ไม่พิมพ์)', cancelButtonText: 'ยกเลิก' });
-            if (step2.isConfirmed || step2.isDenied) {
-                let updates = {}; updates[`members/${code}/pbPage`] = 1; updates[`members/${code}/pbLine`] = 1;
-                let runningBal = 0;
-                userTxs.forEach(t => { runningBal += (t.type === 'deposit' ? parseFloat(t.amount) : -parseFloat(t.amount)); updates[`transactions/${t.id}/printed`] = true; });
-                await update(ref(db), updates);
-
-                if(step2.isConfirmed && runningBal !== 0) {
-                    let dStr = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'});
-                    let rowHtml = `<tr class="print-row"><td class="col-date">${dStr}</td><td class="col-code">B/F</td><td class="col-wit"></td><td class="col-dep"></td><td class="col-bal">${fmtAmt(runningBal)}</td><td class="col-tel">SYS</td></tr>`;
-                    openPrintWindow(generateLedgerHTML(rowHtml));
-                    await update(ref(db), { [`members/${code}/pbLine`]: 2 });
+        window.adminImportCSV = (el) => {
+            Papa.parse(el.files[0], { header: true, complete: async (r) => {
+                for(let row of r.data) {
+                    const code = String(row.เลขที่บัญชี||'').replace(/[^a-zA-Z0-9]/g,''); if(!code) continue;
+                    await set(ref(db, 'members/'+code), { code: code, nick: row['นมัสการ สามเณร..']||'', name: row.ชื่อจริง||'' });
+                    const bal = parseFloat(String(row.ยอดคงเหลือ||'').replace(/,/g,''));
+                    if(bal > 0) await push(ref(db, 'transactions'), { studentCode: code, type: 'deposit', amount: bal, date: new Date().toISOString() });
                 }
-                Swal.fire({ icon:'success', title:'ออกสมุดใหม่เรียบร้อย', showConfirmButton: false, timer: 1500 });
-            }
-        }
-
-        async function flowReprintAll(code, userTxs) {
-            if(userTxs.length === 0) return Swal.fire({ icon:'warning', title:'ไม่มีประวัติทำรายการ' });
-            let rowsHtml = ''; let runningBal = 0; let lineCount = 0; let pageCount = 1;
-            userTxs.forEach((t) => {
-                let amt = parseFloat(t.amount); let isDep = t.type === 'deposit';
-                runningBal += isDep ? amt : -amt;
-                let d = new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'});
-                let displayCode = t.isInterest ? 'INT' : (isDep ? 'DEP' : 'WTD');
-                if (lineCount >= 24) { rowsHtml += `</tbody></table><div style="page-break-before: always;"></div><table><tbody>`; lineCount = 0; pageCount++; }
-                rowsHtml += `<tr class="print-row"><td class="col-date">${d}</td><td class="col-code">${displayCode}</td><td class="col-wit">${!isDep ? fmtAmt(amt) : ''}</td><td class="col-dep">${isDep ? fmtAmt(amt) : ''}</td><td class="col-bal">${fmtAmt(runningBal)}</td><td class="col-tel">ADM</td></tr>`;
-                lineCount++;
-            });
-            openPrintWindow(generateLedgerHTML(rowsHtml));
-            let updates = {}; updates[`members/${code}/pbPage`] = pageCount; updates[`members/${code}/pbLine`] = lineCount + 1;
-            userTxs.forEach(t => updates[`transactions/${t.id}/printed`] = true);
-            await update(ref(db), updates);
-        }
-
-        function generateLedgerHTML(rowsHtml) { 
-            return `<html><head><title>Passbook Ledger</title><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Sarabun:wght@400;500&display=swap" rel="stylesheet"><style>@media print { @page { margin: 0; size: auto; } body { margin: 0; padding: 15mm; -webkit-print-color-adjust: exact; } } body { font-family: 'Outfit', 'Sarabun', monospace; font-size: 12px; color: #000; background: #fff;} table { width: 100%; border-collapse: collapse; border: none; } td { padding: 0 4px; border: none; vertical-align: middle; white-space: nowrap; } .print-row { height: 26px; } .col-date { width: 15%; text-align: center; letter-spacing: 1px; } .col-code { width: 10%; text-align: center; font-weight: 600; } .col-wit { width: 20%; text-align: right; } .col-dep { width: 20%; text-align: right; } .col-bal { width: 20%; text-align: right; font-weight: 600; } .col-tel { width: 15%; text-align: right; }</style></head><body><div style="max-width: 750px;"><table><tbody>${rowsHtml}</tbody></table></div></body></html>`; 
-        }
-
-        function printFullStatement(code, name, userTxs) {
-            const formattedCode = code.replace(/(\d{3})(\d{3})/, '$1-$2'); let bal = 0; let rows = '';
-            if(userTxs.length === 0) { rows = `<tr><td colspan="6" style="text-align:center; padding: 25px; color:#666;">- ไม่พบรายการเคลื่อนไหวบัญชี -</td></tr>`; } 
-            else {
-                userTxs.forEach(t => { 
-                    let amt = parseFloat(t.amount); let isDep = t.type === 'deposit'; bal += isDep ? amt : -amt; 
-                    let displayCode = t.isInterest ? 'INT' : (isDep ? 'DEP' : 'WTD');
-                    rows += `<tr><td style="text-align:center;">${new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'})}</td><td style="text-align:center; font-weight:600; color:${isDep ? '#10B981':'#EF4444'}">${displayCode}</td><td style="text-align:right;">${isDep ? fmtAmt(amt) : '-'}</td><td style="text-align:right;">${!isDep ? fmtAmt(amt) : '-'}</td><td style="text-align:right; font-weight:600;">${fmtAmt(bal)}</td><td style="text-align:center;">ADM</td></tr>`; 
-                });
-            }
-            openPrintWindow(`<html><head><title>Full Statement - ${formattedCode}</title><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Outfit:wght@400;600&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet"><style>body { font-family: 'Sarabun', sans-serif; padding: 20px 40px; color: #111; font-size: 14px; background: #fff;} @media print { @page { margin: 10mm; } body { padding: 0; -webkit-print-color-adjust: exact; } } .header-box { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #0F172A; padding-bottom: 15px; margin-bottom: 20px; } .bank-title { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 600; color: #050B14; margin: 0; } .bank-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #555; } .acc-info { text-align: right; line-height: 1.6; } table { width: 100%; border-collapse: collapse; margin-top: 10px; font-family: 'Outfit', 'Sarabun', sans-serif; font-size: 13px; } th, td { border: 1px solid #ddd; padding: 10px 8px; } th { background-color: #f8f9fa; font-weight: 600; text-align: center; color: #333; } .report-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; text-align: center; letter-spacing: 1px;}</style></head><body><div class="header-box"><div><h1 class="bank-title">TAEBANK</h1><div class="bank-sub">Elite Wealth Management</div></div><div class="acc-info"><div><strong>ชื่อบัญชี (Account Name):</strong> ${name || '-'}</div><div><strong>เลขที่บัญชี (Account No.):</strong> <span style="font-size: 16px; font-family: 'Outfit', sans-serif; font-weight:600;">${formattedCode}</span></div><div><strong>สาขา (Branch):</strong> สำนักงานใหญ่ (HQ)</div></div></div><div class="report-title">รายงานความเคลื่อนไหวบัญชี (Statement of Account)</div><table><thead><tr><th width="15%">วันที่ (Date)</th><th width="10%">รหัส (Code)</th><th width="20%">ฝาก (Deposit)</th><th width="20%">ถอน (Withdrawal)</th><th width="20%">คงเหลือ (Balance)</th><th width="15%">ผู้บันทึก (Teller)</th></tr></thead><tbody>${rows}</tbody></table><div style="margin-top: 30px; font-size: 11px; color: #777; text-align: center;">เอกสารนี้จัดทำขึ้นโดยระบบอัตโนมัติ / This document is automatically generated. <br> พิมพ์เมื่อ: ${new Date().toLocaleString('th-TH')}</div></body></html>`);
-        }
-
-        function printCover(code, name) { 
-            openPrintWindow(`<html><head><title>Print Passbook Cover</title><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Outfit:wght@400;600&family=Sarabun:wght@300;500&display=swap" rel="stylesheet"><style>body { font-family: 'Sarabun', sans-serif; padding: 20px; -webkit-print-color-adjust: exact; background: #fff; } @media print { @page { margin: 10mm; } body { padding: 0; } } .cover-box { width: 140mm; height: 90mm; border: 1px solid #ddd; padding: 25px; position: relative; margin: 0 auto; overflow: hidden; background: #fafafa; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 8px; } .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; font-size: 180px; color: #0F172A; z-index: 0; }</style></head><body><div class="cover-box"><div class="watermark">&#10048;</div><div style="position: relative; z-index: 1;"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><h2 style="margin: 0; font-size: 26px; font-family: 'Cinzel', serif; color: #050B14; letter-spacing: 2px;">TAEBANK</h2><p style="margin: 2px 0 0 0; font-size: 9px; font-weight: 500; color: #8B9BB4; letter-spacing: 3px; text-transform: uppercase;">Elite Wealth Management</p></div><div style="font-size: 24px; color: #0F172A;">&#10048;</div></div><div style="height: 2px; background: linear-gradient(90deg, #0F172A, transparent); margin: 15px 0 20px 0;"></div><h3 style="margin: 0 0 20px 0; font-size: 18px; color: #222; letter-spacing: 1px;">สมุดคู่ฝาก / Passbook</h3><table style="width: 100%; border: none; font-size: 14px; line-height: 2.4;"><tr><td style="width: 35%; color: #555;">สาขา (Branch)</td><td style="border-bottom: 1px dotted #999;">สำนักงานใหญ่ (HQ)</td></tr><tr><td style="color: #555;">ชื่อบัญชี (A/C Name)</td><td style="border-bottom: 1px dotted #999; font-weight: 500; font-size: 16px;">${name || 'ไม่ระบุชื่อ'}</td></tr><tr><td style="color: #555;">เลขที่บัญชี (A/C No.)</td><td style="border-bottom: 1px dotted #999; font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 600; letter-spacing: 2px;">${code.replace(/(\d{3})(\d{3})/, '$1-$2')}</td></tr></table><div style="margin-top: 30px; font-size: 10px; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 10px;">กรุณานำสมุดบัญชีมาด้วยทุกครั้งที่ทำรายการ / Please present this passbook for every transaction</div></div></div></body></html>`); 
-        }
-
-        function openPrintWindow(content) { 
-            const printWin = window.open('', '_blank'); 
-            printWin.document.write(content); 
-            printWin.document.close(); 
-            printWin.focus(); 
-            setTimeout(() => { printWin.print(); printWin.close(); }, 800); 
-        }
-        
-        function adminHistory(k, nick) { 
-            let hHTML = `<div class="max-h-72 overflow-y-auto pr-1 text-left space-y-2 mt-2">`; 
-            let userTxs = Object.keys(STATE.transactions || {}).filter(id => STATE.transactions[id].studentCode === k).sort((a,b)=>new Date(STATE.transactions[b].date)-new Date(STATE.transactions[a].date)); 
-            if(userTxs.length === 0) hHTML += '<p class="text-center py-8 text-[#4B5E82] uppercase tracking-widest text-xs font-bold">ไม่มีประวัติธุรกรรม</p>'; 
-            userTxs.forEach(id => { 
-                const t = STATE.transactions[id]; 
-                const isD = t.type==='deposit'; 
-                const isInt = t.isInterest; 
-                let title = isInt ? 'ดอกเบี้ย (INT)' : (isD ? 'ฝากเงิน (DEP)' : 'ถอนเงิน (WTD)'); 
-                if (t.note) title += ` • ${t.note}`;
-                let printTag = t.printed ? `<span class="text-[8px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded ml-1.5">พิมพ์แล้ว</span>` : `<span class="text-[8px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded ml-1.5 border border-red-500/30">รอพิมพ์</span>`; 
-                hHTML += `
-                    <div class="flex justify-between items-center bg-white/5 border border-white/5 p-3 rounded-xl">
-                        <div>
-                            <p class="text-xs font-bold ${isD?'text-emerald-400':'text-red-400'}">${title} ${printTag}</p>
-                            <p class="text-[10px] text-gray-400 font-num mt-0.5">${new Date(t.date).toLocaleString('th-TH')}</p>
-                        </div>
-                        <div class="flex items-center gap-2.5">
-                            <span class="font-num font-bold text-sm text-white">${isD?'+':'-'}${fmtAmt(t.amount)}</span>
-                            <button onclick="window.adminDelTx('${id}', '${k}', '${nick}')" class="text-red-400 w-7 h-7 rounded-full bg-red-500/10 hover:bg-red-500 hover:text-white transition-colors border border-red-500/20" title="ลบรายการนี้">
-                                <i class="fas fa-trash-can text-[10px]"></i>
-                            </button>
-                        </div>
-                    </div>`; 
-            }); 
-            Swal.fire({ title: `<span class="font-eng tracking-widest text-sm text-[var(--gold-mid)]">LEDGER: ${nick} (${k})</span>`, html: hHTML + '</div>', showConfirmButton: false, showCloseButton: true }); 
-        }
-
-        window.adminDelTx = async (id, k, nick) => { 
-            if((await Swal.fire({title:'ยืนยันการลบรายการ?', text: 'เมื่อลบแล้วจะไม่สามารถกู้คืนได้', icon:'warning', showCancelButton:true, confirmButtonColor: '#EF4444', confirmButtonText: 'ลบรายการ', cancelButtonText: 'ยกเลิก'})).isConfirmed) { 
-                await remove(ref(db, 'transactions/'+id)); 
-                adminHistory(k, nick);
-            } 
+                Swal.fire({icon:'success', title:'Import Completed', confirmButtonColor:'#D4AF37'}); el.value = '';
+            }});
         };
 
-        async function adminEdit(k, nick, name) { 
-            const {value:form} = await Swal.fire({ 
-                title: '<span class="text-white text-lg">แก้ไขข้อมูลสมาชิก</span>', 
-                html: `
-                    <div class="text-left text-[10px] text-[#8B9BB4] uppercase tracking-wider mb-1 ml-1">ชื่อเรียก / ฉายา (Nickname)</div>
-                    <input id="enick" class="admin-input mb-3 text-sm" value="${nick || ''}">
-                    <div class="text-left text-[10px] text-[#8B9BB4] uppercase tracking-wider mb-1 ml-1">ชื่อ - นามสกุลเต็ม (Full Name)</div>
-                    <input id="ename" class="admin-input text-sm" value="${name || ''}">
-                `, 
-                showCancelButton: true, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก',
-                preConfirm: () => [document.getElementById('enick').value.trim(), document.getElementById('ename').value.trim()], 
-                confirmButtonColor: '#D4AF37' 
-            }); 
-            if(form) await update(ref(db, 'members/'+k), { nick: form[0], name: form[1] }); 
-        }
-
-        async function adminDelete(k, nick) { 
-            if((await Swal.fire({title:`ลบบัญชี ${nick} (${k})?`, text: 'ข้อมูลบัญชีและประวัติธุรกรรมทั้งหมดจะถูกลบถาวร!', icon:'warning', showCancelButton:true, confirmButtonColor:'#EF4444', confirmButtonText: 'ลบทันที', cancelButtonText: 'ยกเลิก'})).isConfirmed) { 
-                await remove(ref(db, 'members/'+k)); 
-                Object.keys(STATE.transactions || {}).forEach(async id => { 
-                    if(STATE.transactions[id].studentCode === k) await remove(ref(db, 'transactions/'+id)); 
-                }); 
-            } 
-        }
-
-        window.adminAddMember = async () => { 
-            const {value:v} = await Swal.fire({ 
-                title: '<span class="text-[var(--gold-mid)] text-lg">เปิดบัญชีสมาชิกใหม่</span>', 
-                html: `
-                    <input id="acode" maxlength="6" class="admin-input mb-3 font-num text-center text-lg tracking-widest" placeholder="รหัสบัญชี 6 หลัก (เช่น 000101)">
-                    <input id="anick" class="admin-input mb-3 text-center text-sm" placeholder="ชื่อเล่น / ชื่อเรียก">
-                    <input id="aname" class="admin-input text-center text-sm" placeholder="ชื่อจริง - นามสกุล / ฉายา">
-                `, 
-                showCancelButton: true, confirmButtonText: 'เปิดบัญชี', cancelButtonText: 'ยกเลิก',
-                preConfirm: () => {
-                    const code = document.getElementById('acode').value.replace(/[^0-9]/g,'');
-                    const nick = document.getElementById('anick').value.trim();
-                    const name = document.getElementById('aname').value.trim();
-                    if (code.length !== 6) { Swal.showValidationMessage('กรุณากำหนดรหัสบัญชีเป็นตัวเลข 6 หลัก'); return false; }
-                    if (STATE.members && STATE.members[code]) { Swal.showValidationMessage('รหัสบัญชีนี้มีอยู่ในระบบแล้ว'); return false; }
-                    return [code, nick, name];
-                }, 
-                confirmButtonColor:'#D4AF37' 
-            }); 
-            if(v && v[0]) {
-                await set(ref(db, 'members/'+v[0]), { code: v[0], nick: v[1], name: v[2], pbPage: 1, pbLine: 1 });
-                Swal.fire({ icon: 'success', title: 'เปิดบัญชีสำเร็จ', timer: 1200, showConfirmButton: false });
-            }
-        };
-
-        window.adminImportCSV = (el) => { 
-            if (!el.files || !el.files[0]) return;
-            Papa.parse(el.files[0], { 
-                header: true, 
-                complete: async (r) => { 
-                    let imported = 0;
-                    for(let row of r.data) { 
-                        const code = String(row['เลขที่บัญชี']||'').replace(/[^a-zA-Z0-9]/g,''); 
-                        if(!code) continue; 
-                        await set(ref(db, 'members/'+code), { 
-                            code: code, 
-                            nick: row['นมัสการ สามเณร..']||'', 
-                            name: row['ชื่อจริง']||'', 
-                            pbPage: parseInt(row['หน้าสมุด']) || 1, 
-                            pbLine: parseInt(row['บรรทัดสมุด']) || 1 
-                        }); 
-                        const bal = parseFloat(String(row['ยอดคงเหลือ']||'').replace(/,/g,'')); 
-                        if(bal > 0) {
-                            await push(ref(db, 'transactions'), { studentCode: code, type: 'deposit', amount: bal, date: new Date().toISOString(), printed: false, note: 'ยอดยกมาจาก CSV' }); 
-                        }
-                        imported++;
-                    } 
-                    Swal.fire({icon:'success', title:'นำเข้าข้อมูลสำเร็จ', text: `นำเข้าทั้งหมด ${imported} บัญชี`, confirmButtonColor:'#D4AF37'}); 
-                    el.value = ''; 
-                }
-            }); 
-        };
-
-        function animateValue(id, start, end, duration) { 
-            const obj = document.getElementById(id); 
-            if (!obj) return;
-            let startTimestamp = null; 
-            const step = (timestamp) => { 
-                if (!startTimestamp) startTimestamp = timestamp; 
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1); 
-                obj.innerText = fmtAmt(progress * (end - start) + start); 
-                if (progress < 1) window.requestAnimationFrame(step); 
-            }; 
-            window.requestAnimationFrame(step); 
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id); let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerText = (progress * (end - start) + start).toLocaleString(undefined, {minimumFractionDigits: 2});
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
         }
     </script>
 </body>
